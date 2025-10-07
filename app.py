@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import MySQLdb.cursors
 from datetime import datetime
 import traceback
+from flask import session 
 # import mysql.connector
 # from mysql.connector import Error
 
@@ -57,39 +58,37 @@ def login_usuario():
         print(f"Tentativa de login: {email}")
 
         cur = mysql.connection.cursor()
-        # Especifique as colunas para ter certeza da ordem
         cur.execute("SELECT id, nome, email, senha, tipo FROM usuarios WHERE email = %s", (email,))
         usuario = cur.fetchone()
         cur.close()
 
         if usuario:
-            print(f"Usuário encontrado: ID={usuario[0]}, Nome={usuario[1]}")
-            print(f"Email: {usuario[2]}")
-            print(f"Senha no banco: {usuario[3][:50]}...")  # Mostra só os primeiros 50 chars
-            
-            # A senha está na posição 3 (quarta coluna)
             senha_hash = usuario[3]
             senha_correta = check_password_hash(senha_hash, senha)
             
-            print(f"Senha fornecida: {senha}")
-            print(f"Senha correta? {senha_correta}")
-            
             if senha_correta:
+                # ⭐⭐ CRIAR SESSÃO DO USUÁRIO ⭐⭐
+                session['usuario_id'] = usuario[0]
+                session['usuario_nome'] = usuario[1]
+                session['usuario_email'] = usuario[2]
+                session['usuario_tipo'] = usuario[4]
+                session['logado'] = True
+                
+                # ⭐⭐ DEBUG DA SESSÃO CRIADA ⭐⭐
+                print("=== SESSÃO CRIADA ===")
+                print(f"Session após login: {dict(session)}")
+                
                 flash('Login realizado com sucesso!', 'success')
                 return redirect(url_for('home'))
             else:
-                print("❌ Senha incorreta")
                 flash('Email ou senha incorretos.', 'error')
                 return redirect(url_for('login'))
         else:
-            print("❌ Usuário não encontrado")
             flash('Email ou senha incorretos.', 'error')
             return redirect(url_for('login'))
 
     except Exception as e:
         print(f"ERRO NO LOGIN: {str(e)}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
         flash('Erro interno no servidor.', 'error')
         return redirect(url_for('login'))
     
@@ -197,11 +196,7 @@ def cadastrar_usuario():
 @app.route('/')
 @app.route('/home')
 def home():
-    usuario = {
-        'nome': 'Joaliny',
-        'email': 'joaliny@email.com',
-        'tipo': 'Protetora de Animais'
-    }
+    usuario = obter_usuario_atual()
     
     # Buscar pets do MySQL (sem a coluna 'disponivel')
     cur = mysql.connection.cursor()
@@ -231,6 +226,7 @@ def home():
 
 @app.route('/adotar')
 def adotar():
+    usuario = obter_usuario_atual()
     especie = request.args.get('especie')
     idade = request.args.get('idade')
 
@@ -266,7 +262,7 @@ def adotar():
             'imagem_url': pet[5]
         })
 
-    return render_template('adotar.html', pets=pets, pagina='adotar')
+    return render_template('adotar.html', pets=pets, pagina='adotar', usuario=usuario)
 
 
 
@@ -275,6 +271,8 @@ def adotar():
 
 @app.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar():
+    usuario = obter_usuario_atual()
+
     if request.method == 'POST':
         nome = request.form['nome']
         especie = request.form['especie']
@@ -298,7 +296,7 @@ def cadastrar():
 
         return redirect('/home')
 
-    return render_template('cadastrar.html', pagina='cadastrar')
+    return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
 
 
 
@@ -475,6 +473,7 @@ def solicitar_adocao(id):
 # E atualize a rota detalhes_pet para receber o parâmetro
 @app.route('/pet/<int:id>')
 def detalhes_pet(id):
+    usuario = obter_usuario_atual() 
     sucesso = request.args.get('sucesso', False)
     nome = request.args.get('nome', '')
     
@@ -496,7 +495,8 @@ def detalhes_pet(id):
                              pet=pet_detalhado, 
                              pagina='detalhes_pet',
                              mostrar_modal=sucesso,
-                             nome=nome)
+                             nome=nome,
+                             usuario=usuario)
     else:
         return "Pet não encontrado", 404
 
@@ -552,6 +552,103 @@ def ia_dicas():
     except Exception as e:
         return jsonify({'resposta': f"Erro ao gerar resposta: {str(e)}"})
     
+
+
+
+      # Função para obter usuário atual - ADICIONE ISSO
+def obter_usuario_atual():
+    """Retorna os dados do usuário logado ou None se não estiver logado"""
+    if 'logado' in session and session['logado']:
+        return {
+            'id': session.get('usuario_id'),
+            'nome': session.get('usuario_nome'),
+            'email': session.get('usuario_email'),
+            'tipo': session.get('usuario_tipo')
+        }
+    return None
+
+
+
+
+@app.route('/logout')
+def logout():
+    # Limpar a sessão
+    session.clear()
+    flash('Você saiu da sua conta.', 'info')
+    return redirect(url_for('home'))
+
+
+
+
+@app.route('/criar-admin-teste')
+def criar_admin_teste():
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Senha simples para teste
+        senha = "123"
+        senha_hash = generate_password_hash(senha)
+
+        # Deletar se já existir
+        cur.execute("DELETE FROM usuarios WHERE email = 'admin@teste.com'")
+
+        # Inserir admin
+        cur.execute("""
+            INSERT INTO usuarios (nome, email, senha, tipo, telefone, data_cadastro, verificado) 
+            VALUES (%s, %s, %s, %s, %s, NOW(), %s)
+        """, ('Admin Teste', 'admin@teste.com', senha_hash, 'admin', '(92) 98888-8888', 1))
+
+        mysql.connection.commit()
+        cur.close()
+
+        return """
+        <h1>✅ Admin criado com sucesso!</h1>
+        <p><strong>Email:</strong> admin@teste.com</p>
+        <p><strong>Senha:</strong> 123</p>
+        <p><a href="/login">Fazer login agora</a></p>
+        """
+    except Exception as e:
+        return f"Erro: {str(e)}"
+
+
+
+# ========== ROTAS DO DASHBOARD ==========
+
+@app.route('/admin')
+def admin_dashboard():
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'admin':
+        flash('Acesso restrito a administradores.', 'error')
+        return redirect(url_for('login'))
+    
+    return render_template('admin_dashboard.html', usuario=usuario, pagina='admin')
+
+@app.route('/admin/protetores')
+def admin_protetores():
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'admin':
+        flash('Acesso restrito a administradores.', 'error')
+        return redirect(url_for('login'))
+    
+    return "Página de Gerenciar Protetores - Em desenvolvimento"
+
+@app.route('/protetor')
+def protetor_dashboard():
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'protetor':
+        flash('Acesso restrito a protetores.', 'error')
+        return redirect(url_for('login'))
+    
+    return render_template('protetor_dashboard.html', usuario=usuario, pagina='protetor')
+
+@app.route('/minha-conta')
+def minha_conta():
+    usuario = obter_usuario_atual()
+    if not usuario:
+        flash('Faça login para acessar sua conta.', 'error')
+        return redirect(url_for('login'))
+    
+    return render_template('minha_conta.html', usuario=usuario, pagina='minha-conta')
 
 
 
