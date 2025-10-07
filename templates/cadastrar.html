@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Página Inicial - Adote-me{% endblock %}
+{% block content %}
+
+<section class="form-section">
+  <div class="container-form">
+    <div class="form-title">
+      <h2>Informações do Pet</h2>
+      <p>Preencha todos os campos para cadastrar o pet no sistema</p>
+    </div>
+
+    <form method="POST" action="/cadastrar" enctype="multipart/form-data" class="form-cadastro">
+      <div class="form-group">
+        <label for="nome">Nome do Pet:</label>
+        <input type="text" id="nome" name="nome" class="form-control" placeholder="Digite o nome do pet" required>
+      </div>
+
+      <div class="form-group">
+        <label for="especie">Espécie:</label>
+        <select id="especie" name="especie" class="form-control" required>
+          <option value="" disabled selected>Selecione a espécie</option>
+          <option value="cachorro">Cachorro</option>
+          <option value="gato">Gato</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="idade">Idade (anos):</label>
+        <input type="number" id="idade" name="idade" class="form-control" min="0" max="30" placeholder="Idade em anos" required>
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" name="descricao" class="form-control" placeholder="Descreva o pet: personalidade, hábitos, necessidades especiais, etc."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="imagem">Foto do Pet:</label>
+        <input type="file" id="imagem" name="imagem" class="form-control" accept="image/*">
+        <small style="color: #6c757d; display: block; margin-top: 5px;">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB.</small>
+      </div>
+
+      <button type="submit" class="btn-submit">Cadastrar Pet</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Adote-me</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            background-color: #0b2342;
+            /* azul da logo */
+            font-family: 'Poppins', sans-serif;
+        }
+
+       .left-side {
+            background-color: #00487B;
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .left-side img {
+            width: 700px;
+            /* aumentei o tamanho */
+            height: auto;
+        }
+
+
+        .right-side {
+            background-color: #fff7ef;
+            /* bege claro */
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-box {
+            width: 80%;
+            max-width: 380px;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            font-weight: 700;
+            color: #00487B;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #0b2342;
+        }
+
+        .input-group-text {
+            background-color: transparent;
+            border-right: none;
+            color: #0b2342;
+        }
+
+        .form-control {
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            box-shadow: none;
+        }
+
+        .input-group {
+            border: 1px solid #0b2342;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background-color: #00487B;
+            border: none;
+            border-radius: 25px;
+            padding: 10px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #102f5d;
+        }
+
+        .btn-secondary {
+            background-color: #00487B;
+            border: none;
+            border-radius: 25px;
+            padding: 10px;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background-color: #102f5d;
+        }
+
+        .extra-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .extra-options label,
+        .extra-options a {
+            color: #0b2342;
+        }
+
+        .extra-options a {
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .extra-options a:hover {
+            text-decoration: underline;
+        }
+
+        .d-grid button,
+        .d-grid a {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left-side">
+        <img src="{{ url_for('static', filename='imagens/logo-adote-me.png') }}" alt="Logo Adote-me">
+    </div>
+
+    <div class="right-side">
+        <div class="login-box">
+            <h2>Entrar</h2>
+            <form method="POST" action="{{ url_for('login_usuario') }}">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Login</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="email" class="form-control" id="email" name="email"
+                            placeholder="Endereço de e-mail" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="senha" class="form-label">Senha</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha"
+                            required>
+                    </div>
+                </div>
+
+                <div class="extra-options">
+                    <div>
+                        <input type="checkbox" id="lembrar">
+                        <label for="lembrar">Lembrar de mim</label>
+                    </div>
+                    <a href="#">Esqueci minha senha</a>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">ENTRAR</button>
+                    <a href="/cadastro" class="btn btn-secondary text-center">CRIAR CONTA</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

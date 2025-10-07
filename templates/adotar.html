@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Página Inicial - Adote-me{% endblock %}
+{% block content %}
+
+<!-- Filtros Section -->
+<section class="filtros-section">
+    <div class="container-filtros">
+        <div class="filtros-title">
+            <h2>Encontre o pet perfeito</h2>
+            <p>Use os filtros para encontrar o companheiro ideal para você</p>
+        </div>
+
+        <form method="GET" action="/adotar" class="filtros">
+            <div class="filtros-grid">
+                <div class="form-group">
+                    <label for="especie">Espécie:</label>
+                    <select id="especie" name="especie" class="form-control">
+                        <option value="">Todas as espécies</option>
+                        <option value="cachorro">Cachorro</option>
+                        <option value="gato">Gato</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="idade">Idade máxima:</label>
+                    <input type="number" id="idade" name="idade" min="0" max="30" class="form-control"
+                        placeholder="Idade em anos">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-filtrar">Filtrar Pets</button>
+        </form>
+    </div>
+</section>
+
+<!-- Pets Section -->
+<section class="pets-section">
+    <div class="container-pets">
+        <div class="section-title">
+            <h2>Pets Disponíveis</h2>
+            <p>Conheça nossos amigos que estão esperando por um lar</p>
+        </div>
+
+        <!-- Mais pets seriam carregados dinamicamente pelo backend -->
+        <div class="pets-lista">
+            {% for pet in pets %}
+            <div class="pet-card">
+                <div class="pet-image">
+                    <img src="{{ pet.imagem_url }}" alt="Foto do pet">
+                </div>
+                <div class="pet-info">
+                    <h3>{{ pet.nome }}</h3>
+                    <div class="pet-meta">
+                        <span class="pet-tag">{{ pet.especie }}</span>
+                        <span class="pet-tag">{{ pet.idade }} anos</span>
+                    </div>
+                    <p>{{ pet.descricao }}</p>
+                    <a href="/pet/{{ pet.id }}" class="detalhes-btn">Ver detalhes</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+
+<script>
+    // Adicionar classe ativa ao item de menu clicado
+    document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', function () {
+            document.querySelectorAll('nav a').forEach(item => {
+                item.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+</script>
+{% endblock %}

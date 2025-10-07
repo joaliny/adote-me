@@ -1,0 +1,208 @@
+
+     {% extends 'base.html' %}
+     {% block title %}Página Inicial - Adote-me{% endblock %}
+     {% block content %}
+
+    <!-- Hero Section com Carrossel -->
+    <section class="hero">
+        <div id="carouselHero" class="carousel slide carousel-hero" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#carouselHero" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active"></div>
+                <div class="carousel-item"></div>
+                <div class="carousel-item"></div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselHero" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselHero" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Próximo</span>
+            </button>
+        </div>
+        
+        <div class="hero-content">
+            <h1>Olá, bem vindo(a)!</h1>
+            <p>Encontre seu novo melhor amigo e mude uma vida para sempre. Adote um pet e ganhe amor incondicional.</p>
+            <a href="/adotar" class="btn-hero">Ver Pets para Adoção</a>
+        </div>
+    </section>
+
+    <!-- Seção Grade de Botões - FORA DO CARROSSEL -->
+    <section class="grade-botoes-section">
+        <div class="grade-botoes">
+            <!-- <a href="/adotar" class="botao azul">PETS PARA ADOÇÃO</a> -->
+            <a href="/divulgar" class="botao azul-escuro">DIVULGAR</a>
+            <button class="botao laranja" onclick="abrirModalDicas()">GERAR DICAS DE CUIDADO COM IA</button>
+            <a href="/encontrar" class="botao marrom">ENCONTRAR PET PERFEITO COM IA</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="section-title">
+            <h2>Como Funciona</h2>
+            <p>Encontrar um novo amigo nunca foi tão fácil e seguro</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>Encontre</h3>
+                <p>Busque por pets disponíveis para adoção na sua região com nossos filtros inteligentes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💌</div>
+                <h3>Conheça</h3>
+                <p>Entre em contato com o responsável pelo pet e marque um encontro para conhecê-lo.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏠</div>
+                <h3>Adote</h3>
+                <p>Complete o processo de adoção responsável e leve seu novo amigo para casa.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤝</div>
+                <h3>Acompanhe</h3>
+                <p>Receba suporte pós-adoção e compartilhe a felicidade do seu novo companheiro.</p>
+            </div>
+        </div>
+    </section>
+
+
+
+          <!-- Pets Section -->
+    <section class="pets">
+        <div class="section-title">
+            <h2>Pets Disponíveis</h2>
+            <p>Conheça alguns dos nossos amigos que estão esperando por um lar</p>
+            {% if pets and pets|length >= 6 %}
+            <div style="margin-top: 15px;">
+                <a href="/adotar" class="btn-hero" style="font-size: 0.9rem; padding: 8px 20px;">Ver Todos os Pets</a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="pets-grid">
+            {% if pets %}
+                {% for pet in pets %}
+                <div class="pet-card">
+                    <div class="pet-image">
+                        {% if pet.imagem_url %}
+                        <img src="{{ pet.imagem_url }}" alt="Foto do {{ pet.nome }}">
+                        {% else %}
+                        <div>
+                            <span>Sem imagem</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="pet-info">
+                        <h3>{{ pet.nome }}</h3>
+                        <div class="pet-meta">
+                            <span class="pet-tag">{{ pet.especie }}</span>
+                            <span class="pet-tag">{{ pet.idade }} ano{% if pet.idade > 1 %}s{% endif %}</span>
+                        </div>
+                        <p>{{ pet.descricao[:100] }}{% if pet.descricao|length > 100 %}...{% endif %}</p>
+                        <a href="/pet/{{ pet.id }}" class="btn-pet">Conhecer</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-pets">
+                    <h3>Nenhum pet disponível no momento</h3>
+                    <p>Volte em breve para conhecer nossos amigos!</p>
+                    <a href="/cadastrar" class="btn-hero" style="margin-top: 15px;">Cadastrar um Pet</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+
+
+    <!-- Modal de dicas com IA -->
+    <div id="modal-dicas" class="modal modal-ia">
+        <div class="modal-conteudo">
+            <span class="fechar" onclick="fecharModalDicas()">&times;</span>
+            <h2>Converse com nossa IA 🐾</h2>
+            <p>Digite sua dúvida sobre cuidados com pets:</p>
+            <input type="text" id="pergunta" placeholder="Ex: Como cuidar de um filhote?" style="width: 100%; padding: 10px;">
+            <button onclick="enviarPergunta()" style="margin-top: 10px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">Perguntar</button>
+            <div id="historico-ia" style="margin-top: 20px; max-height: 50vh; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                <!-- histórico de mensagens -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Adicionar classe ativa ao item de menu clicado
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('nav a').forEach(item => {
+                    item.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Auto-rotacionar o carrossel
+        const carousel = new bootstrap.Carousel('#carouselHero', {
+            interval: 5000,
+            wrap: true
+        });
+        
+        // Funções para o modal de dicas com IA
+        let historico = [];
+
+        function enviarPergunta() {
+            const pergunta = document.getElementById('pergunta').value;
+            if (!pergunta.trim()) return;
+
+            fetch('/ia-dicas', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ pergunta: pergunta })
+            })
+            .then(response => response.json())
+            .then(data => {
+                historico.push({ pergunta: pergunta, resposta: data.resposta });
+                atualizarHistorico();
+                document.getElementById('pergunta').value = '';
+            });
+        }
+
+        function atualizarHistorico() {
+            const container = document.getElementById('historico-ia');
+            container.innerHTML = '';
+            historico.forEach(item => {
+                container.innerHTML += `
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>Você:</strong> ${item.pergunta}</p>
+                        <p><strong>IA:</strong> ${item.resposta}</p>
+                        <hr>
+                    </div>
+                `;
+            });
+        }
+
+        function abrirModalDicas() {
+            document.getElementById('modal-dicas').style.display = 'block';
+        }
+
+        function fecharModalDicas() {
+            document.getElementById('modal-dicas').style.display = 'none';
+        }
+        
+        // Fechar modal ao clicar fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal-dicas');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+
+    {% endblock %}
+
