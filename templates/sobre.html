@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre Nós - Adote-me{% endblock %}
+
+{% block content %}
+<!-- Hero Minimalista -->
+<section class="hero-minimal">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Sobre o Adote-me</h1>
+            <p class="hero-subtitle">Transformando vidas, uma adoção de cada vez</p>
+            <div class="hero-illustration">
+                <div class="paw-print">🐾</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nossa História -->
+<section class="story-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Nossa História</span>
+            <h2>Do sonho à realidade</h2>
+        </div>
+        <div class="story-content">
+            <div class="story-text">
+                <p>
+                    Em 2024, um grupo de amantes de animais percebeu que muitas vidas
+                    poderiam ser salvas com uma plataforma que conectasse protetores
+                    a pessoas dispostas a adotar com responsabilidade.
+                </p>
+                <p>
+                    Nasceu então o <strong>Adote-me</strong>, uma iniciativa que já
+                    transformou centenas de histórias e continua escrevendo novos
+                    capítulos de amor todos os dias.
+                </p>
+            </div>
+            <div class="story-stats">
+                <div class="stat-circle">
+                    <div class="circle-content">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Pets Adotados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Valores -->
+<section class="values-clean">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Nossos Pilares</span>
+            <h2>O que nos guia</h2>
+        </div>
+        <div class="values-grid">
+            <div class="value-item">
+                <div class="value-icon">💙</div>
+                <h3>Compromisso</h3>
+                <p>Cada animal merece um lar digno e cheio de amor.</p>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">🔍</div>
+                <h3>Transparência</h3>
+                <p>Processo claro e acompanhamento responsável.</p>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">🤝</div>
+                <h3>Parceria</h3>
+                <p>Trabalhamos juntos com protetores e adotantes.</p>
+            </div>
+            <div class="value-item">
+                <div class="value-icon">🌱</div>
+                <h3>Sustentabilidade</h3>
+                <p>Bem-estar animal em primeiro lugar, sempre.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Processo -->
+<section class="process-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Como Funciona</span>
+            <h2>Jornada da Adoção</h2>
+        </div>
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Encontro</h3>
+                    <p>Encontre o pet ideal através da nossa plataforma intuitiva.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Conexão</h3>
+                    <p>Converse com o protetor e conheça a história do animal.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Visita</h3>
+                    <p>Agende um encontro para criar vínculo com o pet.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Lar</h3>
+                    <p>Finalize a adoção e comece uma linda jornada juntos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Equipe -->
+<section class="team-clean">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Equipe</span>
+            <h2>Quem faz acontecer</h2>
+        </div>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-avatar">J</div>
+                <h3>João Silva</h3>
+                <p class="member-role">Fundador</p>
+                <p class="member-bio">Acredita que tecnologia pode salvar vidas.</p>
+            </div>
+            <div class="team-member">
+                <div class="member-avatar">M</div>
+                <h3>Maria Santos</h3>
+                <p class="member-role">Veterinária</p>
+                <p class="member-bio">Cuida da saúde de cada patinha.</p>
+            </div>
+            <div class="team-member">
+                <div class="member-avatar">A</div>
+                <h3>Ana Costa</h3>
+                <p class="member-role">Comunidade</p>
+                <p class="member-bio">Conecta pessoas e protetores.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Final -->
+<section class="cta-clean">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Pronto para fazer parte?</h2>
+            <p>Junte-se a nós nessa missão de amor</p>
+            <div class="cta-actions">
+                <a href="/adotar" class="btn btn-primary">Encontrar um Pet</a>
+                <a href="/cadastro" class="btn btn-outline">Ser Protetor</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Reset e Variáveis */
+    :root {
+        --primary: #2563eb;
+        --primary-light: #3b82f6;
+        --secondary: #64748b;
+        --accent: #f1f5f9;
+        --text: #334155;
+        --text-light: #64748b;
+        --white: #ffffff;
+        --border: #e2e8f0;
+    }
+
+    /* Hero Minimalista */
+    .hero-minimal {
+        padding: 120px 0 80px;
+        background: linear-gradient(135deg, var(--white) 0%, var(--accent) 100%);
+        text-align: center;
+        position: relative;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: var(--text-light);
+        margin-bottom: 3rem;
+        font-weight: 400;
+    }
+
+    .hero-illustration {
+        margin-top: 2rem;
+    }
+
+    .paw-print {
+        font-size: 4rem;
+        opacity: 0.8;
+        animation: gentle-bounce 3s ease-in-out infinite;
+    }
+
+    @keyframes gentle-bounce {
+
+        0%,
+        100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-10px) scale(1.05);
+        }
+    }
+
+    /* Seções Gerais */
+    section {
+        padding: 80px 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .section-badge {
+        display: inline-block;
+        background: var(--primary-light);
+        color: var(--white);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+        color: var(--text);
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Nossa História */
+    .story-section {
+        background: var(--white);
+    }
+
+    .story-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 60px;
+        align-items: center;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .story-text p {
+        font-size: 1.125rem;
+        line-height: 1.7;
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+
+    .story-text strong {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .stat-circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary) 70%, var(--accent) 0%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin: 0 auto;
+    }
+
+    .circle-content {
+        background: var(--white);
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        text-align: center;
+    }
+
+    /* Valores Clean */
+    .values-clean {
+        background: var(--accent);
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .value-item {
+        text-align: center;
+        padding: 40px 20px;
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .value-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .value-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .value-item h3 {
+        font-size: 1.25rem;
+        color: var(--text);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .value-item p {
+        color: var(--text-light);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Processo */
+    .process-section {
+        background: var(--white);
+    }
+
+    .process-steps {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 50px;
+        padding: 30px;
+        border-radius: 16px;
+        transition: background 0.3s ease;
+    }
+
+    .step:hover {
+        background: var(--accent);
+    }
+
+    .step-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-right: 30px;
+        min-width: 60px;
+    }
+
+    .step-content h3 {
+        font-size: 1.5rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .step-content p {
+        color: var(--text-light);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Equipe Clean */
+    .team-clean {
+        background: var(--accent);
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 40px;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .team-member {
+        text-align: center;
+        padding: 40px 30px;
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .team-member:hover {
+        transform: translateY(-5px);
+    }
+
+    .member-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 auto 1.5rem;
+    }
+
+    .team-member h3 {
+        font-size: 1.25rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .member-role {
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .member-bio {
+        color: var(--text-light);
+        line-height: 1.6;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* CTA Clean */
+    .cta-clean {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: var(--white);
+        text-align: center;
+    }
+
+    .cta-content h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .cta-content p {
+        font-size: 1.125rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.9;
+    }
+
+    .cta-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-primary {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--white);
+        border-color: var(--white);
+    }
+
+    .btn-outline:hover {
+        background: var(--white);
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.25rem;
+        }
+
+        .story-content {
+            grid-template-columns: 1fr;
+            gap: 40px;
+            text-align: center;
+        }
+
+        .step {
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .step-number {
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+
+        .cta-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn {
+            width: 200px;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+        }
+
+        .values-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
