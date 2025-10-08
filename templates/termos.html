@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Uso - Adote-Me</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        h3 {
+            color: #3498db;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .last-update {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Termos de Uso</h1>
+            <p class="subtitle">Adote-Me - Plataforma de Adoção de Animais</p>
+        </header>
+
+        <a href="{{ referer if referer and 'cadastro' in referer else url_for('cadastro') }}" class="back-link">
+            ← Voltar para o Cadastro
+        </a>
+
+        <div class="content">
+            <div class="section">
+                <h2>1. Aceitação dos Termos</h2>
+                <p>Ao acessar e utilizar a plataforma Adote-Me, você concorda em cumprir e estar vinculado aos seguintes
+                    Termos de Uso. Se você não concordar com qualquer parte destes termos, não poderá utilizar nossos
+                    serviços.</p>
+            </div>
+
+            <div class="section">
+                <h2>2. Definições</h2>
+                <ul>
+                    <li><strong>Plataforma:</strong> Site e aplicativo Adote-Me</li>
+                    <li><strong>Usuário:</strong> Pessoa que utiliza a plataforma</li>
+                    <li><strong>Doador:</strong> Usuário que cadastra animais para adoção</li>
+                    <li><strong>Adotante:</strong> Usuário que busca adotar um animal</li>
+                    <li><strong>Animal:</strong> Pet disponível para adoção</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>3. Cadastro na Plataforma</h2>
+                <h3>3.1 Requisitos</h3>
+                <ul>
+                    <li>Idade mínima: 18 anos</li>
+                    <li>Informações verdadeiras e atualizadas</li>
+                    <li>CPF válido (para adotantes)</li>
+                    <li>Comprovante de residência (quando solicitado)</li>
+                </ul>
+
+                <h3>3.2 Responsabilidades</h3>
+                <p>O usuário é responsável por:</p>
+                <ul>
+                    <li>Manter a confidencialidade de sua conta</li>
+                    <li>Todas as atividades realizadas em sua conta</li>
+                    <li>Notificar sobre uso não autorizado</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>4. Processo de Adoção</h2>
+                <h3>4.1 Requisitos para Adoção</h3>
+                <ul>
+                    <li>Maioridade (18 anos completos)</li>
+                    <li>Condições adequadas para criação do animal</li>
+                    <li>Compromisso com cuidados veterinários</li>
+                    <li>Disponibilidade de tempo e recursos</li>
+                </ul>
+
+                <h3>4.2 Etapas do Processo</h3>
+                <ol>
+                    <li>Seleção do animal de interesse</li>
+                    <li>Preenchimento do formulário de adoção</li>
+                    <li>Análise do perfil pelo doador/protetor</li>
+                    <li>Entrevista e visita (quando necessário)</li>
+                    <li>Assinatura do termo de responsabilidade</li>
+                    <li>Busca do animal</li>
+                </ol>
+            </div>
+
+            <div class="section">
+                <h2>5. Responsabilidades dos Usuários</h2>
+
+                <h3>5.1 Doadores/Protetores</h3>
+                <ul>
+                    <li>Fornecer informações verídicas sobre o animal</li>
+                    <li>Garantir a saúde do animal antes da adoção</li>
+                    <li>Realizar triagem responsável dos adotantes</li>
+                    <li>Fornecer acompanhamento pós-adoção</li>
+                </ul>
+
+                <h3>5.2 Adotantes</h3>
+                <ul>
+                    <li>Fornecer ambiente adequado ao animal</li>
+                    <li>Garantir cuidados veterinários regulares</li>
+                    <li>Não utilizar animais para fins comerciais</li>
+                    <li>Comunicar problemas ou devolução ao doador</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>6. Conduta Proibida</h2>
+                <p>É expressamente proibido:</p>
+                <ul>
+                    <li>Fornecer informações falsas</li>
+                    <li>Utilizar a plataforma para fins comerciais</li>
+                    <li>Discriminar usuários por qualquer motivo</li>
+                    <li>Publicar conteúdo ofensivo ou inadequado</li>
+                    <li>Cadastrar animais de forma fraudulenta</li>
+                    <li>Realizar adoções sem seguir o processo estabelecido</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>7. Propriedade Intelectual</h2>
+                <p>Todo o conteúdo da plataforma, incluindo textos, gráficos, logos e software, é propriedade do
+                    Adote-Me ou de seus licenciadores e está protegido por leis de direitos autorais.</p>
+            </div>
+
+            <div class="section">
+                <h2>8. Limitação de Responsabilidade</h2>
+                <p>O Adote-Me atua como intermediário entre doadores e adotantes. Não nos responsabilizamos por:</p>
+                <ul>
+                    <li>Conduta dos usuários</li>
+                    <li>Problemas de saúde não detectados nos animais</li>
+                    <li>Descumprimento de acordos entre as partes</li>
+                    <li>Danos materiais ou morais decorrentes do uso</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>9. Cancelamento e Suspensão</h2>
+                <p>Reservamo-nos o direito de suspender ou cancelar contas que:</p>
+                <ul>
+                    <li>Violarem estes Termos de Uso</li>
+                    <li>Apresentarem comportamento inadequado</li>
+                    <li>Fornecerem informações falsas</li>
+                    <li>Praticarem atos de má-fé</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>10. Alterações nos Termos</h2>
+                <p>Podemos modificar estes Termos a qualquer momento. As alterações entrarão em vigor após a publicação
+                    na plataforma. O uso continuado constitui aceitação das modificações.</p>
+            </div>
+
+            <div class="section">
+                <h2>11. Lei Aplicável</h2>
+                <p>Estes Termos são regidos pelas leis brasileiras. Qualquer disputa será resolvida no foro da comarca
+                    onde se encontra a sede da empresa.</p>
+            </div>
+
+            <div class="highlight">
+                <p><strong>Importante:</strong> A adoção é um ato de amor e responsabilidade. Ao adotar, você assume o
+                    compromisso de cuidar do animal por toda a vida dele.</p>
+            </div>
+
+            <div class="last-update">
+                <p>Última atualização: {{ data_atual }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Adicionar data atual
+        document.addEventListener('DOMContentLoaded', function () {
+            const data = new Date().toLocaleDateString('pt-BR');
+            const elementosData = document.querySelectorAll('.last-update p');
+            elementosData.forEach(el => {
+                el.textContent = `Última atualização: ${data}`;
+            });
+        });
+    </script>
+</body>
+
+</html>

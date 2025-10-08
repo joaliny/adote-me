@@ -40,10 +40,6 @@ senha_email = os.getenv("SENHA_EMAIL")
 app.secret_key = 'sua-chave-secreta-aqui'  # Adicione esta linha
 
 
-
-
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     return render_template('login.html', pagina='login') 
@@ -91,11 +87,6 @@ def login_usuario():
         print(f"ERRO NO LOGIN: {str(e)}")
         flash('Erro interno no servidor.', 'error')
         return redirect(url_for('login'))
-    
-
-
-
-
 
 
 @app.route('/cadastro', methods=['GET'])
@@ -190,9 +181,6 @@ def cadastrar_usuario():
         return redirect(url_for('cadastro'))
 
 
-
-
-
 @app.route('/')
 @app.route('/home')
 def home():
@@ -217,11 +205,6 @@ def home():
         })
     
     return render_template('home.html', usuario=usuario, pagina='home', pets=pets)
-
-
-
-
-
 
 
 @app.route('/adotar')
@@ -265,10 +248,6 @@ def adotar():
     return render_template('adotar.html', pets=pets, pagina='adotar', usuario=usuario)
 
 
-
-
-
-
 @app.route('/cadastrar', methods=['GET', 'POST'])
 def cadastrar():
     usuario = obter_usuario_atual()
@@ -297,7 +276,6 @@ def cadastrar():
         return redirect('/home')
 
     return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
-
 
 
 @app.route('/adotar/<int:id>', methods=['POST'])
@@ -469,7 +447,6 @@ def solicitar_adocao(id):
         return redirect(url_for('detalhes_pet', id=id))
 
 
-
 # E atualize a rota detalhes_pet para receber o parâmetro
 @app.route('/pet/<int:id>')
 def detalhes_pet(id):
@@ -501,11 +478,6 @@ def detalhes_pet(id):
         return "Pet não encontrado", 404
 
 
-
-
-
-
-
 def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail.com', senha='lfhykuryoifmstep'):
     try:
         print(f"📧 Tentando enviar email para: {destinatario}")
@@ -528,11 +500,6 @@ def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail
     except Exception as e:
         print(f"❌ Erro ao enviar e-mail: {e}")
         return False
-    
-
-
-
-
 
 
 @app.route('/ia-dicas', methods=['POST'])
@@ -551,11 +518,9 @@ def ia_dicas():
         return jsonify({'resposta': texto})
     except Exception as e:
         return jsonify({'resposta': f"Erro ao gerar resposta: {str(e)}"})
-    
 
 
-
-      # Função para obter usuário atual - ADICIONE ISSO
+# Função para obter usuário atual - ADICIONE ISSO
 def obter_usuario_atual():
     """Retorna os dados do usuário logado ou None se não estiver logado"""
     if 'logado' in session and session['logado']:
@@ -568,16 +533,12 @@ def obter_usuario_atual():
     return None
 
 
-
-
 @app.route('/logout')
 def logout():
     # Limpar a sessão
     session.clear()
     flash('Você saiu da sua conta.', 'info')
     return redirect(url_for('home'))
-
-
 
 
 @app.route('/criar-admin-teste')
@@ -611,7 +572,6 @@ def criar_admin_teste():
         return f"Erro: {str(e)}"
 
 
-
 # ========== ROTAS DO DASHBOARD ==========
 
 # @app.route('/admin')
@@ -620,7 +580,7 @@ def criar_admin_teste():
 #     if not usuario or usuario['tipo'] != 'admin':
 #         flash('Acesso restrito a administradores.', 'error')
 #         return redirect(url_for('login'))
-    
+
 #     return render_template('admin_dashboard.html', usuario=usuario, pagina='admin')
 
 # @app.route('/admin/protetores')
@@ -629,7 +589,7 @@ def criar_admin_teste():
 #     if not usuario or usuario['tipo'] != 'admin':
 #         flash('Acesso restrito a administradores.', 'error')
 #         return redirect(url_for('login'))
-    
+
 #     return "Página de Gerenciar Protetores - Em desenvolvimento"
 
 # @app.route('/protetor')
@@ -638,7 +598,7 @@ def criar_admin_teste():
 #     if not usuario or usuario['tipo'] != 'protetor':
 #         flash('Acesso restrito a protetores.', 'error')
 #         return redirect(url_for('login'))
-    
+
 #     return render_template('protetor_dashboard.html', usuario=usuario, pagina='protetor')
 
 # @app.route('/minha-conta')
@@ -647,9 +607,8 @@ def criar_admin_teste():
 #     if not usuario:
 #         flash('Faça login para acessar sua conta.', 'error')
 #         return redirect(url_for('login'))
-    
-#     return render_template('minha_conta.html', usuario=usuario, pagina='minha-conta')
 
+#     return render_template('minha_conta.html', usuario=usuario, pagina='minha-conta')
 
 
 @app.route('/admin')
@@ -875,12 +834,22 @@ def minha_conta():
     return render_template('minha_conta.html', usuario=usuario, pagina='minha-conta')
 
 
-
-
 @app.route('/sobre')
 def sobre():
     usuario = obter_usuario_atual()
     return render_template('sobre.html', usuario=usuario)
+
+
+@app.route("/termos")
+def termos():
+    referer = request.headers.get("Referer")
+    return render_template("termos.html", pagina="termos", referer=referer)
+
+
+@app.route("/privacidade")
+def privacidade():
+    referer = request.headers.get("Referer")
+    return render_template("privacidade.html", pagina="privacidade", referer=referer)
 
 
 if __name__ == '__main__':

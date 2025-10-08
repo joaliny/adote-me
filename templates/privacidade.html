@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Adote-Me</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+             border-bottom: 2px solid #3498db;
+        }
+
+        h3 {
+            color: #3498db;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning {
+            background-color: #fdebd0;
+            padding: 15px;
+            border-left: 4px solid #f39c12;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .contact-info {
+            background-color: #e8f6f3;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .last-update {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 Política de Privacidade</h1>
+            <p class="subtitle">Adote-Me - Proteção de Dados Pessoais</p>
+        </header>
+
+        <a href="{{ referer if referer and 'cadastro' in referer else url_for('cadastro') }}" class="back-link">
+            ← Voltar para o Cadastro
+        </a>
+
+        <div class="content">
+            <div class="section">
+                <h2>1. Introdução</h2>
+                <p>Esta Política de Privacidade descreve como o Adote-Me coleta, usa, armazena e protege suas
+                    informações pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018).
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>2. Dados que Coletamos</h2>
+
+                <h3>2.1 Dados Pessoais</h3>
+                <ul>
+                    <li><strong>Nome completo</strong></li>
+                    <li><strong>CPF</strong> (para processo de adoção)</li>
+                    <li><strong>Endereço de e-mail</strong></li>
+                    <li><strong>Telefone</strong></li>
+                    <li><strong>Endereço residencial</strong></li>
+                    <li><strong>Data de nascimento</strong></li>
+                </ul>
+
+                <h3>2.2 Dados de Uso</h3>
+                <ul>
+                    <li>Endereço IP</li>
+                    <li>Tipo de navegador</li>
+                    <li>Páginas visitadas</li>
+                    <li>Tempo de permanência</li>
+                    <li>Interações com a plataforma</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>3. Como Usamos Seus Dados</h2>
+                <ul>
+                    <li><strong>Processar adoções:</strong> Validar e gerenciar processos de adoção</li>
+                    <li><strong>Comunicação:</strong> Enviar atualizações sobre seus processos</li>
+                    <li><strong>Melhorar serviços:</strong> Analisar uso para melhorias</li>
+                    <li><strong>Segurança:</strong> Prevenir fraudes e atividades suspeitas</li>
+                    <li><strong>Conformidade legal:</strong> Cumprir obrigações legais</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>4. Compartilhamento de Dados</h2>
+                <p>Seus dados podem ser compartilhados apenas nas seguintes situações:</p>
+
+                <h3>4.1 Com Outros Usuários</h3>
+                <ul>
+                    <li><strong>Doadores:</strong> Informações de contato para adotantes aprovados</li>
+                    <li><strong>Adotantes:</strong> Dados básicos do doador para contato</li>
+                </ul>
+
+                <h3>4.2 Com Terceiros</h3>
+                <ul>
+                    <li><strong>Parceiros veterinários:</strong> Para agendamento de consultas</li>
+                    <li><strong>Autoridades:</strong> Quando exigido por lei</li>
+                    <li><strong>Provedores de serviço:</strong> Hospedagem, e-mail marketing</li>
+                </ul>
+
+                <div class="warning">
+                    <p><strong>⚠️ Atenção:</strong> Nunca compartilhamos seus dados com fins comerciais para terceiros
+                        não relacionados aos serviços de adoção.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>5. Armazenamento e Segurança</h2>
+
+                <h3>5.1 Medidas de Segurança</h3>
+                <ul>
+                    <li>Criptografia de dados sensíveis</li>
+                    <li>Acesso restrito a funcionários autorizados</li>
+                    <li>Backups regulares</li>
+                    <li>Monitoramento de segurança 24/7</li>
+                </ul>
+
+                <h3>5.2 Tempo de Retenção</h3>
+                <p>Mantemos seus dados apenas pelo tempo necessário para:</p>
+                <ul>
+                    <li>Cumprir finalidades legítimas</li>
+                    <li>Atender obrigações legais</li>
+                    <li>Resolver disputas</li>
+                    <li>Manter registros de adoção</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>6. Seus Direitos</h2>
+                <p>Conforme a LGPD, você tem direito a:</p>
+                <ul>
+                    <li><strong>Confirmação:</strong> Saber se seus dados são processados</li>
+                    <li><strong>Acesso:</strong> Solicitar cópia de seus dados</li>
+                    <li><strong>Correção:</strong> Atualizar dados incompletos ou errados</li>
+                    <li><strong>Anonimização:</strong> Solicitar anonimização de dados</li>
+                    <li><strong>Eliminação:</strong> Solicitar exclusão de dados</li>
+                    <li><strong>Portabilidade:</strong> Receber dados em formato legível</li>
+                    <li><strong>Revogação:</strong> Revogar consentimentos</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>7. Cookies e Tecnologias Similares</h2>
+                <p>Utilizamos cookies para:</p>
+                <ul>
+                    <li>Lembrar suas preferências</li>
+                    <li>Melhorar performance do site</li>
+                    <li>Analisar uso da plataforma</li>
+                    <li>Personalizar conteúdo</li>
+                </ul>
+                <p>Você pode controlar cookies através das configurações do seu navegador.</p>
+            </div>
+
+            <div class="section">
+                <h2>8. Menores de Idade</h2>
+                <p>Não coletamos intencionalmente dados de menores de 18 anos. O processo de adoção requer maioridade
+                    civil.</p>
+            </div>
+
+            <div class="section">
+                <h2>9. Alterações nesta Política</h2>
+                <p>Podemos atualizar esta política periodicamente. Notificaremos sobre mudanças significativas através
+                    de:</p>
+                <ul>
+                    <li>E-mail registrado</li>
+                    <li>Notificação na plataforma</li>
+                    <li>Atualização da data de revisão</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>10. Contato</h2>
+                <div class="contact-info">
+                    <p><strong>Encarregado de Proteção de Dados (DPO):</strong></p>
+                    <p>E-mail: privacidade@adote-me.com</p>
+                    <p>Telefone: (11) 9999-9999</p>
+                    <p>Horário de atendimento: Segunda a sexta, 9h às 18h</p>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <p><strong>💡 Dica de Segurança:</strong> Mantenha sua senha em local seguro e não compartilhe suas
+                    credenciais de acesso. Utilize senhas fortes e diferentes para cada serviço.</p>
+            </div>
+
+            <div class="last-update">
+                <p>Última atualização: {{ data_atual }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Adicionar data atual
+        document.addEventListener('DOMContentLoaded', function () {
+            const data = new Date().toLocaleDateString('pt-BR');
+            const elementosData = document.querySelectorAll('.last-update p');
+            elementosData.forEach(el => {
+                el.textContent = `Última atualização: ${data}`;
+            });
+        });
+    </script>
+</body>
+
+</html>
