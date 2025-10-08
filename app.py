@@ -614,6 +614,44 @@ def criar_admin_teste():
 
 # ========== ROTAS DO DASHBOARD ==========
 
+# @app.route('/admin')
+# def admin_dashboard():
+#     usuario = obter_usuario_atual()
+#     if not usuario or usuario['tipo'] != 'admin':
+#         flash('Acesso restrito a administradores.', 'error')
+#         return redirect(url_for('login'))
+    
+#     return render_template('admin_dashboard.html', usuario=usuario, pagina='admin')
+
+# @app.route('/admin/protetores')
+# def admin_protetores():
+#     usuario = obter_usuario_atual()
+#     if not usuario or usuario['tipo'] != 'admin':
+#         flash('Acesso restrito a administradores.', 'error')
+#         return redirect(url_for('login'))
+    
+#     return "Página de Gerenciar Protetores - Em desenvolvimento"
+
+# @app.route('/protetor')
+# def protetor_dashboard():
+#     usuario = obter_usuario_atual()
+#     if not usuario or usuario['tipo'] != 'protetor':
+#         flash('Acesso restrito a protetores.', 'error')
+#         return redirect(url_for('login'))
+    
+#     return render_template('protetor_dashboard.html', usuario=usuario, pagina='protetor')
+
+# @app.route('/minha-conta')
+# def minha_conta():
+#     usuario = obter_usuario_atual()
+#     if not usuario:
+#         flash('Faça login para acessar sua conta.', 'error')
+#         return redirect(url_for('login'))
+    
+#     return render_template('minha_conta.html', usuario=usuario, pagina='minha-conta')
+
+
+
 @app.route('/admin')
 def admin_dashboard():
     usuario = obter_usuario_atual()
@@ -621,7 +659,42 @@ def admin_dashboard():
         flash('Acesso restrito a administradores.', 'error')
         return redirect(url_for('login'))
     
-    return render_template('admin_dashboard.html', usuario=usuario, pagina='admin')
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Buscar estatísticas em tempo real
+        cur.execute("SELECT COUNT(*) FROM usuarios")
+        total_usuarios = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo = 'protetor'")
+        total_protetores = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM pets")
+        total_pets = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM adocoes")
+        total_adocoes = cur.fetchone()[0]
+        
+        cur.close()
+        
+        return render_template('admin_dashboard.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             total_usuarios=total_usuarios,
+                             total_protetores=total_protetores,
+                             total_pets=total_pets,
+                             total_adocoes=total_adocoes)
+                             
+    except Exception as e:
+        print(f"❌ Erro no dashboard admin: {e}")
+        # Se der erro, retorna sem estatísticas
+        return render_template('admin_dashboard.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             total_usuarios=0,
+                             total_protetores=0,
+                             total_pets=0,
+                             total_adocoes=0)
 
 @app.route('/admin/protetores')
 def admin_protetores():
@@ -630,8 +703,159 @@ def admin_protetores():
         flash('Acesso restrito a administradores.', 'error')
         return redirect(url_for('login'))
     
-    return "Página de Gerenciar Protetores - Em desenvolvimento"
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT id, nome, email, telefone, nome_organizacao, cnpj, data_cadastro, verificado 
+            FROM usuarios 
+            WHERE tipo = 'protetor' 
+            ORDER BY data_cadastro DESC
+        """)
+        protetores_data = cur.fetchall()
+        cur.close()
+        
+        # Formatar dados
+        protetores = []
+        for protetor in protetores_data:
+            protetores.append({
+                'id': protetor[0],
+                'nome': protetor[1],
+                'email': protetor[2],
+                'telefone': protetor[3] or 'Não informado',
+                'nome_organizacao': protetor[4] or 'Não informado',
+                'cnpj': protetor[5] or 'Não informado',
+                'data_cadastro': protetor[6].strftime('%d/%m/%Y') if protetor[6] else 'N/A',
+                'verificado': '✅' if protetor[7] else '❌'
+            })
+        
+        return render_template('admin_protetores.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             protetores=protetores)
+                             
+    except Exception as e:
+        print(f"❌ Erro ao carregar protetores: {e}")
+        flash('Erro ao carregar lista de protetores.', 'error')
+        return render_template('admin_protetores.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             protetores=[])
 
+# Adicione estas novas rotas
+@app.route('/admin/pets')
+def admin_pets():
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'admin':
+        flash('Acesso restrito a administradores.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT p.id, p.nome, p.especie, p.idade, p.descricao, p.imagem_url, 
+                   u.nome as protetor_nome, p.data_cadastro 
+            FROM pets p 
+            LEFT JOIN usuarios u ON p.usuario_id = u.id 
+            ORDER BY p.data_cadastro DESC
+        """)
+        pets_data = cur.fetchall()
+        cur.close()
+        
+        pets = []
+        for pet in pets_data:
+            pets.append({
+                'id': pet[0],
+                'nome': pet[1],
+                'especie': pet[2],
+                'idade': pet[3],
+                'descricao': pet[4] or 'Sem descrição',
+                'imagem_url': pet[5] or '/static/imagens/pet-default.jpg',
+                'protetor_nome': pet[6] or 'Sistema',
+                'data_cadastro': pet[7].strftime('%d/%m/%Y') if pet[7] else 'N/A'
+            })
+        
+        return render_template('admin_pets.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             pets=pets)
+                             
+    except Exception as e:
+        print(f"❌ Erro ao carregar pets: {e}")
+        flash('Erro ao carregar lista de pets.', 'error')
+        return render_template('admin_pets.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             pets=[])
+
+@app.route('/admin/relatorios')
+def admin_relatorios():
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'admin':
+        flash('Acesso restrito a administradores.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Estatísticas para relatórios
+        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo = 'adotante'")
+        total_adotantes = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM adocoes WHERE status = 'pendente' OR status IS NULL")
+        adocoes_pendentes = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM adocoes WHERE status = 'aprovada'")
+        adocoes_aprovadas = cur.fetchone()[0]
+        
+        cur.execute("""
+            SELECT especie, COUNT(*) as total 
+            FROM pets 
+            GROUP BY especie 
+            ORDER BY total DESC
+        """)
+        especies_stats = cur.fetchall()
+        
+        cur.close()
+        
+        # Formatar estatísticas de espécies
+        especies_formatadas = []
+        for especie in especies_stats:
+            especies_formatadas.append({
+                'especie': especie[0],
+                'total': especie[1]
+            })
+        
+        return render_template('admin_relatorios.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             total_adotantes=total_adotantes,
+                             adocoes_pendentes=adocoes_pendentes,
+                             adocoes_aprovadas=adocoes_aprovadas,
+                             especies_stats=especies_formatadas)
+                             
+    except Exception as e:
+        print(f"❌ Erro ao carregar relatórios: {e}")
+        flash('Erro ao carregar relatórios.', 'error')
+        return render_template('admin_relatorios.html', 
+                             usuario=usuario, 
+                             pagina='admin',
+                             total_adotantes=0,
+                             adocoes_pendentes=0,
+                             adocoes_aprovadas=0,
+                             especies_stats=[])
+
+@app.route('/admin/configuracoes')
+def admin_configuracoes():
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'admin':
+        flash('Acesso restrito a administradores.', 'error')
+        return redirect(url_for('login'))
+    
+    return render_template('admin_configuracoes.html', 
+                         usuario=usuario, 
+                         pagina='admin')
+
+# Suas rotas existentes (mantenha estas)
 @app.route('/protetor')
 def protetor_dashboard():
     usuario = obter_usuario_atual()
