@@ -38,7 +38,7 @@ venv\Scripts\activate
 python3 -m venv venv
 source venv/bin/activate
 
-# 3. 📦 Instale as Dependências
+3. 📦 Instale as Dependências
 bash
 pip install -r requirements.txt
 
