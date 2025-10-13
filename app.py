@@ -23,9 +23,9 @@ app = Flask(__name__)
 
 # Configurações do MySQL (usando Flask-MySQLdb)
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'adote-me'
+app.config['MYSQL_USER'] = os.getenv("MYSQL_USER") or 'root'
+app.config['MYSQL_PASSWORD'] = os.getenv("MYSQL_PASSWORD") or ''
+app.config['MYSQL_DB'] = 'adote_me'
 
 mysql = MySQL(app)
 
@@ -469,11 +469,11 @@ def detalhes_pet(id):
             'imagem_url': pet[5]
         }
         return render_template('detalhes_pet.html', 
-                             pet=pet_detalhado, 
-                             pagina='detalhes_pet',
-                             mostrar_modal=sucesso,
-                             nome=nome,
-                             usuario=usuario)
+            pet=pet_detalhado, 
+            pagina='detalhes_pet',
+            mostrar_modal=sucesso,
+            nome=nome,
+            usuario=usuario)
     else:
         return "Pet não encontrado", 404
 
@@ -637,23 +637,22 @@ def admin_dashboard():
         cur.close()
         
         return render_template('admin_dashboard.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             total_usuarios=total_usuarios,
-                             total_protetores=total_protetores,
-                             total_pets=total_pets,
-                             total_adocoes=total_adocoes)
-                             
+            usuario=usuario, 
+            pagina='admin',
+            total_usuarios=total_usuarios,
+            total_protetores=total_protetores,
+            total_pets=total_pets,
+            total_adocoes=total_adocoes)
     except Exception as e:
         print(f"❌ Erro no dashboard admin: {e}")
         # Se der erro, retorna sem estatísticas
         return render_template('admin_dashboard.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             total_usuarios=0,
-                             total_protetores=0,
-                             total_pets=0,
-                             total_adocoes=0)
+            usuario=usuario, 
+            pagina='admin',
+            total_usuarios=0,
+            total_protetores=0,
+            total_pets=0,
+            total_adocoes=0)
 
 @app.route('/admin/protetores')
 def admin_protetores():
@@ -688,17 +687,16 @@ def admin_protetores():
             })
         
         return render_template('admin_protetores.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             protetores=protetores)
-                             
+            usuario=usuario, 
+            pagina='admin',
+            protetores=protetores)
     except Exception as e:
         print(f"❌ Erro ao carregar protetores: {e}")
         flash('Erro ao carregar lista de protetores.', 'error')
         return render_template('admin_protetores.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             protetores=[])
+            usuario=usuario, 
+            pagina='admin',
+            protetores=[])
 
 # Adicione estas novas rotas
 @app.route('/admin/pets')
@@ -734,17 +732,16 @@ def admin_pets():
             })
         
         return render_template('admin_pets.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             pets=pets)
-                             
+            usuario=usuario, 
+            pagina='admin',
+            pets=pets)
     except Exception as e:
         print(f"❌ Erro ao carregar pets: {e}")
         flash('Erro ao carregar lista de pets.', 'error')
         return render_template('admin_pets.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             pets=[])
+        usuario=usuario, 
+        pagina='admin',
+        pets=[])
 
 @app.route('/admin/relatorios')
 def admin_relatorios():
@@ -785,23 +782,22 @@ def admin_relatorios():
             })
         
         return render_template('admin_relatorios.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             total_adotantes=total_adotantes,
-                             adocoes_pendentes=adocoes_pendentes,
-                             adocoes_aprovadas=adocoes_aprovadas,
-                             especies_stats=especies_formatadas)
-                             
+            usuario=usuario, 
+            pagina='admin',
+            total_adotantes=total_adotantes,
+            adocoes_pendentes=adocoes_pendentes,
+            adocoes_aprovadas=adocoes_aprovadas,
+            especies_stats=especies_formatadas)                          
     except Exception as e:
         print(f"❌ Erro ao carregar relatórios: {e}")
         flash('Erro ao carregar relatórios.', 'error')
         return render_template('admin_relatorios.html', 
-                             usuario=usuario, 
-                             pagina='admin',
-                             total_adotantes=0,
-                             adocoes_pendentes=0,
-                             adocoes_aprovadas=0,
-                             especies_stats=[])
+            usuario=usuario, 
+            pagina='admin',
+            total_adotantes=0,
+            adocoes_pendentes=0,
+            adocoes_aprovadas=0,
+            especies_stats=[])
 
 @app.route('/admin/configuracoes')
 def admin_configuracoes():
@@ -811,8 +807,8 @@ def admin_configuracoes():
         return redirect(url_for('login'))
     
     return render_template('admin_configuracoes.html', 
-                         usuario=usuario, 
-                         pagina='admin')
+        usuario=usuario, 
+        pagina='admin')
 
 # Suas rotas existentes (mantenha estas)
 @app.route('/protetor')
