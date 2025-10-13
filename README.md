@@ -38,11 +38,11 @@ venv\Scripts\activate
 python3 -m venv venv
 source venv/bin/activate
 
-3. 📦 Instale as Dependências
+# 3. 📦 Instale as Dependências
 bash
 pip install -r requirements.txt
 
-4. ⚙️ Configure o Banco de Dados
+# 4. ⚙️ Configure o Banco de Dados
 Primeiro, configure o MySQL:
 
 sql
@@ -54,21 +54,21 @@ FLUSH PRIVILEGES;
 Depois, configure as variáveis de ambiente:
 
 bash
-# Copie o arquivo de exemplo
+#Copie o arquivo de exemplo
 cp .env.example .env
 
-# Edite o arquivo .env com um editor de texto
-# (Substitua pelas SUAS configurações)
+Edite o arquivo .env com um editor de texto
+(Substitua pelas SUAS configurações)
 
-5. 🗄️ Crie as Tabelas do Banco
+# 5. 🗄️ Crie as Tabelas do Banco
 bash
 python init_db.py
 
-6. 🎉 Execute o Sistema!
+# 6. 🎉 Execute o Sistema!
 bash
 python app.py
 
-7. 🌐 Acesse no Navegador
+# 7. 🌐 Acesse no Navegador
 text
 http://localhost:5000
 
