@@ -188,23 +188,28 @@ def home():
     
     # Buscar pets do MySQL (sem a coluna 'disponivel')
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM pets ORDER BY id DESC LIMIT 6")
-    pets_data = cur.fetchall()
-    cur.close()
+    try:
+        cur.execute("SELECT * FROM pets ORDER BY id DESC LIMIT 6")
+        pets_data = cur.fetchall()
+    finally:
+        cur.close()
     
     # Formatar pets
-    pets = []
-    for pet in pets_data:
-        pets.append({
+    
+    if pet:
+        pets_detalhado={
             'id': pet[0],
             'nome': pet[1],
             'especie': pet[2],
             'idade': pet[3],
             'descricao': pet[4],
             'imagem_url': pet[5]
-        })
-    
-    return render_template('home.html', usuario=usuario, pagina='home', pets=pets)
+        }
+        print(f"Pet encontrado: {pet_detalhado['nome']}")  # linha 178
+    else:
+        print("❌ Pet não encontrado após inserção")  # linha 180
+        flash('Erro ao buscar informações do pet.', 'error')
+        return redirect(url_for('adotar'))
 
 
 @app.route('/adotar')
@@ -228,10 +233,11 @@ def adotar():
         valores.append(idade)
 
     query += " ORDER BY id DESC"
-    
-    cur.execute(query, valores)
-    pets_data = cur.fetchall()
-    cur.close()
+    try:
+        cur.execute(query, valores)
+        pets_data = cur.fetchall()
+    finally:
+        cur.close()
 
     # Formatar pets
     pets = []
@@ -266,12 +272,13 @@ def cadastrar():
             imagem_url = f"/static/imagens/{nome_arquivo}"
         else:
             imagem_url = ''
-
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO pets (nome, especie, idade, descricao, imagem_url) VALUES (%s, %s, %s, %s, %s)",
-                    (nome, especie, idade, descricao, imagem_url))
-        mysql.connection.commit()
-        cur.close()
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO pets (nome, especie, idade, descricao, imagem_url) VALUES (%s, %s, %s, %s, %s)",
+            (nome, especie, idade, descricao, imagem_url))
+            mysql.connection.commit()
+        finally:
+            cur.close()
 
         return redirect('/home')
 
@@ -386,6 +393,7 @@ def solicitar_adocao(id):
         try:
             cur.execute("SELECT * FROM pets WHERE id = %s", (id,))
             pet = cur.fetchone()
+        
             cur.close()
             
             if pet:
@@ -405,6 +413,7 @@ def solicitar_adocao(id):
                 
         except Exception as pet_error:
             print(f"Erro ao buscar pet: {pet_error}")
+        finally:
             cur.close()
 
         # Tentar enviar e-mail (opcional)
@@ -560,7 +569,7 @@ def criar_admin_teste():
         """, ('Admin Teste', 'admin@teste.com', senha_hash, 'admin', '(92) 98888-8888', 1))
 
         mysql.connection.commit()
-        cur.close()
+    
 
         return """
         <h1>✅ Admin criado com sucesso!</h1>
@@ -570,6 +579,8 @@ def criar_admin_teste():
         """
     except Exception as e:
         return f"Erro: {str(e)}"
+    finally:
+        cur.close()
 
 
 # ========== ROTAS DO DASHBOARD ==========
@@ -633,8 +644,7 @@ def admin_dashboard():
         
         cur.execute("SELECT COUNT(*) FROM adocoes")
         total_adocoes = cur.fetchone()[0]
-        
-        cur.close()
+    
         
         return render_template('admin_dashboard.html', 
             usuario=usuario, 
@@ -653,6 +663,8 @@ def admin_dashboard():
             total_protetores=0,
             total_pets=0,
             total_adocoes=0)
+    finally:   
+        cur.close()
 
 @app.route('/admin/protetores')
 def admin_protetores():
@@ -670,7 +682,7 @@ def admin_protetores():
             ORDER BY data_cadastro DESC
         """)
         protetores_data = cur.fetchall()
-        cur.close()
+   
         
         # Formatar dados
         protetores = []
@@ -697,7 +709,8 @@ def admin_protetores():
             usuario=usuario, 
             pagina='admin',
             protetores=[])
-
+     finally
+        cur.close()
 # Adicione estas novas rotas
 @app.route('/admin/pets')
 def admin_pets():
@@ -716,6 +729,7 @@ def admin_pets():
             ORDER BY p.data_cadastro DESC
         """)
         pets_data = cur.fetchall()
+    finally:
         cur.close()
         
         pets = []
@@ -770,7 +784,7 @@ def admin_relatorios():
             ORDER BY total DESC
         """)
         especies_stats = cur.fetchall()
-        
+    finally: 
         cur.close()
         
         # Formatar estatísticas de espécies
