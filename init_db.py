@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 import os
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash
 
 load_dotenv()
 
@@ -55,7 +56,8 @@ def create_database():
                     descricao TEXT,
                     imagem_url VARCHAR(255),
                     usuario_id INT,
-                    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP
+                    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
                 )
             ''')
             print("✅ Tabela 'pets' criada/verificada")
@@ -65,15 +67,21 @@ def create_database():
                 CREATE TABLE IF NOT EXISTS adocoes (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     pet_id INT NOT NULL,
+                    usuario_id INT,
                     nome VARCHAR(100) NOT NULL,
                     email VARCHAR(100) NOT NULL,
                     telefone VARCHAR(20) NOT NULL,
                     mensagem TEXT NOT NULL,
                     data_solicitacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    status VARCHAR(20) DEFAULT 'pendente'
+                    status VARCHAR(20) DEFAULT 'pendente',
+                    FOREIGN KEY (pet_id) REFERENCES pets(id),
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
                 )
             ''')
             print("✅ Tabela 'adocoes' criada/verificada")
+            
+            # 6. Criar admin principal apenas se não existir nenhum admin
+            criar_admin_principal(cursor)
             
             connection.commit()
             cursor.close()
@@ -86,6 +94,49 @@ def create_database():
         print(f"❌ Erro ao criar banco de dados: {e}")
     except Exception as e:
         print(f"❌ Erro geral: {e}")
+
+def criar_admin_principal(cursor):
+    """Cria um admin principal apenas se não existir nenhum admin"""
+    try:
+        # Verificar se já existe algum admin
+        cursor.execute("SELECT id FROM usuarios WHERE tipo = 'admin' LIMIT 1")
+        admin_existente = cursor.fetchone()
+        
+        if admin_existente:
+            print("✅ Já existem administradores no sistema")
+            return
+        
+        # Dados do admin principal
+        admin_email = "admin@adote.me"
+        admin_senha = "123456"
+        admin_nome = "Administrador Principal"
+        
+        # Criptografar senha
+        senha_hash = generate_password_hash(admin_senha)
+        
+        # Inserir usuário admin principal
+        cursor.execute('''
+            INSERT INTO usuarios 
+            (nome, email, senha, tipo, telefone, verificado, data_cadastro)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        ''', (
+            admin_nome, 
+            admin_email, 
+            senha_hash, 
+            'admin', 
+            '(92) 99999-9999', 
+            True
+        ))
+        
+        print("👑 Admin principal criado com sucesso!")
+        print(f"   📧 Email: {admin_email}")
+        print(f"   🔑 Senha: {admin_senha}")
+        print("   ⚠️  Use estas credenciais para acessar o sistema")
+        
+    except Error as e:
+        print(f"❌ Erro ao criar admin principal: {e}")
+    except Exception as e:
+        print(f"❌ Erro geral ao criar admin: {e}")
 
 if __name__ == "__main__":
     create_database()

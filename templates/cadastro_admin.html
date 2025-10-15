@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Cadastrar Administrador - Adote-me{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center fw-bold mb-2">Cadastro de Administrador</h2>
+    <p class="text-center text-muted mb-5">
+        Preencha todos os campos abaixo para criar uma nova conta de administrador.
+    </p>
+
+    <div class="mx-auto bg-light p-5 rounded-4 shadow-sm" style="max-width: 900px;">
+        <!-- Mensagens Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="alert alert-info d-flex align-items-center mb-4">
+            <i class="fas fa-info-circle me-2 fs-5"></i>
+            <div><strong>Primeiro Administrador:</strong> você está criando a primeira conta do sistema.</div>
+        </div>
+
+        <form method="POST" action="{{ url_for('primeiro_admin') }}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="nome" class="form-label fw-semibold">
+                        <i class="fas fa-user me-2"></i>Nome Completo
+                    </label>
+                    <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome completo"
+                        required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="email" class="form-label fw-semibold">
+                        <i class="fas fa-envelope me-2"></i>Email
+                    </label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="exemplo@email.com"
+                        required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="telefone" class="form-label fw-semibold">
+                        <i class="fas fa-phone me-2"></i>Telefone
+                    </label>
+                    <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000"
+                        required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="senha" class="form-label fw-semibold">
+                        <i class="fas fa-lock me-2"></i>Senha
+                    </label>
+                    <input type="password" class="form-control" id="senha" name="senha"
+                        placeholder="Mínimo 6 caracteres" minlength="6" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="confirmar_senha" class="form-label fw-semibold">
+                        <i class="fas fa-lock me-2"></i>Confirmar Senha
+                    </label>
+                    <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha"
+                        placeholder="Digite novamente a senha" required>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-semibold">
+                    <i class="fas fa-user-plus me-2"></i>Cadastrar Administrador
+                </button>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('login') }}" class="text-decoration-none text-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar para o Login
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Validação de senha em tempo real
+    document.addEventListener('DOMContentLoaded', function () {
+        const senha = document.getElementById('senha');
+        const confirmarSenha = document.getElementById('confirmar_senha');
+
+        function validarSenhas() {
+            if (senha.value !== confirmarSenha.value) {
+                confirmarSenha.setCustomValidity('As senhas não coincidem');
+            } else {
+                confirmarSenha.setCustomValidity('');
+            }
+        }
+
+        senha.addEventListener('input', validarSenhas);
+        confirmarSenha.addEventListener('input', validarSenhas);
+    });
+</script>
+{% endblock %}

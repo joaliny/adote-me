@@ -980,5 +980,75 @@ def privacidade():
     return render_template("privacidade.html", pagina="privacidade", referer=referer)
 
 
+
+
+
+
+
+
+
+
+# ========== ROTA SIMPLES PARA CADASTRAR PRIMEIRO ADMIN ==========
+
+@app.route('/primeiro-admin', methods=['GET', 'POST'])
+def primeiro_admin():
+    """Rota simples para cadastrar o primeiro administrador"""
+    
+    if request.method == 'POST':
+        try:
+            # Dados do formulário
+            nome = request.form.get('nome')
+            email = request.form.get('email')
+            telefone = request.form.get('telefone')
+            senha = request.form.get('senha')
+            confirmar_senha = request.form.get('confirmar_senha')
+            
+            # Validações básicas
+            if not all([nome, email, telefone, senha, confirmar_senha]):
+                flash('Todos os campos são obrigatórios.', 'error')
+                return redirect(url_for('primeiro_admin'))
+                
+            if senha != confirmar_senha:
+                flash('As senhas não coincidem.', 'error')
+                return redirect(url_for('primeiro_admin'))
+                
+            if len(senha) < 6:
+                flash('A senha deve ter no mínimo 6 caracteres.', 'error')
+                return redirect(url_for('primeiro_admin'))
+
+            # Verificar se email já existe
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
+            if cur.fetchone():
+                flash('Este email já está cadastrado.', 'error')
+                cur.close()
+                return redirect(url_for('primeiro_admin'))
+
+            # Criptografar senha
+            senha_hash = generate_password_hash(senha)
+
+            # Inserir como admin
+            cur.execute("""
+                INSERT INTO usuarios (nome, email, senha, telefone, tipo, verificado, data_cadastro)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW())
+            """, (nome, email, senha_hash, telefone, 'admin', True))
+            
+            mysql.connection.commit()
+            cur.close()
+            
+            flash(f'✅ Administrador {nome} cadastrado com sucesso! Faça login para continuar.', 'success')
+            return redirect(url_for('login'))
+            
+        except Exception as e:
+            print(f"Erro: {e}")
+            flash('Erro ao cadastrar administrador.', 'error')
+            return redirect(url_for('primeiro_admin'))
+    
+    # GET - Mostrar formulário
+    return render_template('cadastro_admin.html')
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
