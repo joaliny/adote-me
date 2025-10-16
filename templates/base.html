@@ -28,8 +28,6 @@
   {% if pagina == 'detalhes_pet' %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/detalhes_pet.css') }}">
   {% endif %}
-
-
 </head>
 
 <body>
@@ -44,73 +42,61 @@
           <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre nós</a></li>
           <li><a href="/blog" class="{% if pagina == 'blog' %}active{% endif %}">Blog</a></li>
           <li><a href="/adotar" class="{% if pagina == 'adotar' %}active{% endif %}">Pets para adoção</a></li>
-          <!-- <li><a href="/cadastrar" class="{% if pagina == 'cadastrar' %}active{% endif %}">Cadastrar Pet</a></li> -->
 
-          <!-- Mostrar "Cadastrar Pet" apenas para protetores e admin -->
-          {% if usuario and usuario.tipo in ['protetor', 'admin'] %}
+          <!-- Mostrar "Cadastrar Pet" apenas para admin -->
+          {% if usuario and usuario.tipo == 'admin' %}
           <li><a href="/cadastrar" class="{% if pagina == 'cadastrar' %}active{% endif %}">Cadastrar Pet</a></li>
           {% endif %}
         </ul>
       </nav>
 
+      <!-- BOTÕES DE AUTENTICAÇÃO - APENAS UMA DIV -->
+      <div class="auth-buttons">
+        {% if usuario and usuario.id %}
+        <div class="dropdown">
+          <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Olá, {{ usuario.nome }}
+            {% if usuario.tipo == 'admin' %} 🧑‍💻
+            {% else %} 😊
+            {% endif %}
+          </button>
+          <ul class="dropdown-menu">
+            <!-- PARA ADMIN -->
+            {% if usuario.tipo == 'admin' %}
+            <li><a class="dropdown-item" href="/admin">
+                <i class="bi bi-speedometer2"></i> Dashboard Admin
+              </a></li>
+            <li><a class="dropdown-item" href="/admin/protetores">
+                <i class="bi bi-people"></i> Gerenciar Usuários
+              </a></li>
 
-    <!-- BOTÕES DE AUTENTICAÇÃO - APENAS UMA DIV -->
-    <div class="auth-buttons">
-      {% if usuario and usuario.id %}
-      <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Olá, {{ usuario.nome }}
-          {% if usuario.tipo == 'admin' %} 👑
-          {% elif usuario.tipo == 'protetor' %} 🏠
-          {% else %} 😊
-          {% endif %}
-        </button>
-        <ul class="dropdown-menu">
-          <!-- PARA ADMIN -->
-          {% if usuario.tipo == 'admin' %}
-          <li><a class="dropdown-item" href="/admin">
-              <i class="bi bi-speedometer2"></i> Dashboard Admin
-            </a></li>
-          <li><a class="dropdown-item" href="/admin/protetores">
-              <i class="bi bi-people"></i> Gerenciar Protetores
-            </a></li>
-    
-          <!-- PARA PROTETOR -->
-          {% elif usuario.tipo == 'protetor' %}
-          <li><a class="dropdown-item" href="/protetor">
-              <i class="bi bi-speedometer2"></i> Meu Dashboard
-            </a></li>
-          <li><a class="dropdown-item" href="/cadastrar">
-              <i class="bi bi-plus-circle"></i> Cadastrar Pet
-            </a></li>
-    
-          <!-- PARA USUÁRIO COMUM (ADOTANTE) -->
-          {% else %}
-          <li><a class="dropdown-item" href="/minha-conta">
-              <i class="bi bi-person"></i> Minha Conta
-            </a></li>
-          <li><a class="dropdown-item" href="/meus-favoritos">
-              <i class="bi bi-heart"></i> Meus Favoritos
-            </a></li>
-          <li><a class="dropdown-item" href="/minhas-adocoes">
-              <i class="bi bi-house-check"></i> Minhas Adoções
-            </a></li>
-          {% endif %}
-    
-          <!-- OPÇÕES COMUNS A TODOS -->
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-          <li><a class="dropdown-item text-danger" href="/logout">
-              <i class="bi bi-box-arrow-right"></i> Sair
-            </a></li>
-        </ul>
+            <!-- PARA USUÁRIO COMUM (ADOTANTE) -->
+            {% else %}
+            <li><a class="dropdown-item" href="/minha-conta">
+                <i class="bi bi-person"></i> Minha Conta
+              </a></li>
+            <li><a class="dropdown-item" href="/meus-favoritos">
+                <i class="bi bi-heart"></i> Meus Favoritos
+              </a></li>
+            <li><a class="dropdown-item" href="/minhas-adocoes">
+                <i class="bi bi-house-check"></i> Minhas Adoções
+              </a></li>
+            {% endif %}
+
+            <!-- OPÇÕES COMUNS A TODOS -->
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item text-danger" href="/logout">
+                <i class="bi bi-box-arrow-right"></i> Sair
+              </a></li>
+          </ul>
+        </div>
+        {% else %}
+        <a href="/login" class="btn-login">Entrar</a>
+        <a href="/cadastro" class="btn-register">Cadastrar</a>
+        {% endif %}
       </div>
-      {% else %}
-      <a href="/login" class="btn-login">Entrar</a>
-      <a href="/cadastro" class="btn-register">Cadastrar</a>
-      {% endif %}
-    </div>
     </div>
   </header>
 
@@ -123,7 +109,7 @@
   <footer>
     <div class="footer-content">
       <div class="footer-column">
-        <div class="logo">Adote-<span>me 🐾</span></div>
+        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">me🐾</span></div>
         <p>Conectando pets a lares amorosos desde 2025. Nossa missão é reduzir o número de animais abandonados através
           da adoção responsável.</p>
       </div>
@@ -137,6 +123,7 @@
           <li><a href="/adotar">Pets para adoção</a></li>
         </ul>
       </div>
+
       <div class="footer-column">
         <h3>Contato</h3>
         <ul>
@@ -146,6 +133,7 @@
         </ul>
       </div>
     </div>
+
     <div class="copyright">
       <p>&copy; 2025 Adote-me. Todos os direitos reservados.</p>
     </div>
@@ -153,10 +141,6 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
-
-
 
 </body>
 
