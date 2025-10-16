@@ -72,6 +72,9 @@ python app.py
 text
 http://localhost:5000
 
+# 📝link para cadastrar usuário Admin 
+ http://localhost:5000/primeiro-admin
+
 ⚙️ Configuração do Ambiente
 📝 Arquivo .env (Configure com SEUS dados)
 env
@@ -80,7 +83,7 @@ SECRET_KEY=sua_chave_secreta_muito_segura
 
 # CONFIGURAÇÕES DO MYSQL (USE OS MESMOS DO PASSO 4)
 DB_HOST=localhost
-DB_USER=adote_user
+DB_USER=root
 DB_PASSWORD=sua_senha_segura
 DB_NAME=adote_me
 DB_PORT=3306
@@ -90,7 +93,7 @@ EMAIL_SISTEMA=seu-email@gmail.com
 SENHA_EMAIL=sua_senha_de_app
 
 # 🗄️ Estrutura do Banco Criada
-✅ usuarios - Cadastro de usuários e protetores
+✅ usuarios - Cadastro de usuários
 ✅ pets - Animais disponíveis para adoção
 ✅ adocoes - Solicitações de adoção
 
