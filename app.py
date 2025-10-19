@@ -334,6 +334,8 @@ def detalhes_pet(id):
     usuario = obter_usuario_atual() 
     sucesso = request.args.get('sucesso', False)
     nome = request.args.get('nome', '')
+    mostrar_modal_login = request.args.get('mostrar_modal_login') == 'true'  # ✅ NOVO
+    
     
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM pets WHERE id = %s", (id,))
@@ -354,6 +356,7 @@ def detalhes_pet(id):
             pagina='detalhes_pet',
             mostrar_modal=sucesso,
             nome=nome,
+            mostrar_modal_login=mostrar_modal_login,  # ✅ NOVO
             usuario=usuario)
     else:
         return "Pet não encontrado", 404
@@ -540,27 +543,31 @@ def solicitar_adocao(id):
     usuario = obter_usuario_atual()
     if not usuario:
         flash('Você precisa fazer login ou se cadastrar para solicitar adoção.', 'error')
-        return redirect(url_for('login'))
+        return redirect(url_for('detalhes_pet', id=id, mostrar_modal_login='true'))
     
     try:
         print("🐾 === INICIANDO SOLICITAÇÃO DE ADOÇÃO ===")
         print(f"👤 Usuário logado: {usuario}")
         print(f"🐕 Pet ID: {id}")
         
-        # Dados do formulário
+        # ✅ DADOS DO FORMULÁRIO COMPLETO
+        nome = request.form.get('nome', '').strip()
+        email = request.form.get('email', '').strip()
         telefone = request.form.get('telefone', '').strip()
         mensagem = request.form.get('mensagem', '').strip()
 
-        print(f"📞 Telefone recebido: '{telefone}'")
+        print(f"📝 Dados recebidos: {nome}, {email}, {telefone}")
         print(f"💬 Mensagem recebida: '{mensagem}'")
 
         # ✅ VALIDAÇÃO DOS CAMPOS
-        if not telefone:
-            flash('Por favor, informe seu telefone para contato.', 'error')
-            return redirect(url_for('detalhes_pet', id=id))
+        if not all([nome, email, telefone, mensagem]):
+            missing = []
+            if not nome: missing.append('nome')
+            if not email: missing.append('email')
+            if not telefone: missing.append('telefone')
+            if not mensagem: missing.append('mensagem')
             
-        if not mensagem:
-            flash('Por favor, escreva uma mensagem sobre por que quer adotar este pet.', 'error')
+            flash(f'Por favor, preencha todos os campos: {", ".join(missing)}', 'error')
             return redirect(url_for('detalhes_pet', id=id))
 
         print("✅ Todos os campos válidos")
@@ -582,9 +589,8 @@ def solicitar_adocao(id):
         pet_idade = pet[3]
         print(f"✅ Pet encontrado: {pet_nome} ({pet_especie}, {pet_idade} anos)")
 
-        # ✅ VERIFICAR/CRIAR TABELA ADOÇÕES COM TODAS AS COLUNAS
+        # ✅ VERIFICAR/CRIAR TABELA ADOÇÕES
         try:
-            # Primeiro cria a tabela se não existir
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS adocoes (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -598,27 +604,8 @@ def solicitar_adocao(id):
                     status VARCHAR(20) DEFAULT 'pendente'
                 )
             """)
-            
-            # ✅ VERIFICAR SE A COLUNA TELEFONE EXISTE
-            try:
-                cur.execute("SELECT telefone FROM adocoes LIMIT 1")
-                print("✅ Coluna 'telefone' já existe na tabela")
-            except Exception:
-                print("⚠️ Coluna 'telefone' não existe, adicionando...")
-                cur.execute("ALTER TABLE adocoes ADD COLUMN telefone VARCHAR(20) NOT NULL AFTER email")
-                print("✅ Coluna 'telefone' adicionada com sucesso")
-            
-            # ✅ VERIFICAR SE A COLUNA USUARIO_ID EXISTE
-            try:
-                cur.execute("SELECT usuario_id FROM adocoes LIMIT 1")
-                print("✅ Coluna 'usuario_id' já existe na tabela")
-            except Exception:
-                print("⚠️ Coluna 'usuario_id' não existe, adicionando...")
-                cur.execute("ALTER TABLE adocoes ADD COLUMN usuario_id INT AFTER pet_id")
-                print("✅ Coluna 'usuario_id' adicionada com sucesso")
-            
             mysql.connection.commit()
-            print("✅ Tabela 'adocoes' verificada/corrigida com sucesso")
+            print("✅ Tabela 'adocoes' verificada/criada com sucesso")
             
         except Exception as e:
             print(f"❌ Erro ao verificar/criar tabela: {e}")
@@ -631,7 +618,7 @@ def solicitar_adocao(id):
             cur.execute("""
                 INSERT INTO adocoes (pet_id, usuario_id, nome, email, telefone, mensagem) 
                 VALUES (%s, %s, %s, %s, %s, %s)
-            """, (id, usuario['id'], usuario['nome'], usuario['email'], telefone, mensagem))
+            """, (id, usuario['id'], nome, email, telefone, mensagem))
             
             mysql.connection.commit()
             adocao_id = cur.lastrowid
@@ -650,14 +637,15 @@ def solicitar_adocao(id):
         try:
             assunto = f"✅ Solicitação de adoção - {pet_nome}"
             corpo = f"""
-            Olá {usuario['nome']}!
+            Olá {nome}!
 
             🎉 Sua solicitação para adotar {pet_nome} foi recebida com sucesso!
 
             📋 Detalhes da sua solicitação:
             • 🐕 Pet: {pet_nome} ({pet_especie}, {pet_idade} anos)
-            • 💬 Sua mensagem: {mensagem}
+            • 📧 Seu e-mail: {email}
             • 📞 Seu telefone: {telefone}
+            • 💬 Sua mensagem: {mensagem}
             • 📅 Data: {datetime.now().strftime('%d/%m/%Y às %H:%M')}
 
             ⏰ Nossa equipe entrará em contato com você em até 48 horas.
@@ -668,7 +656,7 @@ def solicitar_adocao(id):
             Equipe Adote-me
             """
 
-            if enviar_email(usuario['email'], assunto, corpo):
+            if enviar_email(email, assunto, corpo):
                 print("✅ E-mail de confirmação enviado")
             else:
                 print("⚠️ E-mail não enviado, mas solicitação salva")
@@ -678,7 +666,7 @@ def solicitar_adocao(id):
 
         # ✅ SUCESSO
         print("🎉 Solicitação de adoção processada com sucesso!")
-        return redirect(url_for('detalhes_pet', id=id, sucesso='true', nome=usuario['nome']))
+        return redirect(url_for('detalhes_pet', id=id, sucesso='true', nome=nome))
 
     except Exception as e:
         print(f"❌ ERRO GERAL NA SOLICITAÇÃO: {str(e)}")

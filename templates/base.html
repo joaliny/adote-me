@@ -30,7 +30,8 @@
   {% endif %}
 </head>
 
-<body>
+<body data-mostrar-modal-login="{{ 'true' if mostrar_modal_login else 'false' }}"
+  data-mostrar-modal="{{ 'true' if mostrar_modal else 'false' }}">
 
   <!-- Header e Navegação -->
   <header>
