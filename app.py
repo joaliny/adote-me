@@ -346,7 +346,6 @@ def esqueci_senha():
             if usuario:
                 # Gerar token único
                 token = secrets.token_urlsafe(32)
-                # ⭐⭐ CORREÇÃO: Usar datetime corretamente ⭐⭐
                 expira_em = datetime.now() + timedelta(hours=1)
                 
                 print(f"🔐 Token gerado: {token}")
@@ -384,26 +383,37 @@ def esqueci_senha():
                 
                 # Tentar enviar e-mail
                 if enviar_email(email, assunto, corpo):
+                    # ⭐⭐ CORREÇÃO: Retornar JSON para requisições AJAX ⭐⭐
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return jsonify({'success': True, 'message': 'Enviamos um e-mail com instruções para redefinir sua senha.'})
                     flash('Enviamos um e-mail com instruções para redefinir sua senha.', 'success')
                     print("✅ E-mail de recuperação enviado com sucesso")
                 else:
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return jsonify({'success': False, 'message': 'Erro ao enviar e-mail. Tente novamente.'})
                     flash('Erro ao enviar e-mail. Tente novamente.', 'error')
                     print("❌ Falha no envio do e-mail")
             else:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({'success': False, 'message': 'E-mail não encontrado em nosso sistema.'})
                 flash('E-mail não encontrado em nosso sistema.', 'error')
                 print("❌ E-mail não encontrado no banco de dados")
             
-            # ⭐⭐ SEMPRE REDIRECIONAR PARA LOGIN ⭐⭐
-            return redirect(url_for('login'))
+            # ⭐⭐ CORREÇÃO: Só redirecionar se NÃO for AJAX ⭐⭐
+            if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return redirect(url_for('login'))
+            else:
+                return jsonify({'success': True, 'message': 'Processamento concluído'})
             
         except Exception as e:
             print(f"❌ Erro no banco de dados: {e}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': 'Erro interno do sistema. Tente novamente.'})
             flash('Erro interno do sistema. Tente novamente.', 'error')
             return redirect(url_for('login'))
     
     # ⭐⭐ SE FOR GET, REDIRECIONAR PARA LOGIN ⭐⭐
     return redirect(url_for('login'))
-
 
 
 

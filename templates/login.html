@@ -417,6 +417,37 @@
     .modal.show .modal-dialog {
         transform: translateY(0);
     }
+
+
+
+
+
+   
+.spinner-pulse {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin-pulse 1s ease-in-out infinite;
+}
+
+@keyframes spin-pulse {
+    0% {
+        transform: rotate(0deg);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    50% {
+        transform: rotate(180deg);
+        box-shadow: 0 0 0 5px rgba(255, 255, 255, 0);
+    }
+    100% {
+        transform: rotate(360deg);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
   </style>
 
     
@@ -466,173 +497,172 @@
     </div>
 
     <!-- Modal Esqueci Senha -->
-    <div class="modal fade" id="modalEsqueciSenha" tabindex="-1" aria-labelledby="modalEsqueciSenhaLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body p-4">
-                    <!-- Título -->
-                    <div class="text-center mb-4">
-                        <h4 class="modal-title fw-bold text-dark">Recuperar Senha</h4>
-                        <p class="text-muted mt-2">Digite seu e-mail para receber um link de recuperação.</p>
-                    </div>
-    
-                    <!-- Mensagens do Flask (aparecem quando há redirect) -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                    {% for category, message in messages %}
-                    <div
-                        class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show mb-3">
-                        <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-                    {% endwith %}
-    
-                    <!-- Formulário -->
-                    <form method="POST" action="{{ url_for('esqueci_senha') }}">
-                        <div class="mb-4">
-                            <label for="emailRecuperacao" class="form-label fw-semibold text-dark">Seu e-mail:</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-envelope text-muted"></i>
-                                </span>
-                                <input type="email" class="form-control border-start-0" id="emailRecuperacao" name="email"
-                                    placeholder="seu@email.com" required>
-                            </div>
-                        </div>
-    
-                        <!-- Divisor -->
-                        <div class="border-top my-4"></div>
-    
-                        <!-- Botões -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg fw-semibold py-2">
-                                Enviar Link de Recuperação
-                            </button>
-    
-                            <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">
-                                <i class="bi bi-arrow-left me-2"></i>Voltar para o Login
-                            </button>
-                        </div>
-                    </form>
+  <div class="modal fade" id="modalEsqueciSenha" tabindex="-1" aria-labelledby="modalEsqueciSenhaLabel"
+     aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-4">
+                <!-- Título -->
+                <div class="text-center mb-4">
+                    <h4 class="modal-title fw-bold text-dark">Recuperar Senha</h4>
+                    <p class="text-muted mt-2">Digite seu e-mail para receber um link de recuperação.</p>
                 </div>
+
+                <!-- Mensagem de Sucesso (inicialmente escondida) -->
+                <div id="mensagemSucesso" class="alert alert-success alert-dismissible fade show d-none mb-3">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <span id="textoSucesso">Enviamos um e-mail com instruções para redefinir sua senha.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Mensagem de Erro (inicialmente escondida) -->
+                <div id="mensagemErro" class="alert alert-danger alert-dismissible fade show d-none mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span id="textoErro">Erro ao processar solicitação.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Formulário -->
+                <form id="formEsqueciSenha" method="POST">
+                    <div class="mb-4">
+                        <label for="emailRecuperacao" class="form-label fw-semibold text-dark">Seu e-mail:</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="bi bi-envelope text-muted"></i>
+                            </span>
+                            <input type="email" class="form-control border-start-0" id="emailRecuperacao" name="email"
+                                placeholder="seu@email.com" required>
+                        </div>
+                    </div>
+
+                    <!-- Divisor -->
+                    <div class="border-top my-4"></div>
+
+                    <!-- Botões -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg fw-semibold py-2">
+                            <i class="bi bi-send me-2"></i>Enviar Link de Recuperação
+                        </button>
+
+                        <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">
+                            <i class="bi bi-arrow-left me-2"></i>Voltar para o Login
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
+     </div>
+ </div>
 
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     document.getElementById('formEsqueciSenha').addEventListener('submit', function (e) {
-        e.preventDefault();
+            e.preventDefault();
 
-        const email = document.getElementById('emailRecuperacao').value.trim();
-        const mensagemSucesso = document.getElementById('mensagemSucesso');
-        const mensagemErro = document.getElementById('mensagemErro');
-        const textoErro = document.getElementById('textoErro');
-        const form = document.getElementById('formEsqueciSenha');
+            const email = document.getElementById('emailRecuperacao').value.trim();
+            const mensagemSucesso = document.getElementById('mensagemSucesso');
+            const mensagemErro = document.getElementById('mensagemErro');
+            const textoErro = document.getElementById('textoErro');
+            const textoSucesso = document.getElementById('textoSucesso');
+            const form = document.getElementById('formEsqueciSenha');
 
-        // Validação básica do email
-        if (!email || !email.includes('@') || !email.includes('.')) {
-            mostrarErro('Por favor, digite um e-mail válido.');
-            return;
+            // Validação básica do email
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                mostrarErro('Por favor, digite um e-mail válido.');
+                return;
+            }
+
+            // Mostrar loading no botão
+            const btnEnviar = this.querySelector('button[type="submit"]');
+            const textoOriginal = btnEnviar.innerHTML;
+            btnEnviar.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Enviando...';
+            btnEnviar.disabled = true;
+
+            // Esconder mensagens anteriores
+            mensagemSucesso.classList.add('d-none');
+            mensagemErro.classList.add('d-none');
+
+            // Enviar requisição para o backend
+            fetch('{{ url_for("esqueci_senha") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'  // ⭐⭐ IMPORTANTE: Identifica como AJAX ⭐⭐
+                },
+                body: new URLSearchParams({
+                    'email': email
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        textoSucesso.textContent = data.message;
+                        mostrarSucesso();
+                    } else {
+                        mostrarErro(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarErro('Erro de conexão. Tente novamente.');
+                })
+                .finally(() => {
+                    // Restaurar botão
+                    btnEnviar.innerHTML = textoOriginal;
+                    btnEnviar.disabled = false;
+                });
+        });
+
+        function mostrarSucesso() {
+            const mensagemSucesso = document.getElementById('mensagemSucesso');
+            const mensagemErro = document.getElementById('mensagemErro');
+            const form = document.getElementById('formEsqueciSenha');
+
+            mensagemErro.classList.add('d-none');
+            mensagemSucesso.classList.remove('d-none');
+            form.classList.add('d-none');
+
+            // Fechar modal após 3 segundos
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEsqueciSenha'));
+                modal.hide();
+
+                // Resetar formulário quando modal fechar
+                setTimeout(() => {
+                    form.classList.remove('d-none');
+                    document.getElementById('emailRecuperacao').value = '';
+                }, 500);
+            }, 6000);
         }
 
-        // Mostrar loading no botão
-        const btnEnviar = this.querySelector('button[type="submit"]');
-        const textoOriginal = btnEnviar.innerHTML;
-        btnEnviar.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Enviando...';
-        btnEnviar.disabled = true;
+        function mostrarErro(mensagem) {
+            const mensagemErro = document.getElementById('mensagemErro');
+            const textoErro = document.getElementById('textoErro');
 
-        // Enviar requisição para o backend
-        fetch('{{ url_for("esqueci_senha") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                'email': email
-            })
-        })
-            .then(response => {
-                if (response.redirected) {
-                    // Se houve redirect, seguir para a página
-                    window.location.href = response.url;
-                } else {
-                    return response.text();
-                }
-            })
-            .then(data => {
-                if (data) {
-                    // Analisar a resposta para ver se foi sucesso ou erro
-                    if (data.includes('Enviamos um e-mail') || data.includes('success')) {
-                        mostrarSucesso();
-                    } else if (data.includes('não encontrado')) {
-                        mostrarErro('E-mail não encontrado em nosso sistema.');
-                    } else if (data.includes('Erro ao enviar e-mail')) {
-                        mostrarErro('Erro ao enviar e-mail. Tente novamente.');
-                    } else {
-                        mostrarErro('Erro desconhecido. Tente novamente.');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                mostrarErro('Erro de conexão. Tente novamente.');
-            })
-            .finally(() => {
-                // Restaurar botão
-                btnEnviar.innerHTML = textoOriginal;
-                btnEnviar.disabled = false;
-            });
-    });
+            textoErro.textContent = mensagem;
+            mensagemErro.classList.remove('d-none');
 
-    function mostrarSucesso() {
-        const mensagemSucesso = document.getElementById('mensagemSucesso');
-        const mensagemErro = document.getElementById('mensagemErro');
-        const form = document.getElementById('formEsqueciSenha');
+            // Rolagem suave para a mensagem de erro
+            mensagemErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
-        mensagemErro.classList.add('d-none');
-        mensagemSucesso.classList.remove('d-none');
-        form.classList.add('d-none');
+        // Resetar modal quando fechar
+        document.getElementById('modalEsqueciSenha').addEventListener('hidden.bs.modal', function () {
+            const mensagemSucesso = document.getElementById('mensagemSucesso');
+            const mensagemErro = document.getElementById('mensagemErro');
+            const form = document.getElementById('formEsqueciSenha');
 
-        // Fechar modal após 3 segundos
-        setTimeout(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalEsqueciSenha'));
-            modal.hide();
-        }, 3000);
-    }
+            mensagemSucesso.classList.add('d-none');
+            mensagemErro.classList.add('d-none');
+            form.classList.remove('d-none');
+            document.getElementById('emailRecuperacao').value = '';
+        });
 
-    function mostrarErro(mensagem) {
-        const mensagemErro = document.getElementById('mensagemErro');
-        const textoErro = document.getElementById('textoErro');
-
-        textoErro.textContent = mensagem;
-        mensagemErro.classList.remove('d-none');
-
-        // Rolagem suave para a mensagem de erro
-        mensagemErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // Resetar modal quando fechar
-    document.getElementById('modalEsqueciSenha').addEventListener('hidden.bs.modal', function () {
-        const mensagemSucesso = document.getElementById('mensagemSucesso');
-        const mensagemErro = document.getElementById('mensagemErro');
-        const form = document.getElementById('formEsqueciSenha');
-
-        mensagemSucesso.classList.add('d-none');
-        mensagemErro.classList.add('d-none');
-        form.classList.remove('d-none');
-        document.getElementById('emailRecuperacao').value = '';
-    });
-
-    // Focar no campo de email quando o modal abrir
-    document.getElementById('modalEsqueciSenha').addEventListener('shown.bs.modal', function () {
-        document.getElementById('emailRecuperacao').focus();
-    });
+        // Focar no campo de email quando o modal abrir
+        document.getElementById('modalEsqueciSenha').addEventListener('shown.bs.modal', function () {
+            document.getElementById('emailRecuperacao').focus();
+        });
 </script>
 </body>
 
