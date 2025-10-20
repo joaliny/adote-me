@@ -1,131 +1,98 @@
-🐾 Adote-me - Sistema de Adoção de Animais
-https://img.shields.io/badge/Python-3.8%252B-blue
-https://img.shields.io/badge/Flask-2.3%252B-green
-https://img.shields.io/badge/MySQL-8.0%252B-orange
-https://img.shields.io/badge/Bootstrap-5.3-purple
-
+# 🐾 Adote-me - Sistema de Adoção de Animais
 Sistema web completo para conectar animais que precisam de um lar com pessoas dispostas a adotar com responsabilidade.
 
 # 🎯 O Que é o Adote-me? 
 O Adote-me é uma plataforma web que facilita o processo de adoção de animais, conectando:
 
-🏠 Pessoas interessadas em adotar um pet
-🏢 Protetores e ONGs que resgatam animais
-🐕 Animais que precisam de um lar amoroso
+* 🏠 Pessoas interessadas em adotar um pet
+* 🏢 Protetores e ONGs que resgatam animais
+* 🐕 Animais que precisam de um lar amoroso
 
 
-# 🚀 Comece em 5 Minutos
-Pré-requisitos Básicos
+# 🚀 Pré-requisitos Básicos
 
-✅ Python 3.8+ - Baixar aqui
-✅ MySQL 8.0+ - Baixar aqui
-✅ Git - Baixar aqui
+✅ Python 3.11+
+✅ Servidor MySQL (via XAMPP, WAMP ou nativo)
+✅ Git 
 
 # 📥 Instalação Rápida (Passo a Passo)
 
 1. 📋 Clone o Projeto
-bash
+```bash
 git clone https://github.com/joaliny/adote-me.git
 cd adote-me
-2. 🏠 Crie um Ambiente Virtual (Protege seu Sistema)
-bash
+```
+3. 🏠 Crie um Ambiente Virtual (Protege seu Sistema)
 
-# Windows
+* Windows
+```bash
 python -m venv venv
 venv\Scripts\activate
-
-# Linux/Mac
+```
+* Linux/Mac
+```bash
 python3 -m venv venv
 source venv/bin/activate
+```
 
 # 3. 📦 Instale as Dependências
-bash
+```bash
 pip install -r requirements.txt
+```
+
+# 4. ⚙️ Configura o Arquivo .env
+Crie um arquivo `.env` na raiz do projeto e configure suas credenciais (com suas configurações):
+```env
+    # Configurações do Banco de Dados
+    MYSQL_HOST=127.0.0.1
+    MYSQL_PORT=3306
+    MYSQL_USER=root
+    MYSQL_PASSWORD=
+    MYSQL_DB=adote_me
+
+    # Chave Secreta do Flask
+    FLASK_SECRET_KEY=sua-chave-secreta-aqui
+
+    # Configurações do E-mail (Gmail)
+    EMAIL_SISTEMA=seuemail@gmail.com
+    SENHA_EMAIL=sua-senha-de-app-aqui
+
+    # IMPORTANTE: Use uma Senha de App do Google, não a senha da conta.
+```
+    
 
 # 4. ⚙️ Configure o Banco de Dados
-Primeiro, configure o MySQL:
+Este comando cria o banco de dados, tabelas e usuários:
 
-sql
--- Abra o MySQL (MySQL Workbench ou linha de comando)
-CREATE DATABASE adote_me;
-CREATE USER 'adote_user'@'localhost' IDENTIFIED BY 'sua_senha_segura';
-GRANT ALL PRIVILEGES ON adote_me.* TO 'adote_user'@'localhost';
-FLUSH PRIVILEGES;
-Depois, configure as variáveis de ambiente:
-
-bash
-#Copie o arquivo de exemplo
-cp .env.example .env
-
-Edite o arquivo .env com um editor de texto
-(Substitua pelas SUAS configurações)
-
-# 5. 🗄️ Crie as Tabelas do Banco
-bash
+```bash
 python init_db.py
+```
 
 # 6. 🎉 Execute o Sistema!
-bash
+```bash
 python app.py
+```
 
 # 7. 🌐 Acesse no Navegador
-text
+```
 http://localhost:5000
+```
 
-# 📝link para cadastrar usuário Admin 
- http://localhost:5000/primeiro-admin
-
-⚙️ Configuração do Ambiente
-📝 Arquivo .env (Configure com SEUS dados)
-env
-# CONFIGURAÇÕES DO FLASK
-SECRET_KEY=sua_chave_secreta_muito_segura
-
-# CONFIGURAÇÕES DO MYSQL (USE OS MESMOS DO PASSO 4)
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=sua_senha_segura
-DB_NAME=adote_me
-DB_PORT=3306
-
-# CONFIGURAÇÕES DE EMAIL (OPCIONAL)
-EMAIL_SISTEMA=seu-email@gmail.com
-SENHA_EMAIL=sua_senha_de_app
-
-# 🗄️ Estrutura do Banco Criada
-✅ usuarios - Cadastro de usuários
-✅ pets - Animais disponíveis para adoção
-✅ adocoes - Solicitações de adoção
-
-🎮 Como Usar o Sistema
-👤 Para Quem Quer Adotar
-📝 Cadastre-se como "Adotante"
-
-🔍 Explore animais disponíveis
-
-💌 Envie solicitação para o pet que gostou
-
-📞 Aguarde contato do protetor
-
-🏢 Para Protetores/ONGs
-📝 Cadastre-se como "Protetor/ONG"
-
-🏢 Informe dados da organização
-
-🐕 Cadastre animais para adoção
-
-📋 Gerencie solicitações recebidas
+# 📝 Link para cadastrar usuário Administrador
+```
+http://localhost:5000/primeiro-admin
+```
 
 # 🔧 Funcionalidades Principais
 
-✅ Busca inteligente - Filtre por espécie, idade, localização
-✅ Sistema seguro - Senhas criptografadas
-✅ Interface responsiva - Funciona no celular e computador
-✅ Processo de adoção - Do cadastro até o contato
+* ✅ Busca inteligente - Filtre por espécie, idade, localização
+* ✅ Sistema seguro - Senhas criptografadas
+* ✅ Interface responsiva - Funciona no celular e computador
+* ✅ Processo de adoção - Do cadastro até o contato
 
 
 # 📁 Estrutura do Projeto
-text
+```text
 adote-me/
 ├── 🐍 app.py                 # Aplicação principal
 ├── 🗄️ init_db.py            # Configura o banco de dados
@@ -141,12 +108,12 @@ adote-me/
 │   ├── css/               # Estilos
 │   └── imagens/           # Imagens do sistema
 └── 📊 __pycache__/        # Arquivos temporários Python
-
+```
 
 # 🛠️ Para Desenvolvedores
 
 🔄 Comandos Úteis
-bash
+```bash
 # Desenvolvimento
 python app.py                   # Roda o servidor
 python init_db.py               # Recria o banco (cuidado!)
@@ -156,33 +123,34 @@ git status                      # Verifica mudanças
 git add .                       # Prepara arquivos
 git commit -m "mensagem"        # Salva mudanças
 git push                        # Envia para GitHub
+```
 
 # 🌐 URLs Principais
-Página	URL	Descrição
-
+Páginas	URL e	Descrição
+```txt
 🏠 Início	/	Página principal
 📝 Cadastro	/cadastro	Criar conta
 🔐 Login	/login	Fazer login
 🐕 Adotar	/adotar	Ver animais
 ➕ Cadastrar Pet	/cadastrar	Adicionar animal
 🐛 Solução de Problemas Comuns
-Erro: "Module not found"
 
-bash
-pip install -r requirements.txt
-Erro: "Can't connect to MySQL"
+```
 
+* Erro: "Can't connect to MySQL"
+```bash
 Verifique se o MySQL está rodando
-
 Confirme usuário/senha no .env
+```
 
-Erro: "Port already in use"
+* Erro: "Port already in use"
 
-bash
+```bash
 # Use outra porta
 python app.py --port 5001
-🤝 Como Contribuir
-Quer ajudar a melhorar o Adote-me? Siga estes passos:
+```
+
+# 🤝 Como Contribuir: Quer ajudar a melhorar o Adote-me? Siga estes passos:
 
 🐙 Faça um Fork do projeto
 
@@ -193,8 +161,6 @@ Quer ajudar a melhorar o Adote-me? Siga estes passos:
 📤 Envie: git push origin minha-melhoria
 
 🔃 Abra um Pull Request
-
-
 
 # 📞 Suporte e Dúvidas
 Encontrou algum problema?
