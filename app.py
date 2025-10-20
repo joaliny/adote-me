@@ -9,8 +9,9 @@ import os
 import requests
 from dotenv import load_dotenv
 import MySQLdb.cursors
-from datetime import datetime
+from datetime import datetime, timedelta
 import traceback
+import secrets
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -35,6 +36,37 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Configurações de e-mail
 email_sistema = os.getenv("EMAIL_SISTEMA")
 senha_email = os.getenv("SENHA_EMAIL")
+
+
+def verificar_colunas_recuperacao():
+    """Verifica e cria as colunas necessárias para recuperação de senha"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Tentar adicionar as colunas (ignora erro se já existirem)
+        try:
+            cur.execute("ALTER TABLE usuarios ADD COLUMN reset_token VARCHAR(100) NULL")
+            print("✅ Coluna reset_token criada")
+        except Exception:
+            print("ℹ️ Coluna reset_token já existe")
+        
+        try:
+            cur.execute("ALTER TABLE usuarios ADD COLUMN reset_token_expira DATETIME NULL")
+            print("✅ Coluna reset_token_expira criada")
+        except Exception:
+            print("ℹ️ Coluna reset_token_expira já existe")
+        
+        mysql.connection.commit()
+        cur.close()
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erro ao verificar/criar colunas: {e}")
+        return False
+
+
+# ⭐⭐ ADICIONE ESTA LINHA AQUI ⭐⭐
+verificar_colunas_recuperacao()
 
 
 # ========== Funções auxiliares ==========
@@ -67,30 +99,65 @@ def obter_usuario_atual():
     return None
 
 
+# def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail.com', senha='lfhykuryoifmstep'):
+#     """Envia e-mail usando SMTP do Gmail"""
+#     try:
+#         print(f"📧 Tentando enviar email para: {destinatario}")
+        
+#         msg = MIMEMultipart()
+#         msg['From'] = remetente
+#         msg['To'] = destinatario
+#         msg['Subject'] = assunto
+#         msg.attach(MIMEText(corpo, 'plain'))
+
+#         servidor = smtplib.SMTP('smtp.gmail.com', 587)
+#         servidor.starttls()
+#         servidor.login(remetente, senha)
+#         servidor.send_message(msg)
+#         servidor.quit()
+        
+#         print(f"✅ E-mail enviado com sucesso para {destinatario}")
+#         return True
+        
+#     except Exception as e:
+#         print(f"❌ Erro ao enviar e-mail: {e}")
+#         return False
+
+
 def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail.com', senha='lfhykuryoifmstep'):
     """Envia e-mail usando SMTP do Gmail"""
     try:
         print(f"📧 Tentando enviar email para: {destinatario}")
+        print(f"📧 Remetente: {remetente}")
         
         msg = MIMEMultipart()
         msg['From'] = remetente
         msg['To'] = destinatario
         msg['Subject'] = assunto
-        msg.attach(MIMEText(corpo, 'plain'))
+        msg.attach(MIMEText(corpo, 'plain', 'utf-8'))
 
+        # Configuração mais robusta
         servidor = smtplib.SMTP('smtp.gmail.com', 587)
+        servidor.set_debuglevel(1)  # Ativa debug
+        servidor.ehlo()
         servidor.starttls()
+        servidor.ehlo()
         servidor.login(remetente, senha)
-        servidor.send_message(msg)
+        
+        texto = msg.as_string()
+        servidor.sendmail(remetente, destinatario, texto)
         servidor.quit()
         
         print(f"✅ E-mail enviado com sucesso para {destinatario}")
         return True
         
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"❌ Erro de autenticação: {e}")
+        print("Verifique: 1) Senha de app está correta? 2) Verificação 2 etapas ativada?")
+        return False
     except Exception as e:
         print(f"❌ Erro ao enviar e-mail: {e}")
         return False
-
 
 # ========== Rotas de autenticação e usuários ==========
 
@@ -256,6 +323,145 @@ def minha_conta():
     
     return render_template('minha_conta.html', usuario=usuario, pagina='minha-conta')
 
+
+
+    # ========== Rotas de Recuperação de Senha ==========
+
+
+
+
+
+@app.route('/esqueci-senha', methods=['GET', 'POST'])
+def esqueci_senha():
+    """Página para solicitar recuperação de senha"""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        print(f"📧 Solicitação de recuperação para: {email}")
+        
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT id, nome FROM usuarios WHERE email = %s", (email,))
+            usuario = cur.fetchone()
+            
+            if usuario:
+                # Gerar token único
+                token = secrets.token_urlsafe(32)
+                # ⭐⭐ CORREÇÃO: Usar datetime corretamente ⭐⭐
+                expira_em = datetime.now() + timedelta(hours=1)
+                
+                print(f"🔐 Token gerado: {token}")
+                print(f"⏰ Expira em: {expira_em}")
+                
+                # Salvar token no banco
+                cur.execute(
+                    "UPDATE usuarios SET reset_token = %s, reset_token_expira = %s WHERE email = %s",
+                    (token, expira_em, email)
+                )
+                mysql.connection.commit()
+                cur.close()
+                
+                # Enviar e-mail com o link de recuperação
+                link_recuperacao = url_for('redefinir_senha', token=token, _external=True)
+                
+                assunto = "Recuperação de Senha - Adote-me"
+                corpo = f"""
+                Olá {usuario[1]}!
+                
+                Recebemos uma solicitação para redefinir sua senha no Adote-me.
+                
+                Clique no link abaixo para criar uma nova senha:
+                {link_recuperacao}
+                
+                Este link expira em 1 hora.
+                
+                Se você não solicitou esta recuperação, ignore este e-mail.
+                
+                Atenciosamente,
+                Equipe Adote-me
+                """
+                
+                print(f"🔗 Link de recuperação: {link_recuperacao}")
+                
+                # Tentar enviar e-mail
+                if enviar_email(email, assunto, corpo):
+                    flash('Enviamos um e-mail com instruções para redefinir sua senha.', 'success')
+                    print("✅ E-mail de recuperação enviado com sucesso")
+                else:
+                    flash('Erro ao enviar e-mail. Tente novamente.', 'error')
+                    print("❌ Falha no envio do e-mail")
+            else:
+                flash('E-mail não encontrado em nosso sistema.', 'error')
+                print("❌ E-mail não encontrado no banco de dados")
+            
+            # ⭐⭐ SEMPRE REDIRECIONAR PARA LOGIN ⭐⭐
+            return redirect(url_for('login'))
+            
+        except Exception as e:
+            print(f"❌ Erro no banco de dados: {e}")
+            flash('Erro interno do sistema. Tente novamente.', 'error')
+            return redirect(url_for('login'))
+    
+    # ⭐⭐ SE FOR GET, REDIRECIONAR PARA LOGIN ⭐⭐
+    return redirect(url_for('login'))
+
+
+
+
+@app.route('/redefinir-senha/<token>', methods=['GET', 'POST'])
+def redefinir_senha(token):
+    """Página para redefinir a senha usando o token"""
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(
+            "SELECT id, email, reset_token_expira FROM usuarios WHERE reset_token = %s",
+            (token,)
+        )
+        usuario = cur.fetchone()
+        
+        if not usuario:
+            flash('Token inválido ou expirado.', 'error')
+            return redirect(url_for('esqueci_senha'))
+        
+        # ⭐⭐ CORREÇÃO: Usar datetime.now() corretamente ⭐⭐
+        if usuario[2] < datetime.now():
+            flash('Token expirado. Solicite uma nova recuperação.', 'error')
+            return redirect(url_for('esqueci_senha'))
+        
+        if request.method == 'POST':
+            nova_senha = request.form.get('nova_senha')
+            confirmar_senha = request.form.get('confirmar_senha')
+            
+            if nova_senha != confirmar_senha:
+                flash('As senhas não coincidem.', 'error')
+                return redirect(url_for('redefinir_senha', token=token))
+            
+            if len(nova_senha) < 6:
+                flash('A senha deve ter no mínimo 6 caracteres.', 'error')
+                return redirect(url_for('redefinir_senha', token=token))
+            
+            # Atualizar senha e limpar token
+            senha_hash = generate_password_hash(nova_senha)
+            cur.execute(
+                "UPDATE usuarios SET senha = %s, reset_token = NULL, reset_token_expira = NULL WHERE id = %s",
+                (senha_hash, usuario[0])
+            )
+            mysql.connection.commit()
+            cur.close()
+            
+            flash('Senha redefinida com sucesso! Faça login com sua nova senha.', 'success')
+            return redirect(url_for('login'))
+        
+        cur.close()
+        return render_template('redefinir_senha.html', token=token, pagina='redefinir_senha')
+        
+    except Exception as e:
+        print(f"❌ Erro na redefinição de senha: {e}")
+        flash('Erro interno do sistema. Tente novamente.', 'error')
+        return redirect(url_for('esqueci_senha'))
+
+
+
+    
 
 # ========== Rotas de Pets ==========
 
