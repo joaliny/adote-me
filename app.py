@@ -41,31 +41,31 @@ senha_email = os.getenv("SENHA_EMAIL")
 def verificar_colunas_recuperacao():
     """Verifica e cria as colunas necessárias para recuperação de senha"""
     try:
-        cur = mysql.connection.cursor()
-        
-        # Tentar adicionar as colunas (ignora erro se já existirem)
-        try:
-            cur.execute("ALTER TABLE usuarios ADD COLUMN reset_token VARCHAR(100) NULL")
-            print("✅ Coluna reset_token criada")
-        except Exception:
-            print("ℹ️ Coluna reset_token já existe")
-        
-        try:
-            cur.execute("ALTER TABLE usuarios ADD COLUMN reset_token_expira DATETIME NULL")
-            print("✅ Coluna reset_token_expira criada")
-        except Exception:
-            print("ℹ️ Coluna reset_token_expira já existe")
-        
-        mysql.connection.commit()
-        cur.close()
-        return True
-        
+        with app.app_context():  # ⭐⭐ CORREÇÃO AQUI ⭐⭐
+            cur = mysql.connection.cursor()
+            
+            # Tentar adicionar as colunas (ignora erro se já existirem)
+            try:
+                cur.execute("ALTER TABLE usuarios ADD COLUMN reset_token VARCHAR(100) NULL")
+                print("✅ Coluna reset_token criada")
+            except Exception:
+                print("ℹ️ Coluna reset_token já existe")
+            
+            try:
+                cur.execute("ALTER TABLE usuarios ADD COLUMN reset_token_expira DATETIME NULL")
+                print("✅ Coluna reset_token_expira criada")
+            except Exception:
+                print("ℹ️ Coluna reset_token_expira já existe")
+            
+            mysql.connection.commit()
+            cur.close()
+            return True
+            
     except Exception as e:
         print(f"❌ Erro ao verificar/criar colunas: {e}")
         return False
 
-
-# ⭐⭐ ADICIONE ESTA LINHA AQUI ⭐⭐
+# ⭐⭐ CHAMADA NORMAL (agora funciona porque a função tem contexto) ⭐⭐
 verificar_colunas_recuperacao()
 
 
