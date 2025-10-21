@@ -31,17 +31,18 @@ def create_database():
             # 3. Criar tabela de usuários
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS usuarios (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    nome VARCHAR(100) NOT NULL,
-                    email VARCHAR(100) UNIQUE NOT NULL,
-                    senha VARCHAR(255) NOT NULL,
-                    telefone VARCHAR(20),
-                    endereco TEXT,
-                    tipo ENUM('adotante', 'protetor', 'admin') DEFAULT 'adotante',
-                    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    nome_organizacao VARCHAR(100),
-                    cnpj VARCHAR(18),
-                    verificado BOOLEAN DEFAULT FALSE
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nome VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                senha VARCHAR(255) NOT NULL,
+                telefone VARCHAR(20),
+                endereco TEXT,
+                cpf VARCHAR(14) UNIQUE,                 -- CPF (para adotantes/protetores individuais)
+                cnpj VARCHAR(18) UNIQUE,                -- CNPJ (para ONGs/Instituições)
+                tipo ENUM('adotante', 'protetor', 'ong', 'admin') DEFAULT 'adotante', -- NOVO TIPO: 'ong'
+                data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+                nome_organizacao VARCHAR(100),
+                verificado BOOLEAN DEFAULT FALSE
                 )
             ''')
             print("✅ Tabela 'usuarios' criada/verificada")
@@ -79,6 +80,22 @@ def create_database():
                 )
             ''')
             print("✅ Tabela 'adocoes' criada/verificada")
+
+            # Criar tabela de postagens do Blog (NOVO PASSO)
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS postagens (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            titulo VARCHAR(255) NOT NULL,
+            subtitulo VARCHAR(255),
+            conteudo TEXT NOT NULL,
+            imagem_url VARCHAR(255),
+            autor_id INT,
+            categoria VARCHAR(50),
+            data_publicacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            FOREIGN KEY (autor_id) REFERENCES usuarios(id)
+            )
+            ''')
             
             # 6. Criar admin principal apenas se não existir nenhum admin
             criar_admin_principal(cursor)
