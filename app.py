@@ -12,6 +12,8 @@ import MySQLdb.cursors
 from datetime import datetime, timedelta
 import traceback
 import secrets
+import google.generativeai as genai
+
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -26,7 +28,6 @@ app.config['MYSQL_DB'] = 'adote-me'
 app.secret_key = 'sua-chave-secreta-aqui'
 
 
-
 mysql = MySQL(app)
 
 # Configurações de upload
@@ -37,7 +38,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 email_sistema = os.getenv("EMAIL_SISTEMA")
 senha_email = os.getenv("SENHA_EMAIL")
 
+# Configurar a chave da API do Gemini
+GEMINI_API_KEY = "AIzaSyBAJIxOHZcsF2aowxVdZTGQ9i8aUkQHFLg"
+genai.configure(api_key=GEMINI_API_KEY)
 
+
+
+
+
+# ========= Verificar/Adicionar colunas de recuperação de senha ==========
 def verificar_colunas_recuperacao():
     """Verifica e cria as colunas necessárias para recuperação de senha"""
     try:
@@ -70,17 +79,6 @@ verificar_colunas_recuperacao()
 
 
 # ========== Funções auxiliares ==========
-# def obter_usuario_atual():
-#     """Retorna os dados do usuário logado ou None se não estiver logado"""
-#     if 'logado' in session and session['logado']:
-#         return {
-#             'id': session.get('usuario_id'),
-#             'nome': session.get('usuario_nome'),
-#             'email': session.get('usuario_email'),
-#             'tipo': session.get('usuario_tipo')
-#         }
-#     return None
-
 def obter_usuario_atual():
     """Retorna os dados do usuário logado ou None se não estiver logado"""
     print(f"🔍 SESSÃO ATUAL: {dict(session)}")  # DEBUG
@@ -98,30 +96,6 @@ def obter_usuario_atual():
     print("❌ NENHUM USUÁRIO LOGADO")
     return None
 
-
-# def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail.com', senha='lfhykuryoifmstep'):
-#     """Envia e-mail usando SMTP do Gmail"""
-#     try:
-#         print(f"📧 Tentando enviar email para: {destinatario}")
-        
-#         msg = MIMEMultipart()
-#         msg['From'] = remetente
-#         msg['To'] = destinatario
-#         msg['Subject'] = assunto
-#         msg.attach(MIMEText(corpo, 'plain'))
-
-#         servidor = smtplib.SMTP('smtp.gmail.com', 587)
-#         servidor.starttls()
-#         servidor.login(remetente, senha)
-#         servidor.send_message(msg)
-#         servidor.quit()
-        
-#         print(f"✅ E-mail enviado com sucesso para {destinatario}")
-#         return True
-        
-#     except Exception as e:
-#         print(f"❌ Erro ao enviar e-mail: {e}")
-#         return False
 
 
 def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail.com', senha='lfhykuryoifmstep'):
@@ -158,6 +132,8 @@ def enviar_email(destinatario, assunto, corpo, remetente='joalinyfurtado87@gmail
     except Exception as e:
         print(f"❌ Erro ao enviar e-mail: {e}")
         return False
+
+
 
 # ========== Rotas de autenticação e usuários ==========
 
@@ -326,11 +302,6 @@ def minha_conta():
 
 
     # ========== Rotas de Recuperação de Senha ==========
-
-
-
-
-
 @app.route('/esqueci-senha', methods=['GET', 'POST'])
 def esqueci_senha():
     """Página para solicitar recuperação de senha"""
@@ -609,146 +580,6 @@ def cadastrar():
     return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
 
 
-# @app.route('/adotar/<int:id>', methods=['POST'])
-# def solicitar_adocao(id):
-#     """Processa a solicitação de adoção de um pet"""
-#     try:
-#         print("=== INICIANDO SOLICITAÇÃO DE ADOÇÃO ===")
-        
-#         # Pegar dados do formulário
-#         nome = request.form.get('nome')
-#         email = request.form.get('email')
-#         telefone = request.form.get('telefone')
-#         mensagem = request.form.get('mensagem')
-
-#         print(f"Dados recebidos: {nome}, {email}, {telefone}, {mensagem}")
-
-#         # Verificar se todos os campos foram preenchidos
-#         if not all([nome, email, telefone, mensagem]):
-#             missing = []
-#             if not nome: missing.append('nome')
-#             if not email: missing.append('email')
-#             if not telefone: missing.append('telefone')
-#             if not mensagem: missing.append('mensagem')
-            
-#             print(f"Campos faltando: {missing}")
-#             flash('Todos os campos são obrigatórios.', 'error')
-#             return redirect(url_for('detalhes_pet', id=id))
-
-#         print(f"Solicitação de adoção: Pet {id}, Por: {nome}")
-
-#         cur = mysql.connection.cursor()
-        
-#         # Criar tabela adocoes se não existir
-#         try:
-#             cur.execute("""
-#                 CREATE TABLE IF NOT EXISTS adocoes (
-#                     id INT AUTO_INCREMENT PRIMARY KEY,
-#                     pet_id INT NOT NULL,
-#                     nome VARCHAR(100) NOT NULL,
-#                     email VARCHAR(100) NOT NULL,
-#                     telefone VARCHAR(20) NOT NULL,
-#                     mensagem TEXT NOT NULL,
-#                     data_solicitacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-#                     status VARCHAR(20) DEFAULT 'pendente'
-#                 )
-#             """)
-#             mysql.connection.commit()
-#             print("✅ Tabela adocoes verificada/criada com sucesso")
-#         except Exception as table_error:
-#             print(f"❌ Erro ao criar tabela: {table_error}")
-#             flash('Erro no banco de dados.', 'error')
-#             return redirect(url_for('detalhes_pet', id=id))
-
-#         # Salvar no banco
-#         try:
-#             # Verificar se o pet existe
-#             cur.execute("SELECT id FROM pets WHERE id = %s", (id,))
-#             pet_existe = cur.fetchone()
-            
-#             if not pet_existe:
-#                 print(f"❌ Pet com ID {id} não existe")
-#                 flash('Pet não encontrado.', 'error')
-#                 return redirect(url_for('detalhes_pet', id=id))
-            
-#             # Inserir a solicitação
-#             cur.execute("""
-#                 INSERT INTO adocoes (pet_id, nome, email, telefone, mensagem) 
-#                 VALUES (%s, %s, %s, %s, %s)
-#             """, (id, nome, email, telefone, mensagem))
-            
-#             mysql.connection.commit()
-#             print("✅ Solicitação salva no banco com sucesso!")
-            
-#         except Exception as insert_error:
-#             print(f"❌ Erro ao salvar no banco: {insert_error}")
-#             mysql.connection.rollback()
-#             flash('Erro ao salvar solicitação no banco.', 'error')
-#             return redirect(url_for('detalhes_pet', id=id))
-
-#         # Buscar dados do pet para exibição
-#         try:
-#             cur.execute("SELECT * FROM pets WHERE id = %s", (id,))
-#             pet = cur.fetchone()
-#             cur.close()
-            
-#             if pet:
-#                 pet_detalhado = {
-#                     'id': pet[0],
-#                     'nome': pet[1],
-#                     'especie': pet[2],
-#                     'idade': pet[3],
-#                     'descricao': pet[4],
-#                     'imagem_url': pet[5]
-#                 }
-#                 print(f"Pet encontrado: {pet_detalhado['nome']}")
-#             else:
-#                 print("❌ Pet não encontrado após inserção")
-#                 flash('Erro ao buscar informações do pet.', 'error')
-#                 return redirect(url_for('adotar'))
-                
-#         except Exception as pet_error:
-#             print(f"Erro ao buscar pet: {pet_error}")
-#             cur.close()
-
-#         # Tentar enviar e-mail (opcional)
-#         try:
-#             assunto_adotante = "Confirmação de solicitação de adoção - Adote-me"
-#             corpo_adotante = f"""
-#             Olá {nome},
-
-#             Recebemos sua solicitação para adotar o pet {pet_detalhado['nome']}. 
-#             Em breve entraremos em contato com mais informações.
-
-#             📋 Detalhes da sua solicitação:
-#             • Pet: {pet_detalhado['nome']} ({pet_detalhado['especie']}, {pet_detalhado['idade']} anos)
-#             • Sua mensagem: {mensagem}
-#             • Seu telefone: {telefone}
-
-#             Aguarde nosso contato em até 48 horas.
-
-#             Obrigado por escolher adotar com responsabilidade! 🐾
-
-#             Atenciosamente,
-#             Equipe Adote-me
-#             """
-
-#             enviar_email(email, assunto_adotante, corpo_adotante)
-#             print("✅ E-mail enviado com sucesso!")
-            
-#         except Exception as email_error:
-#             print(f"⚠️ Erro ao enviar e-mail: {email_error}")
-
-#         # Sucesso
-#         print("🎉 Solicitação processada com sucesso!")
-#         return redirect(url_for('detalhes_pet', id=id, sucesso=True, nome=nome))
-
-#     except Exception as e:
-#         print(f"❌ ERRO GERAL NA SOLICITAÇÃO: {str(e)}")
-#         import traceback
-#         print(f"TRACEBACK: {traceback.format_exc()}")
-#         flash('Erro interno ao processar solicitação. Tente novamente.', 'error')
-#         return redirect(url_for('detalhes_pet', id=id))
 
 
 @app.route('/adotar/<int:id>', methods=['POST'])
@@ -1144,24 +975,6 @@ def criar_admin_teste():
         return f"Erro: {str(e)}"
 
 
-@app.route('/ia-dicas', methods=['POST'])
-def ia_dicas():
-    """API para gerar dicas usando IA"""
-    data = request.get_json()
-    pergunta = data.get('pergunta', '')
-
-    try:
-        resposta = requests.post("http://localhost:11434/api/generate", json={
-            "model": "phi",
-            "prompt": f"Responda em português do Brasil: {pergunta}",
-            "stream": False
-        })
-
-        texto = resposta.json().get("response", "Erro ao gerar resposta.")
-        return jsonify({'resposta': texto})
-    except Exception as e:
-        return jsonify({'resposta': f"Erro ao gerar resposta: {str(e)}"})
-
 
 @app.route('/sobre')
 def sobre():
@@ -1186,11 +999,86 @@ def privacidade():
 
 
 
+# ========== ROTA DE IA PARA DICAS  ==========
+@app.route('/ia-dicas', methods=['POST'])
+def ia_dicas():
+    """API para gerar dicas DIRETAS usando IA"""
+    data = request.get_json()
+    pergunta = data.get('pergunta', '').strip()
+    
+    if not pergunta:
+        return jsonify({'resposta': 'Digite uma pergunta.'})
+    
+    if len(pergunta) < 2:
+        return jsonify({'resposta': 'Pergunta muito curta.'})
+    
+    resposta = gerar_resposta_gemini(pergunta)
+    return jsonify({'resposta': resposta})
 
 
 
+def gerar_resposta_gemini(pergunta):
+    """Gera resposta usando Google Gemini AI com modelos disponíveis"""
+    try:
+        # Modelos prioritários baseados na sua lista
+        modelos_prioritarios = [
+            'models/gemini-2.0-flash-001',      # Mais estável
+            'models/gemini-2.0-flash',          # Versão atual
+            'models/gemini-flash-latest',       # Sempre atualizado
+        ]
+        
+        for modelo_nome in modelos_prioritarios:
+            try:
+                print(f"🔄 Tentando modelo: {modelo_nome}")
+                model = genai.GenerativeModel(modelo_nome)
+                
+                prompt = f"""
+                Você é um assistente direto e objetivo sobre adoção de animais e cuidados com pets.
+                
+                REGRAS IMPORTANTES:
+                - Seja DIRETO e OBJETIVO
+                - Responda APENAS o que foi perguntado
+                - Não faça introduções longas
+                - Não liste tópicos não solicitados
+                - Use português do Brasil
+                - Se for cálculo matemático, responda apenas o resultado
+                - Mantenha as respostas curtas e úteis
+                
+                Pergunta: {pergunta}
+                
+                Resposta direta:
+                """
+                
+                response = model.generate_content(prompt)
+                
+                if response.text:
+                    print(f"✅ Resposta gerada com {modelo_nome}")
+                    # Limpar possíveis introduções automáticas
+                    resposta_limpa = response.text.strip()
+                    # Remover saudações automáticas se existirem
+                    if resposta_limpa.startswith(('Olá!', 'Oi!', 'Olá,', 'Oi,')):
+                        # Encontrar onde começa a resposta real
+                        linhas = resposta_limpa.split('\n')
+                        for i, linha in enumerate(linhas):
+                            if any(palavra in linha.lower() for palavra in ['resposta', 'resultado', 'é', 'são', '4+4', '8']):
+                                resposta_limpa = '\n'.join(linhas[i:])
+                                break
+                    
+                    return resposta_limpa
+                    
+            except Exception as e:
+                print(f"❌ {modelo_nome} falhou: {str(e)[:100]}...")
+                continue
+        
+        # Fallback se todos os modelos falharem
+        return resposta_fallback(pergunta)
+        
+    except Exception as e:
+        print(f"🔥 Erro geral: {e}")
+        return "Erro temporário. Tente novamente."
 
 
+        
 
 # ========== ROTA SIMPLES PARA CADASTRAR PRIMEIRO ADMIN ==========
 

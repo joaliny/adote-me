@@ -73,8 +73,6 @@
         </div>
     </section>
 
-
-
           <!-- Pets Section -->
     <section class="pets">
         <div class="section-title">
@@ -120,89 +118,174 @@
         </div>
     </section>
 
+   <!-- Modal para Dicas com IA -->
+<div id="modalDicas" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModalDicas()">&times;</span>
+        <h2>💡 Assistente Virtual de Adoção</h2>
 
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <div class="message ia-message">
+                    <strong>Assistente:</strong> Olá! Sou seu assistente virtual especializado em adoção e cuidados com
+                    pets. Como posso ajudar você hoje? 🐾
+                </div>
+            </div>
 
-    <!-- Modal de dicas com IA -->
-    <div id="modal-dicas" class="modal modal-ia">
-        <div class="modal-conteudo">
-            <span class="fechar" onclick="fecharModalDicas()">&times;</span>
-            <h2>Converse com nossa IA 🐾</h2>
-            <p>Digite sua dúvida sobre cuidados com pets:</p>
-            <input type="text" id="pergunta" placeholder="Ex: Como cuidar de um filhote?" style="width: 100%; padding: 10px;">
-            <button onclick="enviarPergunta()" style="margin-top: 10px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">Perguntar</button>
-            <div id="historico-ia" style="margin-top: 20px; max-height: 50vh; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
-                <!-- histórico de mensagens -->
+            <div class="chat-input">
+                <input type="text" id="pergunta-ia" placeholder="Digite sua pergunta sobre adoção, cuidados, saúde...">
+                <button onclick="enviarPerguntaIA()">Enviar</button>
+            </div>
+
+            <div class="exemplos-perguntas">
+                <p><strong>Exemplos de perguntas:</strong></p>
+                <button class="exemplo-btn"
+                    onclick="usarExemplo('Como preparar minha casa para um gato novo?')">Preparar casa para
+                    gato</button>
+                <button class="exemplo-btn" onclick="usarExemplo('Quais vacinas um filhote precisa?')">Vacinas para
+                    filhote</button>
+                <button class="exemplo-btn"
+                    onclick="usarExemplo('Como adestrar um cachorro adulto?')">Adestramento</button>
+                <button class="exemplo-btn"
+                    onclick="usarExemplo('Qual a alimentação ideal para um pet idoso?')">Alimentação para
+                    idosos</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Adicionar classe ativa ao item de menu clicado
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', function() {
-                document.querySelectorAll('nav a').forEach(item => {
-                    item.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-        
-        // Auto-rotacionar o carrossel
-        const carousel = new bootstrap.Carousel('#carouselHero', {
-            interval: 5000,
-            wrap: true
-        });
-        
-        // Funções para o modal de dicas com IA
-        let historico = [];
 
-        function enviarPergunta() {
-            const pergunta = document.getElementById('pergunta').value;
-            if (!pergunta.trim()) return;
 
-            fetch('/ia-dicas', {
+
+<script>
+    // Funções do Modal de Dicas
+    function abrirModalDicas() {
+        console.log("Abrindo modal de dicas...");
+        document.getElementById('modalDicas').style.display = 'block';
+        // Limpar mensagens anteriores (opcional)
+        // document.getElementById('chat-messages').innerHTML = `
+        //     <div class="message ia-message">
+        //         <strong>Assistente:</strong> Olá! Sou seu assistente virtual especializado em adoção e cuidados com pets. Como posso ajudar você hoje? 🐾
+        //     </div>
+        // `;
+    }
+
+    function fecharModalDicas() {
+        document.getElementById('modalDicas').style.display = 'none';
+    }
+
+    function usarExemplo(pergunta) {
+        document.getElementById('pergunta-ia').value = pergunta;
+    }
+
+    async function enviarPerguntaIA() {
+        const perguntaInput = document.getElementById('pergunta-ia');
+        const pergunta = perguntaInput.value.trim();
+        const chatMessages = document.getElementById('chat-messages');
+
+        if (!pergunta) {
+            alert('Por favor, digite uma pergunta.');
+            return;
+        }
+
+        // Adicionar pergunta do usuário ao chat
+        chatMessages.innerHTML += `
+        <div class="message user-message">
+            <strong>Você:</strong> ${pergunta}
+        </div>
+    `;
+
+        // Limpar input e mostrar carregamento
+        perguntaInput.value = '';
+        perguntaInput.disabled = true;
+
+        // Adicionar mensagem de carregamento
+        const loadingId = 'loading-' + Date.now();
+        chatMessages.innerHTML += `
+        <div id="${loadingId}" class="message ia-message">
+            <strong>Assistente:</strong> Pensando... ⏳
+        </div>
+    `;
+
+        // Rolagem automática para baixo
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            console.log("Enviando pergunta para IA:", pergunta);
+
+            const response = await fetch('/ia-dicas', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ pergunta: pergunta })
-            })
-            .then(response => response.json())
-            .then(data => {
-                historico.push({ pergunta: pergunta, resposta: data.resposta });
-                atualizarHistorico();
-                document.getElementById('pergunta').value = '';
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pergunta: pergunta
+                })
             });
-        }
 
-        function atualizarHistorico() {
-            const container = document.getElementById('historico-ia');
-            container.innerHTML = '';
-            historico.forEach(item => {
-                container.innerHTML += `
-                    <div style="margin-bottom: 15px;">
-                        <p><strong>Você:</strong> ${item.pergunta}</p>
-                        <p><strong>IA:</strong> ${item.resposta}</p>
-                        <hr>
-                    </div>
-                `;
-            });
-        }
+            console.log("Resposta recebida:", response);
 
-        function abrirModalDicas() {
-            document.getElementById('modal-dicas').style.display = 'block';
-        }
-
-        function fecharModalDicas() {
-            document.getElementById('modal-dicas').style.display = 'none';
-        }
-        
-        // Fechar modal ao clicar fora dele
-        window.onclick = function(event) {
-            const modal = document.getElementById('modal-dicas');
-            if (event.target == modal) {
-                modal.style.display = 'none';
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
             }
+
+            const data = await response.json();
+            console.log("Dados recebidos:", data);
+
+            // Remover mensagem de carregamento
+            document.getElementById(loadingId).remove();
+
+            // Adicionar resposta da IA
+            chatMessages.innerHTML += `
+            <div class="message ia-message">
+                <strong>Assistente:</strong> ${data.resposta}
+            </div>
+        `;
+
+        } catch (error) {
+            console.error('Erro ao enviar pergunta:', error);
+
+            // Remover mensagem de carregamento
+            document.getElementById(loadingId).remove();
+
+            // Adicionar mensagem de erro
+            chatMessages.innerHTML += `
+            <div class="message ia-message" style="border-left-color: #f44336;">
+                <strong>Assistente:</strong> Desculpe, ocorreu um erro. Tente novamente em alguns instantes. 😔
+            </div>
+        `;
+        } finally {
+            // Reabilitar input
+            perguntaInput.disabled = false;
+            perguntaInput.focus();
+
+            // Rolagem automática para baixo
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-    </script>
+    }
+
+    // Permitir enviar com Enter
+    document.addEventListener('DOMContentLoaded', function () {
+        const perguntaInput = document.getElementById('pergunta-ia');
+        if (perguntaInput) {
+            perguntaInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    enviarPerguntaIA();
+                }
+            });
+        }
+
+        // Fechar modal clicando fora
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('modalDicas');
+            if (event.target === modal) {
+                fecharModalDicas();
+            }
+        });
+    });
+</script>
+
+    
 
     {% endblock %}
 
