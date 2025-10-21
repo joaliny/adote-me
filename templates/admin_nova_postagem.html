@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Postagem - Admin Adote-me{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="mb-4">Criar Nova Postagem para o Blog</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card shadow-sm p-4">
+                <form method="POST" action="{{ url_for('admin_nova_postagem') }}" enctype="multipart/form-data">
+                    
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título Principal</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subtitulo" class="form-label">Subtítulo (Resumo Curto)</label>
+                        <input type="text" class="form-control" id="subtitulo" name="subtitulo">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="imagem_capa" class="form-label">Imagem de Capa (Upload)</label>
+                        <input type="file" class="form-control" id="imagem_capa" name="imagem_capa" accept="image/*">
+                        <div class="form-text">Faça o upload de uma imagem para ser a capa da sua postagem.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select class="form-select" id="categoria" name="categoria" required>
+                            <option value="">Selecione a Categoria</option>
+                            <option value="Cuidados Pet">Cuidados Pet</option>
+                            <option value="Histórias de Sucesso">Histórias de Sucesso</option>
+                            <option value="Eventos">Eventos</option>
+                            <option value="Novidades">Novidades</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="conteudo" class="form-label">Conteúdo da Postagem</label>
+                        <textarea class="form-control" id="conteudo" name="conteudo" rows="15" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Publicar Postagem</button>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-link mt-2">Voltar para o Dashboard</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

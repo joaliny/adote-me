@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Pet: {{ pet.nome }} - Admin Adote-me{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            
+            <div class="card shadow-sm p-4">
+                
+                <div class="text-center mb-4">
+                    <h2 class="card-title fw-bold">Editar Pet: {{ pet.nome }}</h2>
+                    <p class="text-muted">Altere as informações necessárias e salve.</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('admin_editar_pet', pet_id=pet.id) }}" enctype="multipart/form-data">
+                    
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do Pet:</label>
+                        <input type="text" id="nome" name="nome" class="form-control" value="{{ pet.nome }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="especie" class="form-label">Espécie:</label>
+                        <select id="especie" name="especie" class="form-select" required>
+                            <option value="cachorro" {% if pet.especie == 'cachorro' %}selected{% endif %}>Cachorro</option>
+                            <option value="gato" {% if pet.especie == 'gato' %}selected{% endif %}>Gato</option>
+                            <option value="outro" {% if pet.especie == 'outro' %}selected{% endif %}>Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="idade" class="form-label">Idade (anos):</label>
+                        <input type="number" id="idade" name="idade" class="form-control" min="0" max="30" value="{{ pet.idade }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição:</label>
+                        <textarea id="descricao" name="descricao" class="form-control" rows="4">{{ pet.descricao }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label d-block">Foto Atual:</label>
+                        {% if pet.imagem_url %}
+                            <img src="{{ pet.imagem_url }}" alt="Foto Atual" class="img-thumbnail mb-3" style="max-height: 150px; object-fit: cover;">
+                        {% else %}
+                            <p class="text-muted">Nenhuma foto cadastrada.</p>
+                        {% endif %}
+                        
+                        <label for="imagem" class="form-label mt-2">Mudar Foto (Novo Upload):</label>
+                        <input type="file" id="imagem" name="imagem" class="form-control" accept="image/*">
+                        <div class="form-text text-muted">A foto atual será substituída se um novo arquivo for enviado.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Salvar Alterações</button>
+                    <a href="{{ url_for('admin_pets') }}" class="btn btn-outline-secondary w-100 mt-2">Cancelar e Voltar para a Lista</a>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

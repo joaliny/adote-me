@@ -36,8 +36,7 @@
     <!-- Seção Grade de Botões - FORA DO CARROSSEL -->
     <section class="grade-botoes-section">
         <div class="grade-botoes">
-            <!-- <a href="/adotar" class="botao azul">PETS PARA ADOÇÃO</a> -->
-            <a href="/divulgar" class="botao azul-escuro">DIVULGAR</a>
+            <a href="{{ url_for('adotar') }}" class="botao azul-escuro">PETS PARA ADOÇÃO</a>
             <button class="botao laranja" onclick="abrirModalDicas()">GERAR DICAS DE CUIDADO COM IA</button>
             <a href="/encontrar" class="botao marrom">ENCONTRAR PET PERFEITO COM IA</a>
         </div>
@@ -137,55 +136,76 @@
     </div>
 
     <script>
-        // Adicionar classe ativa ao item de menu clicado
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', function() {
-                document.querySelectorAll('nav a').forEach(item => {
-                    item.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
         
-        // Auto-rotacionar o carrossel
-        const carousel = new bootstrap.Carousel('#carouselHero', {
-            interval: 5000,
-            wrap: true
-        });
-        
-        // Funções para o modal de dicas com IA
         let historico = [];
 
-        function enviarPergunta() {
-            const pergunta = document.getElementById('pergunta').value;
-            if (!pergunta.trim()) return;
-
-            fetch('/ia-dicas', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ pergunta: pergunta })
-            })
-            .then(response => response.json())
-            .then(data => {
-                historico.push({ pergunta: pergunta, resposta: data.resposta });
-                atualizarHistorico();
-                document.getElementById('pergunta').value = '';
-            });
+        //Função para iniciar uma nova conversa (Limpa o histórico)
+        function iniciarNovaConversa() {
+        historico = []; // Zera o histórico
+        document.getElementById('historico-ia').innerHTML = `
+            <p class="text-muted text-center p-3">Inicie uma nova conversa de cuidados com pets.</p>
+        `;
         }
 
+        //Função para atualizar historico
         function atualizarHistorico() {
-            const container = document.getElementById('historico-ia');
-            container.innerHTML = '';
-            historico.forEach(item => {
-                container.innerHTML += `
-                    <div style="margin-bottom: 15px;">
-                        <p><strong>Você:</strong> ${item.pergunta}</p>
-                        <p><strong>IA:</strong> ${item.resposta}</p>
-                        <hr>
-                    </div>
-                `;
-            });
+        const container = document.getElementById('historico-ia');
+        container.innerHTML = '';
+        
+        historico.forEach(item => {
+            let resposta_formatada = item.resposta
+                .replace(/\*\*\*(.*?)\*\*\*/gs, '<strong><em>$1</em></strong>') // Bold Italic
+                .replace(/\*\*(.*?)\*\*/gs, '<strong>$1</strong>') // Bold
+                .replace(/\n\n/g, '<br><br>') // Parágrafos
+                .replace(/\n/g, '<br>'); // Quebras de linha simples
+
+            container.innerHTML += `
+                <div class="mb-3 p-2 border-bottom">
+                    <p class="mb-1"><strong>Você:</strong> ${item.pergunta}</p>
+                    <p class="mb-0"><strong>IA:</strong> ${resposta_formatada}</p>
+                </div>
+            `;
+        });
+    }
+
+    function enviarPergunta() {
+        const pergunta = document.getElementById('pergunta').value;
+        if (!pergunta.trim()) return;
+
+        // Se o histórico tiver algo, nós o zeramos antes de enviar a nova pergunta
+        if (historico.length > 0) {
+             iniciarNovaConversa(); // Zera o histórico antes de enviar a nova pergunta
         }
+
+        // Adiciona a pergunta ao histórico antes de enviar para a API
+        historico.push({ pergunta: pergunta, resposta: 'Carregando...' });
+        atualizarHistorico();
+
+        // Desabilita o campo enquanto espera
+        document.getElementById('pergunta').disabled = true;
+
+        fetch('/ia-dicas', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ pergunta: pergunta })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Atualiza o histórico com a resposta real
+            historico[historico.length - 1].resposta = data.resposta;
+            atualizarHistorico();
+        })
+        .catch(error => {
+            console.error('Erro na chamada da IA:', error);
+            // Exibe erro no histórico
+            historico[historico.length - 1].resposta = `Erro: Não foi possível conectar à IA. Verifique sua chave API e o log do servidor.`;
+            atualizarHistorico();
+        })
+        .finally(() => {
+             document.getElementById('pergunta').disabled = false;
+             document.getElementById('pergunta').value = '';
+        });
+    }
 
         function abrirModalDicas() {
             document.getElementById('modal-dicas').style.display = 'block';
@@ -194,7 +214,10 @@
         function fecharModalDicas() {
             document.getElementById('modal-dicas').style.display = 'none';
         }
-        
+
+        // Adicionar um evento para limpar a conversa quando o modal for aberto
+        document.getElementById('modal-dicas').addEventListener('show.bs.modal', iniciarNovaConversa);
+
         // Fechar modal ao clicar fora dele
         window.onclick = function(event) {
             const modal = document.getElementById('modal-dicas');
@@ -202,7 +225,14 @@
                 modal.style.display = 'none';
             }
         }
-    </script>
 
+        // Chamar iniciarNovaConversa dentro do abrirModalDicas para limpar ao abrir
+        function abrirModalDicas() {
+        iniciarNovaConversa(); // Limpa a conversa antiga
+        document.getElementById('modal-dicas').style.display = 'block';
+    }
+    </script>
+    
+   
     {% endblock %}
 

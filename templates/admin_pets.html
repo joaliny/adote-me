@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Pets - Admin Adote-me{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Gerenciar Pets para Adoção</h2>
+                <a href="{{ url_for('cadastrar') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Novo Pet
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if pets %}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#ID</th>
+                                    <th>Foto</th>
+                                    <th>Nome</th>
+                                    <th>Espécie</th>
+                                    <th>Idade</th>
+                                    <th>Protetor</th>
+                                    <th>Data Cadastro</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pet in pets %}
+                                <tr>
+                                    <td>{{ pet.id }}</td>
+                                    <td>
+                                        {% if pet.imagem_url %}
+                                            <img src="{{ pet.imagem_url }}" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                        {% else %}
+                                            <i class="bi bi-image-fill text-muted" style="font-size: 1.5rem;"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('detalhes_pet', id=pet.id) }}" class="fw-bold text-decoration-none">
+                                            {{ pet.nome }}
+                                        </a>
+                                    </td>
+                                    <td>{{ pet.especie | title }}</td>
+                                    <td>{{ pet.idade }}</td>
+                                    <td>{{ pet.protetor_nome }}</td>
+                                    <td>{{ pet.data_cadastro }}</td>
+                                    <td class="text-center">
+                                        <a href="{{ url_for('admin_editar_pet', pet_id=pet.id) }}" class="btn btn-sm btn-info me-2" title="Editar Pet">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        
+                                        <form method="POST" action="{{ url_for('admin_remover_pet', pet_id=pet.id) }}" style="display:inline;" onsubmit="return confirm('ATENÇÃO: Deseja realmente remover o pet {{ pet.nome }}? Esta ação é irreversível.');">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Excluir Pet">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                Nenhum pet encontrado. <a href="{{ url_for('cadastrar') }}" class="alert-link">Cadastre o primeiro pet</a>.
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

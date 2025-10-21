@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Minha Conta - Adote-me 🐾{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4 text-center">Configurações da Conta</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Informações Pessoais</h5>
+
+                    <form method="POST" action="{{ url_for('minha_conta') }}">
+                        
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="nome" name="nome" value="{{ usuario.nome }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" value="{{ usuario.email }}" disabled>
+                            <div class="form-text">O e-mail não pode ser alterado por esta página.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="text" class="form-control" id="telefone" name="telefone" value="{{ usuario.telefone }}" placeholder="(XX) XXXXX-XXXX">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="endereco" class="form-label">Endereço Completo</label>
+                            <textarea class="form-control" id="endereco" name="endereco" rows="2" placeholder="Rua, Número, Bairro, Cidade, CEP">{{ usuario.endereco }}</textarea>
+                        </div>
+
+                        {% if usuario.tipo in ['protetor', 'admin'] %}
+                        <hr class="mt-4 mb-4">
+                        <h5 class="card-title mb-3">Informações de Protetor</h5>
+                        
+                        <div class="mb-3">
+                            <label for="nome_organizacao" class="form-label">Nome da Organização (Opcional)</label>
+                            <input type="text" class="form-control" id="nome_organizacao" name="nome_organizacao" value="{{ usuario.nome_organizacao }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cnpj" class="form-label">CNPJ (Opcional)</label>
+                            <input type="text" class="form-control" id="cnpj" name="cnpj" value="{{ usuario.cnpj }}">
+                        </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary w-100 mt-4">Salvar Alterações</button>
+                    </form>
+                    
+                    <hr class="mt-4 mb-4">
+                    <p class="text-center">
+                        <a href="{{ url_for('recuperar_senha_form') }}" class="btn btn-outline-danger">Alterar Senha</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

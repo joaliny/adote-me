@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Blog | Dicas e Histórias - Adote-me 🐾{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h1>Blog do Adote-me</h1>
+            <p class="lead text-muted">Dicas de cuidado, histórias emocionantes de adoção e novidades sobre o mundo pet.</p>
+        </div>
+    </div>
+
+    {% if posts %}
+    {% set destaque = posts[0] %}
+    <section class="mb-5 p-4 rounded shadow-lg" style="background-color: #f8f9fa;">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                {% if destaque.imagem_url %}
+                <img src="{{ destaque.imagem_url }}" class="img-fluid rounded" alt="{{ destaque.titulo }}" style="object-fit: cover; max-height: 300px; width: 100%;">
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-danger mb-2">DESTAQUE</span>
+                <span class="badge bg-info mb-2">{{ destaque.categoria }}</span>
+                <h2>{{ destaque.titulo }}</h2>
+                <p class="text-muted">{{ destaque.resumo }}</p>
+                <p class="small text-muted">Por {{ destaque.autor_nome }} em {{ destaque.data_publicacao }}</p>
+                <a href="{{ url_for('post_detalhe', slug=destaque.slug) }}" class="btn btn-primary mt-2">Leia a História Completa</a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="row">
+        
+        <div class="col-lg-4">
+            <div class="card p-3 shadow-sm sticky-top" style="top: 20px;">
+                
+                <h4 class="mb-3">Pesquisa</h4>
+                <form method="GET" action="{{ url_for('blog') }}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="q" placeholder="Buscar por título ou conteúdo" value="{{ search_query if search_query }}" aria-label="Buscar">
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                
+                <h4 class="mt-4 mb-3">Filtrar por Categoria</h4>
+                <ul class="list-group list-group-flush mb-3">
+                    <a href="{{ url_for('blog') }}?q={{ search_query }}" class="list-group-item list-group-item-action {% if not category_filter %}active{% endif %}">Todas as Categorias</a>
+                    {% for cat in categorias %}
+                        <a href="{{ url_for('blog') }}?categoria={{ cat }}&q={{ search_query }}" 
+                           class="list-group-item list-group-item-action {% if category_filter == cat %}active{% endif %}">
+                           {{ cat }}
+                        </a>
+                    {% endfor %}
+                </ul>
+
+                {% if search_query or category_filter %}
+                <a href="{{ url_for('blog') }}" class="btn btn-sm btn-outline-secondary w-100">Limpar Filtros</a>
+                {% endif %}
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <h2 class="mb-4">
+                {% if search_query or category_filter %}
+                    Resultados da Busca ({{ posts|length }})
+                {% else %}
+                    Últimas Publicações
+                {% endif %}
+            </h2>
+
+            {% if posts|length > 1 %}
+                {% for post in posts[1:] %}
+                <div class="card mb-4 blog-post-card shadow-sm">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            {% if post.imagem_url %}
+                            <img src="{{ post.imagem_url }}" class="img-fluid rounded-start" alt="{{ post.titulo }}" style="height: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <span class="badge bg-info mb-2">{{ post.categoria }}</span>
+                                <h5 class="card-title">{{ post.titulo }}</h5>
+                                <p class="card-text small text-muted">
+                                    <i class="bi bi-calendar"></i> {{ post.data_publicacao }} | Por {{ post.autor_nome }}
+                                </p>
+                                <p class="card-text">{{ post.resumo }}</p>
+                                <a href="{{ url_for('post_detalhe', slug=post.slug) }}" class="btn btn-sm btn-outline-primary">Continuar Lendo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% elif posts|length == 1 and not search_query %}
+                <p class="text-muted">Apenas o post de destaque está disponível no momento.</p>
+            {% else %}
+                <div class="alert alert-warning text-center">
+                    Nenhuma postagem encontrada com os critérios de busca/filtro.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos para cards de listagem (para o novo layout de coluna) */
+    .blog-post-card .img-fluid {
+        min-height: 180px; /* Garante que as imagens nas listagens não fiquem muito pequenas */
+    }
+    body{
+        background-color: #F5ECE6;
+    }
+</style>
+{% endblock %}
