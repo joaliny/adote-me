@@ -1,0 +1,184 @@
+/* Definições de cores baseadas no seu HTML */
+:root {
+    --blue-dark: #0b2342; /* Cor principal de texto e fundo da coluna esquerda */
+    --blue-medium: #00487B; /* Cor de fundo da coluna esquerda */
+    --beige: #fff7ef; /* Cor do fundo da coluna direita */
+}
+
+/* Garante que o corpo da página ocupe toda a tela e use Flexbox para divisão lateral */
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--blue-dark);
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    color: var(--blue-dark);
+    overflow: hidden;
+}
+
+/* LADO ESQUERDO (Logo) */
+.left-side {
+    width: 40%;
+    background-color: var(--blue-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+.left-side img {
+    max-width: 80%;
+    height: auto;
+    display: block;
+    filter: none;
+    margin: 0 auto;
+}
+
+/* LADO DIREITO (Formulário) */
+.right-side {
+    width: 60%;
+    background: var(--beige);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    align-items: center;
+    padding: 60px 80px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Permite rolar o formulário se for longo */
+}
+
+/* Caixa do formulário */
+.register-box {
+    width: 100%;
+    max-width: 760px;
+    background: #ffffff;
+    padding: 36px;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(7, 13, 29, 0.08);
+    box-sizing: border-box;
+}
+
+/* Títulos */
+h2 {
+    color: var(--blue-medium);
+    text-align: center;
+    margin-bottom: 22px;
+    font-weight: 700;
+}
+
+h4 {
+    color: var(--blue-medium);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+/* Estilo dos Inputs (Sobrescrevendo classes Bootstrap) */
+.form-label {
+    color: var(--blue-dark);
+    font-weight: 500;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: none;
+}
+/* Estilos para o grupo de inputs (para borda unificada) */
+.input-group {
+    border: 1px solid rgba(11, 35, 66, 0.12);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.input-group .input-group-text {
+    background: transparent;
+    border: 0;
+    color: var(--blue-dark);
+}
+
+/* Botões */
+.btn-primary {
+    background-color: var(--blue-medium);
+    border: none;
+    border-radius: 28px;
+    padding: 12px 18px;
+    font-weight: 700;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #102f5d;
+}
+
+/* Checkboxes e Links */
+.form-check-label,
+.text-center p {
+    color: var(--blue-dark);
+}
+
+
+/* ---------------------------------------------------- */
+/* RESPONSIVIDADE                                       */
+/* ---------------------------------------------------- */
+
+@media (max-width: 992px) {
+    .left-side {
+        width: 45%;
+    }
+
+    .right-side {
+        width: 55%;
+        padding: 40px 30px;
+    }
+
+    .left-side img {
+        width: 320px;
+    }
+
+    .register-box {
+        max-width: 640px;
+        padding: 28px;
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Empilha as colunas em telas menores */
+    body {
+        flex-direction: column;
+        overflow: visible !important;
+        min-height: auto;
+    }
+
+    .left-side,
+    .right-side {
+        width: 100%;
+        min-height: auto;
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .left-side {
+        padding: 30px 15px;
+    }
+
+    .left-side img {
+        width: 60%;
+        max-width: 320px;
+    }
+
+    .right-side {
+        padding: 20px 18px;
+        align-items: center;
+    }
+
+    .register-box {
+        max-width: 520px;
+        margin: 10px;
+    }
+}

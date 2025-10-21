@@ -1,0 +1,161 @@
+/* Definições de Cores Baseadas no HTML */
+:root {
+    --blue-dark: #0b2342;
+    --blue-medium: #00487B;
+    --beige: #fff7ef;
+}
+
+/* Garante que o corpo da página ocupe toda a tela, use Flexbox, e NÃO ROLE */
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    /* CHAVE 1: Impede rolagem global no desktop */
+    overflow: hidden; 
+    background-color: var(--blue-dark);
+    font-family: 'Poppins', sans-serif;
+}
+
+/* LADO ESQUERDO (Logo) - FIXO E CENTRALIZADO */
+.left-side {
+    background-color: var(--blue-medium);
+    width: 50%;
+    display: flex;
+    align-items: center; /* Centraliza verticalmente a logo */
+    justify-content: center;
+    /* CHAVE 2: Ocupa toda a altura da viewport */
+    height: 100vh; 
+    overflow: hidden;
+}
+
+.left-side img {
+    width: 700px;
+    height: auto;
+    max-width: 70%; /* Garante responsividade interna */
+}
+
+/* LADO DIREITO (Formulário) - ROLÁVEL E CENTRALIZADO */
+.right-side {
+    background-color: var(--beige);
+    width: 50%;
+    display: flex;
+    /* CHAVE 3: Ocupa toda a altura da viewport e permite rolagem local */
+    height: 100vh;
+    overflow-y: auto; 
+    
+    align-items: center; /* Centraliza verticalmente o formulário (melhor para telas menores que 100vh) */
+    justify-content: center;
+}
+
+.login-box {
+    width: 80%;
+    max-width: 380px;
+    /* Adiciona margem superior/inferior para dar "ar" quando houver rolagem */
+    padding: 30px 0; 
+}
+
+/* Títulos */
+.login-box h2 {
+    text-align: center;
+    font-weight: 700;
+    color: var(--blue-medium);
+    margin-bottom: 30px;
+}
+
+/* Labels e Inputs */
+.form-label {
+    font-weight: 500;
+    color: var(--blue-dark);
+}
+
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+    color: var(--blue-dark);
+}
+
+.form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    box-shadow: none;
+}
+
+.input-group {
+    border: 1px solid var(--blue-dark);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Botões */
+.btn-primary, .btn-secondary {
+    background-color: var(--blue-medium);
+    border: none;
+    border-radius: 25px;
+    padding: 10px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #102f5d;
+}
+
+/* Opções Extras */
+.extra-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.extra-options label,
+.extra-options a {
+    color: var(--blue-dark);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.extra-options a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================================================= */
+/* RESPONSIVIDADE                                                            */
+/* ========================================================================= */
+
+@media (max-width: 768px) {
+    /* Empilha as colunas em telas menores */
+    body {
+        flex-direction: column;
+        /* CHAVE 4: Reabilita a rolagem global no mobile */
+        overflow: visible; 
+    }
+
+    .left-side,
+    .right-side {
+        width: 100%;
+        min-height: auto;
+        /* CHAVE 5: Remove a altura fixa e a rolagem de coluna no mobile */
+        height: auto; 
+        overflow-y: visible;
+    }
+
+    .left-side {
+        padding: 40px 20px;
+    }
+    
+    .right-side {
+        padding: 40px 20px;
+    }
+
+    .left-side img {
+        width: 50%;
+        max-width: 300px;
+    }
+    
+    .login-box {
+        max-width: 380px;
+        width: 100%;
+    }
+}

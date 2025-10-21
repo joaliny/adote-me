@@ -1,0 +1,259 @@
+/* ---------------------------------------------------- */
+/* VARIÁVEIS LOCAIS (Se não estiverem em base.css)      */
+/* Mantenha apenas se o base.css não as definir.        */
+/* ---------------------------------------------------- */
+:root {
+    --primary: #2563eb;
+    --primary-light: #3b82f6;
+    --secondary: #64748b;
+    --accent: #f1f5f9;
+    --text: #334155;
+    --text-light: #64748b;
+    --white: #ffffff;
+    --border: #e2e8f0;
+}
+
+/* ---------------------------------------------------- */
+/* HERO MINIMALISTA (ESTILOS VISUAIS ÚNICOS)            */
+/* ---------------------------------------------------- */
+.hero-minimal {
+    padding: 120px 0 80px;
+    background: linear-gradient(135deg, var(--white) 0%, var(--accent) 100%);
+    text-align: center;
+    position: relative;
+}
+
+.hero-title {
+    font-size: 3rem;
+    /* Efeito de gradiente no texto (ÚNICO) */
+    background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 3rem;
+}
+
+.paw-print {
+    font-size: 4rem;
+    opacity: 0.8;
+    animation: gentle-bounce 3s ease-in-out infinite;
+}
+
+@keyframes gentle-bounce {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-10px) scale(1.05);
+    }
+}
+
+/* ---------------------------------------------------- */
+/* NOSSA HISTÓRIA & ESTATÍSTICAS (LAYOUT GRID)          */
+/* ---------------------------------------------------- */
+.story-section {
+    background: var(--white);
+}
+
+.story-content {
+    /* Layout de grade de 2 colunas */
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.story-text p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+/* Círculo de Estatística (CUSTOM) */
+.stat-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    /* Gradiente cônico para o preenchimento */
+    background: conic-gradient(var(--primary) 70%, var(--accent) 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
+}
+
+.circle-content {
+    /* O círculo interno branco */
+    background: var(--white);
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+/* ---------------------------------------------------- */
+/* VALORES (GRID E HOVER)                               */
+/* ---------------------------------------------------- */
+.values-clean {
+    background: var(--accent);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.value-item {
+    padding: 40px 20px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ---------------------------------------------------- */
+/* PROCESSO (STEPS LAYOUT)                              */
+/* ---------------------------------------------------- */
+.process-section {
+    background: var(--white);
+}
+
+.process-steps {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 50px;
+    padding: 30px;
+    border-radius: 16px;
+    transition: background 0.3s ease;
+}
+
+.step:hover {
+    background: var(--accent);
+}
+
+.step-number {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-right: 30px;
+    min-width: 60px;
+}
+
+/* ---------------------------------------------------- */
+/* EQUIPE (TEAM GRID)                                   */
+/* ---------------------------------------------------- */
+.team-clean {
+    background: var(--accent);
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.team-member {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.member-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+/* ---------------------------------------------------- */
+/* CTA CLEAN (Estilos de Background e Cores)            */
+/* ---------------------------------------------------- */
+.cta-clean {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: var(--white);
+}
+
+.cta-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Regras de media query que afetam os grids e layouts personalizados */
+@media (max-width: 768px) {
+    .story-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+    }
+
+    .values-grid {
+        gap: 20px;
+    }
+    
+    .team-grid {
+        gap: 20px;
+    }
+
+    .step {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .step-number {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .cta-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+}
