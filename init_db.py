@@ -79,8 +79,22 @@ def create_database():
                 )
             ''')
             print("✅ Tabela 'adocoes' criada/verificada")
+
+            # 6. Criar tabela de favoritos
+            cursor.execute('''
+               CREATE TABLE IF NOT EXISTS favoritos (
+                   id INT AUTO_INCREMENT PRIMARY KEY,
+                   usuario_id INT NOT NULL,
+                   pet_id INT NOT NULL,
+                   data_favoritado DATETIME DEFAULT CURRENT_TIMESTAMP,
+                   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+                   FOREIGN KEY (pet_id) REFERENCES pets(id) ON DELETE CASCADE,
+                   UNIQUE KEY unique_favorito (usuario_id, pet_id)
+                )
+            ''')
+            print("✅ Tabela 'favoritos' criada/verificada")
             
-            # 6. Criar admin principal apenas se não existir nenhum admin
+            # 7. Criar admin principal apenas se não existir nenhum admin
             criar_admin_principal(cursor)
             
             connection.commit()

@@ -707,3 +707,96 @@
                      background-color: #2196F3;
                      color: white;
                  }
+
+
+
+
+
+                                 /* Estilos para o botão de favorito */
+                                 .btn-favorito {
+                                     position: absolute;
+                                     top: 10px;
+                                     right: 10px;
+                                     width: 40px;
+                                     height: 40px;
+                                     border-radius: 50%;
+                                     border: 2px solid #fff;
+                                     background: rgba(255, 255, 255, 0.9);
+                                     color: #666;
+                                     display: flex;
+                                     align-items: center;
+                                     justify-content: center;
+                                     cursor: pointer;
+                                     transition: all 0.3s ease;
+                                     font-size: 1.1rem;
+                                     z-index: 2;
+                                 }
+                
+                                 .btn-favorito:hover {
+                                     background: white;
+                                     color: #dc3545;
+                                     transform: scale(1.1);
+                                 }
+                
+                                 .btn-favorito.ativo {
+                                     background: #dc3545;
+                                     color: white;
+                                     border-color: #dc3545;
+                                 }
+                
+                                 .btn-favorito:disabled {
+                                     opacity: 0.6;
+                                     cursor: not-allowed;
+                                     transform: none;
+                                 }
+                
+                                 .btn-favorito:disabled:hover {
+                                     background: rgba(255, 255, 255, 0.9);
+                                     color: #666;
+                                 }
+                
+                                 .pet-image {
+                                     position: relative;
+                                     overflow: hidden;
+                                 }
+                
+                                 .pet-card {
+                                     position: relative;
+                                     transition: transform 0.3s ease, box-shadow 0.3s ease;
+                                 }
+                
+                                 .pet-card:hover {
+                                     transform: translateY(-5px);
+                                     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                                 }
+                
+                                 .pet-actions {
+                                     display: flex;
+                                     justify-content: space-between;
+                                     align-items: center;
+                                     margin-top: 15px;
+                                 }
+                
+                                 /* Efeito de overlay quando não está logado */
+                                 .pet-image::after {
+                                     content: '';
+                                     position: absolute;
+                                     top: 0;
+                                     left: 0;
+                                     right: 0;
+                                     bottom: 0;
+                                     background: transparent;
+                                     transition: background 0.3s ease;
+                                     z-index: 1;
+                                 }
+                
+                                 .pet-card:has(.btn-favorito:disabled) .pet-image::after {
+                                     background: rgba(0, 0, 0, 0.03);
+                                 }
+
+
+
+
+
+
+                                                                 

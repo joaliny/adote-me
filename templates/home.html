@@ -73,7 +73,7 @@
         </div>
     </section>
 
-          <!-- Pets Section -->
+          <!-- Pets Section
     <section class="pets">
         <div class="section-title">
             <h2>Pets Disponíveis</h2>
@@ -114,6 +114,61 @@
                     <p>Volte em breve para conhecer nossos amigos!</p>
                     <a href="/cadastrar" class="btn-hero" style="margin-top: 15px;">Cadastrar um Pet</a>
                 </div>
+            {% endif %}
+        </div>
+    </section> -->
+
+
+    <!-- Pets Section -->
+    <section class="pets">
+        <div class="section-title">
+            <h2>Pets Disponíveis</h2>
+            <p>Conheça alguns dos nossos amigos que estão esperando por um lar</p>
+            {% if pets and pets|length >= 6 %}
+            <div style="margin-top: 15px;">
+                <a href="/adotar" class="btn-hero" style="font-size: 0.9rem; padding: 8px 20px;">Ver Todos os Pets</a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="pets-grid">
+            {% if pets %}
+            {% for pet in pets %}
+            <div class="pet-card">
+                <div class="pet-image">
+                    {% if pet.imagem_url %}
+                    <img src="{{ pet.imagem_url }}" alt="Foto do {{ pet.nome }}">
+                    {% else %}
+                    <div>
+                        <span>Sem imagem</span>
+                    </div>
+                    {% endif %}
+    
+                    <!-- Botão de Favorito -->
+                    <button class="btn-favorito {% if usuario %}favorito-interativo{% endif %}"
+                        onclick="toggleFavorito({{ pet.id }}, this)" data-pet-id="{{ pet.id }}" {% if not usuario
+                        %}title="Faça login para favoritar" disabled{% endif %}>
+                        <i class="bi bi-heart"></i>
+                    </button>
+                </div>
+                <div class="pet-info">
+                    <h3>{{ pet.nome }}</h3>
+                    <div class="pet-meta">
+                        <span class="pet-tag">{{ pet.especie }}</span>
+                        <span class="pet-tag">{{ pet.idade }} ano{% if pet.idade > 1 %}s{% endif %}</span>
+                    </div>
+                    <p>{{ pet.descricao[:100] }}{% if pet.descricao|length > 100 %}...{% endif %}</p>
+                    <div class="pet-actions">
+                        <a href="/pet/{{ pet.id }}" class="btn-pet">Conhecer</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="no-pets">
+                <h3>Nenhum pet disponível no momento</h3>
+                <p>Volte em breve para conhecer nossos amigos!</p>
+                <a href="/cadastrar" class="btn-hero" style="margin-top: 15px;">Cadastrar um Pet</a>
+            </div>
             {% endif %}
         </div>
     </section>
@@ -283,6 +338,131 @@
             }
         });
     });
+
+
+
+    
+// Função para favoritar/desfavoritar
+            async function toggleFavorito(petId, button) {
+    if (!button || button.disabled) return;
+
+            try {
+        const response = await fetch(`/api/favoritar/${petId}`, {
+                method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+            const data = await response.json();
+
+            if (data.success) {
+            // Atualiza o ícone e estilo do botão
+            const icon = button.querySelector('i');
+            if (data.is_favorito) {
+                icon.className = 'bi bi-heart-fill';
+            button.classList.add('ativo');
+            } else {
+                icon.className = 'bi bi-heart';
+            button.classList.remove('ativo');
+            }
+
+            // Feedback visual
+            button.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 300);
+
+            showAlert(data.message, 'success');
+        } else {
+                showAlert(data.message, 'error');
+        }
+    } catch (error) {
+                console.error('Erro:', error);
+            showAlert('Erro ao processar favorito.', 'error');
+    }
+}
+
+            // Verifica e atualiza o estado dos favoritos ao carregar a página
+            document.addEventListener('DOMContentLoaded', function() {
+                // Verifica o estado dos favoritos para cada pet
+                document.querySelectorAll('.btn-favorito[data-pet-id]').forEach(button => {
+                    const petId = button.getAttribute('data-pet-id');
+
+                    if (!button.disabled) {
+                        fetch(`/api/verificar-favorito/${petId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const icon = button.querySelector('i');
+                                if (data.is_favorito) {
+                                    icon.className = 'bi bi-heart-fill';
+                                    button.classList.add('ativo');
+                                } else {
+                                    icon.className = 'bi bi-heart';
+                                    button.classList.remove('ativo');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erro ao verificar favorito:', error);
+                            });
+                    }
+                });
+});
+
+
+            // Função para mostrar alertas
+            function showAlert(message, type) {
+    // Remove alertas existentes
+    const existingAlerts = document.querySelectorAll('.custom-alert');
+    existingAlerts.forEach(alert => alert.remove());
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `custom-alert alert-${type}`;
+            alertDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 10000;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            `;
+
+            if (type === 'success') {
+                alertDiv.style.background = '#28a745';
+    } else {
+                alertDiv.style.background = '#dc3545';
+    }
+
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+                alertDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => alertDiv.remove(), 300);
+        }
+    }, 3000);
+}
+
+            // Animações CSS para os alertas
+            const style = document.createElement('style');
+            style.textContent = `
+            @keyframes slideIn {
+                from {transform: translateX(100%); opacity: 0; }
+            to {transform: translateX(0); opacity: 1; }
+    }
+
+            @keyframes slideOut {
+                from {transform: translateX(0); opacity: 1; }
+            to {transform: translateX(100%); opacity: 0; }
+    }
+            `;
+            document.head.appendChild(style);
+    
 </script>
 
     

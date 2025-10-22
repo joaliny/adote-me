@@ -1141,6 +1141,133 @@ def primeiro_admin():
 
 
 
+# ========== Rotas de Favoritos ==========
+
+@app.route('/api/favoritar/<int:pet_id>', methods=['POST'])
+def favoritar_pet(pet_id):
+    """Adiciona ou remove um pet dos favoritos"""
+    usuario = obter_usuario_atual()
+    if not usuario:
+        return jsonify({'success': False, 'message': 'Faça login para favoritar pets.'})
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verificar se já está favoritado
+        cur.execute(
+            "SELECT id FROM favoritos WHERE usuario_id = %s AND pet_id = %s",
+            (usuario['id'], pet_id)
+        )
+        favorito_existente = cur.fetchone()
+        
+        if favorito_existente:
+            # Remover dos favoritos
+            cur.execute(
+                "DELETE FROM favoritos WHERE usuario_id = %s AND pet_id = %s",
+                (usuario['id'], pet_id)
+            )
+            action = 'removido'
+            is_favorito = False
+        else:
+            # Adicionar aos favoritos
+            cur.execute(
+                "INSERT INTO favoritos (usuario_id, pet_id) VALUES (%s, %s)",
+                (usuario['id'], pet_id)
+            )
+            action = 'adicionado'
+            is_favorito = True
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        return jsonify({
+            'success': True,
+            'action': action,
+            'is_favorito': is_favorito,
+            'message': f'Pet {action} dos favoritos!'
+        })
+        
+    except Exception as e:
+        print(f"❌ Erro ao favoritar pet: {e}")
+        return jsonify({'success': False, 'message': 'Erro ao processar favorito.'})
+
+
+@app.route('/api/verificar-favorito/<int:pet_id>')
+def verificar_favorito(pet_id):
+    """Verifica se um pet está favoritado pelo usuário atual"""
+    usuario = obter_usuario_atual()
+    if not usuario:
+        return jsonify({'is_favorito': False})
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(
+            "SELECT id FROM favoritos WHERE usuario_id = %s AND pet_id = %s",
+            (usuario['id'], pet_id)
+        )
+        favorito = cur.fetchone()
+        cur.close()
+        
+        return jsonify({'is_favorito': bool(favorito)})
+        
+    except Exception as e:
+        print(f"❌ Erro ao verificar favorito: {e}")
+        return jsonify({'is_favorito': False})
+
+
+@app.route('/meus-favoritos')
+def meus_favoritos():
+    """Página com os pets favoritados pelo usuário"""
+    usuario = obter_usuario_atual()
+    if not usuario:
+        flash('Faça login para ver seus favoritos.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            SELECT p.* 
+            FROM pets p
+            INNER JOIN favoritos f ON p.id = f.pet_id
+            WHERE f.usuario_id = %s
+            ORDER BY f.data_favoritado DESC
+        """, (usuario['id'],))
+        
+        pets_data = cur.fetchall()
+        cur.close()
+        
+        # Formatar pets
+        pets = []
+        for pet in pets_data:
+            pets.append({
+                'id': pet[0],
+                'nome': pet[1],
+                'especie': pet[2],
+                'idade': pet[3],
+                'descricao': pet[4],
+                'imagem_url': pet[5]
+            })
+        
+        return render_template('meus_favoritos.html', 
+                             usuario=usuario, 
+                             pagina='meus-favoritos', 
+                             pets=pets,
+                             total_favoritos=len(pets))
+        
+    except Exception as e:
+        print(f"❌ Erro ao carregar favoritos: {e}")
+        flash('Erro ao carregar seus favoritos.', 'error')
+        return render_template('meus_favoritos.html', 
+                             usuario=usuario, 
+                             pagina='meus-favoritos', 
+                             pets=[],
+                             total_favoritos=0)
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
