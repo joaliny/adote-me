@@ -145,8 +145,10 @@
     
                     <!-- Botão de Favorito -->
                     <button class="btn-favorito {% if usuario %}favorito-interativo{% endif %}"
-                        onclick="toggleFavorito({{ pet.id }}, this)" data-pet-id="{{ pet.id }}" {% if not usuario
-                        %}title="Faça login para favoritar" disabled{% endif %}>
+                        data-pet-id="{{ pet.id }}"
+                        {% if not usuario %}
+                            title="Faça login para favoritar" disabled
+                        {% endif %}>
                         <i class="bi bi-heart"></i>
                     </button>
                 </div>
@@ -383,33 +385,36 @@
     }
 }
 
-            // Verifica e atualiza o estado dos favoritos ao carregar a página
-            document.addEventListener('DOMContentLoaded', function() {
-                // Verifica o estado dos favoritos para cada pet
-                document.querySelectorAll('.btn-favorito[data-pet-id]').forEach(button => {
-                    const petId = button.getAttribute('data-pet-id');
+// Verifica e atualiza o estado dos favoritos ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifica o estado dos favoritos para cada pet
+    document.querySelectorAll('.btn-favorito[data-pet-id]').forEach(button => {
+        const petId = button.getAttribute('data-pet-id');
 
-                    if (!button.disabled) {
-                        fetch(`/api/verificar-favorito/${petId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                const icon = button.querySelector('i');
-                                if (data.is_favorito) {
-                                    icon.className = 'bi bi-heart-fill';
-                                    button.classList.add('ativo');
-                                } else {
-                                    icon.className = 'bi bi-heart';
-                                    button.classList.remove('ativo');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Erro ao verificar favorito:', error);
-                            });
+        if (!button.disabled) {
+            // Adiciona listener de clique para favoritar usando data-pet-id
+            button.addEventListener('click', function () {
+                toggleFavorito(petId, button);
+            });
+
+            fetch(`/api/verificar-favorito/${petId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const icon = button.querySelector('i');
+                    if (data.is_favorito) {
+                        icon.className = 'bi bi-heart-fill';
+                        button.classList.add('ativo');
+                    } else {
+                        icon.className = 'bi bi-heart';
+                        button.classList.remove('ativo');
                     }
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar favorito:', error);
                 });
+        }
+    });
 });
-
-
             // Função para mostrar alertas
             function showAlert(message, type) {
     // Remove alertas existentes
