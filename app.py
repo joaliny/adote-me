@@ -721,6 +721,118 @@ def solicitar_adocao(id):
         flash('Erro interno ao processar solicitação. Tente novamente.', 'error')
         return redirect(url_for('detalhes_pet', id=id))
 
+
+
+ # ========== Rotas de Minhas Adoções ==========
+
+@app.route('/minhas-adocoes')
+def minhas_adocoes():
+    """Página com as adoções solicitadas pelo usuário"""
+    usuario = obter_usuario_atual()
+    if not usuario:
+        flash('Faça login para ver suas adoções.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        print(f"🔍 Buscando adoções para usuário ID: {usuario['id']}")
+        
+        # ✅ QUERY SIMPLIFICADA E CORRETA
+        cur.execute("""
+            SELECT 
+                a.id, a.pet_id, a.nome, a.email, a.telefone, 
+                a.mensagem, a.data_solicitacao, a.status,
+                p.nome as pet_nome, p.especie, p.idade, p.imagem_url
+            FROM adocoes a
+            LEFT JOIN pets p ON a.pet_id = p.id
+            WHERE a.usuario_id = %s
+            ORDER BY a.data_solicitacao DESC
+        """, (usuario['id'],))
+        
+        adocoes_data = cur.fetchall()
+        cur.close()
+        
+        print(f"✅ Encontradas {len(adocoes_data)} adoções")
+        
+        # ✅ FORMATAÇÃO CORRETA DOS DADOS
+        adocoes = []
+        for adocao in adocoes_data:
+            adocoes.append({
+                'id': adocao[0],           # a.id
+                'pet_id': adocao[1],       # a.pet_id
+                'nome_solicitante': adocao[2],  # a.nome
+                'email': adocao[3],        # a.email
+                'telefone': adocao[4],     # a.telefone
+                'mensagem': adocao[5],     # a.mensagem
+                'data_solicitacao': adocao[6],  # a.data_solicitacao
+                'status': adocao[7] or 'pendente',  # a.status
+                'pet_nome': adocao[8],     # p.nome
+                'pet_especie': adocao[9],  # p.especie
+                'pet_idade': adocao[10],   # p.idade
+                'pet_imagem': adocao[11]   # p.imagem_url
+            })
+            print(f"📋 Adoção encontrada: {adocao[8]} - Status: {adocao[7]}")
+        
+        return render_template('minhas_adocoes.html', 
+                             usuario=usuario, 
+                             pagina='minhas-adocoes', 
+                             adocoes=adocoes,
+                             total_adocoes=len(adocoes))
+        
+    except Exception as e:
+        print(f"❌ Erro ao carregar adoções: {e}")
+        import traceback
+        print(f"📋 Traceback completo: {traceback.format_exc()}")
+        flash('Erro ao carregar suas adoções.', 'error')
+        return render_template('minhas_adocoes.html', 
+                             usuario=usuario, 
+                             pagina='minhas-adocoes', 
+                             adocoes=[],
+                             total_adocoes=0)
+
+
+@app.route('/api/cancelar-adocao/<int:adocao_id>', methods=['POST'])
+def cancelar_adocao(adocao_id):
+    """Cancela uma solicitação de adoção"""
+    usuario = obter_usuario_atual()
+    if not usuario:
+        return jsonify({'success': False, 'message': 'Faça login para cancelar adoções.'})
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verificar se a adoção pertence ao usuário
+        cur.execute("""
+            SELECT id FROM adocoes 
+            WHERE id = %s AND usuario_id = %s
+        """, (adocao_id, usuario['id']))
+        
+        adocao = cur.fetchone()
+        
+        if not adocao:
+            return jsonify({'success': False, 'message': 'Adoção não encontrada.'})
+        
+        # Cancelar a adoção
+        cur.execute("""
+            UPDATE adocoes SET status = 'cancelada' 
+            WHERE id = %s
+        """, (adocao_id,))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Adoção cancelada com sucesso!'
+        })
+        
+    except Exception as e:
+        print(f"❌ Erro ao cancelar adoção: {e}")
+        return jsonify({'success': False, 'message': 'Erro ao cancelar adoção.'})
+
+
+
 # ========== Rotas do Dashboard Admin ==========
 
 @app.route('/admin')
@@ -1262,9 +1374,6 @@ def meus_favoritos():
                              pagina='meus-favoritos', 
                              pets=[],
                              total_favoritos=0)
-
-
-
 
 
 

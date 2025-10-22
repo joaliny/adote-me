@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Adoções - Adote-me{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Cabeçalho Melhorado -->
+            <div class="d-flex align-items-center mb-4">
+                <div class="me-3">
+                    <i class="bi bi-house-check-fill text-primary" style="font-size: 2.5rem;"></i>
+                </div>
+                <div>
+                    <h1 class="mb-1">Minhas Adoções</h1>
+                    <p class="text-muted mb-0">Acompanhe todas as suas solicitações de adoção</p>
+                </div>
+            </div>
+
+            {% if adocoes %}
+            <div class="row">
+                {% for adocao in adocoes %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card adoption-card h-100 border-0 shadow-sm">
+                        <!-- Header com Status -->
+                        <div class="card-header bg-transparent border-0 pb-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-1">
+                                        <i class="bi bi-heart-fill text-danger me-2"></i>
+                                        {{ adocao.pet_nome }}
+                                    </h5>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge status-badge 
+                                            {% if adocao.status == 'aprovada' %}bg-success
+                                            {% elif adocao.status == 'cancelada' %}bg-secondary
+                                            {% elif adocao.status == 'rejeitada' %}bg-danger
+                                            {% else %}bg-warning{% endif %} me-2">
+                                            {{ adocao.status|title }}
+                                        </span>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            {{ adocao.data_solicitacao.strftime('%d/%m/%Y') }}
+                                        </small>
+                                    </div>
+                                </div>
+                                {% if adocao.pet_imagem %}
+                                <div class="pet-avatar">
+                                    <img src="{{ adocao.pet_imagem }}" alt="{{ adocao.pet_nome }}"
+                                        class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Corpo do Card -->
+                        <div class="card-body pt-3">
+                            <!-- Informações do Pet -->
+                            <div class="pet-info mb-3">
+                                <h6 class="section-title">
+                                    <i class="bi bi-paw me-2"></i>Sobre o Pet
+                                </h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="info-item">
+                                            <small class="text-muted">Espécie</small>
+                                            <div class="fw-semibold">{{ adocao.pet_especie }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="info-item">
+                                            <small class="text-muted">Idade</small>
+                                            <div class="fw-semibold">{{ adocao.pet_idade }} ano(s)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sua Solicitação -->
+                            <div class="solicitacao-info mb-3">
+                                <h6 class="section-title">
+                                    <i class="bi bi-person-circle me-2"></i>Seus Dados
+                                </h6>
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <div class="info-item">
+                                            <small class="text-muted">Nome</small>
+                                            <div class="fw-semibold">{{ adocao.nome_solicitante }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="info-item">
+                                            <small class="text-muted">Email</small>
+                                            <div class="fw-semibold small">{{ adocao.email }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="info-item">
+                                            <small class="text-muted">Telefone</small>
+                                            <div class="fw-semibold">{{ adocao.telefone }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mensagem -->
+                            {% if adocao.mensagem %}
+                            <div class="mensagem-box mb-3">
+                                <h6 class="section-title">
+                                    <i class="bi bi-chat-left-text me-2"></i>Sua Mensagem
+                                </h6>
+                                <div class="message-content bg-light rounded p-3">
+                                    <p class="mb-0 text-dark">{{ adocao.mensagem }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Footer com Ações -->
+                        <div class="card-footer bg-transparent border-0 pt-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('detalhes_pet', id=adocao.pet_id) }}"
+                                    class="btn btn-outline-primary btn-sm action-btn">
+                                    <i class="bi bi-eye me-1"></i> Ver Pet
+                                </a>
+
+                                {% if adocao.status == 'pendente' %}
+                                <button class="btn btn-outline-danger btn-sm action-btn btn-cancelar-adocao"
+                                    data-adocao-id="{{ adocao.id }}">
+                                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                                </button>
+                                {% else %}
+                                <span class="badge bg-light text-dark">
+                                    <i class="bi bi-{% if adocao.status == 'aprovada' %}check-circle text-success
+                                                   {% elif adocao.status == 'cancelada' %}slash-circle text-secondary
+                                                   {% else %}exclamation-circle text-danger{% endif %} me-1"></i>
+                                    {{ adocao.status|title }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Estado Vazio -->
+            <div class="text-center py-5 empty-state">
+                <div class="empty-icon mb-4">
+                    <i class="bi bi-house-x text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="text-muted mb-3">Nenhuma adoção solicitada</h3>
+                <p class="text-muted mb-4">Você ainda não solicitou a adoção de nenhum pet.</p>
+                <a href="{{ url_for('adotar') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-search me-2"></i> Encontrar Pets para Adoção
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ✅ MODAL SIMPLES -->
+<div class="modal fade" id="modalConfirmacaoCancelamento" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Cancelamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja cancelar esta solicitação de adoção?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarCancelamento">Sim, Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ SCRIPT INLINE - GARANTIDO PARA FUNCIONAR -->
+<script>
+    // Função para cancelar adoção - DEFINIDA NO PRÓPRIO HTML
+    function cancelarAdocao(button) {
+        console.log('🎯 Função cancelarAdocao executada!');
+
+        const id = button.getAttribute('data-adocao-id');
+        const card = button.closest('.adoption-card');
+
+        if (!confirm('Tem certeza que deseja cancelar esta solicitação de adoção?')) {
+            return;
+        }
+
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Cancelando...';
+
+        fetch('/api/cancelar-adocao/' + id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Resposta:', data);
+                if (data.success) {
+                    card.style.transition = 'all 0.4s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+
+                    setTimeout(() => {
+                        card.remove();
+                        if (document.querySelectorAll('.adoption-card').length === 0) {
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    }, 400);
+
+                    alert('✅ Adoção cancelada com sucesso!');
+                } else {
+                    alert('❌ Erro: ' + data.message);
+                    button.disabled = false;
+                    button.innerHTML = '<i class="bi bi-x-circle me-1"></i> Cancelar';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('❌ Erro de conexão');
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-x-circle me-1"></i> Cancelar';
+            });
+    }
+
+    // Configurar event listeners quando a página carregar
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('✅ Página carregada - Configurando botões...');
+
+        const botoes = document.querySelectorAll('.btn-cancelar-adocao');
+        console.log(`🔍 Encontrados ${botoes.length} botões`);
+
+        botoes.forEach(botao => {
+            botao.addEventListener('click', function () {
+                cancelarAdocao(this);
+            });
+        });
+
+        console.log('🎯 Botões configurados com sucesso!');
+    });
+
+    // CSS para animações
+    const style = document.createElement('style');
+    style.textContent = `
+    .spinner {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+    document.head.appendChild(style);
+</script>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+    .adoption-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 12px;
+    }
+
+    .adoption-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .section-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 0.25rem;
+    }
+
+    .info-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+
+    .action-btn {
+        border-radius: 20px;
+        padding: 0.375rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .message-content {
+        border-left: 3px solid #007bff;
+        font-style: italic;
+    }
+
+    .empty-state {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 3rem !important;
+    }
+
+    .pet-avatar {
+        flex-shrink: 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .adoption-card {
+        animation: fadeIn 0.5s ease;
+    }
+
+    @media (max-width: 768px) {
+        .adoption-card {
+            margin-bottom: 1rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
