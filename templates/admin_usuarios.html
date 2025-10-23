@@ -12,9 +12,9 @@
                 <div class="card-header bg-light border-0">
                     <div class="text-center py-3">
                         <h1 class="h3 mb-2 text-dark">
-                            <i class="bi bi-people me-2"></i>Gerenciar Usuários Adotantes
+                            <i class="bi bi-people me-2"></i>Gerenciar Todos os Usuários
                         </h1>
-                        <p class="text-muted mb-3">Administre os usuários adotantes do sistema</p>
+                        <p class="text-muted mb-3">Administre todos os usuários do sistema</p>
                         <div class="d-flex justify-content-center gap-2 flex-wrap">
                             <span class="badge bg-primary fs-6">
                                 <i class="bi bi-person me-1"></i>{{ total_usuarios }} usuários
@@ -49,21 +49,21 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="50px">
-                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                        <!-- <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> -->
                                     </th>
                                     <th width="60px">Nº</th>
                                     <th>Nome</th>
                                     <th>Email</th>
                                     <th>Data Cadastro</th>
                                     <th>Status</th>
-                                    <th width="120px">Ações</th>
+                                    <!-- <th width="120px">Ações</th> -->
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for user in usuarios %}
                                 <tr>
                                     <td>
-                                        <input type="checkbox" class="user-checkbox" value="{{ user.id }}">
+                                        <!-- <input type="checkbox" class="user-checkbox" value="{{ user.id }}"> -->
                                     </td>
                                     <td>
                                         <strong class="text-muted">{{ (pagina_atual - 1) * por_pagina + loop.index
@@ -98,7 +98,7 @@
                                         </span>
                                         {% endif %}
                                     </td>
-                                    <td>
+                                    <!-- <td>
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-outline-primary"
                                                 onclick="verDetalhesUsuario('{{ user.id }}')" title="Ver detalhes">
@@ -121,7 +121,7 @@
                                             </button>
                                             {% endif %}
                                         </div>
-                                    </td>
+                                    </td> -->
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -253,9 +253,31 @@
     .table-hover tbody tr:hover {
         background-color: rgba(0, 123, 255, 0.04);
     }
+    
 </style>
 
 <script>
+    // Atualize a função promoverParaProtetor para não permitir promover admins
+        function promoverParaProtetor() {
+            const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+                .map(checkbox => checkbox.value)
+                .filter(id => {
+                    // Verificar se o usuário não é admin
+                    const row = document.querySelector(`.user-checkbox[value="${id}"]`).closest('tr');
+                    const badge = row.querySelector('.badge');
+                    return !badge.textContent.includes('Admin');
+                });
+
+            if (selectedUsers.length === 0) {
+                alert('Selecione pelo menos um usuário (que não seja admin) para promover.');
+                return;
+            }
+
+            if (confirm(`Deseja promover ${selectedUsers.length} usuário(s) para Protetor?`)) {
+                // ... resto do código existente
+            }
+        }
+
     // Selecionar todos os checkboxes
     function toggleSelectAll() {
         const checkboxes = document.querySelectorAll('.user-checkbox');
@@ -267,23 +289,228 @@
     }
 
     // Ver detalhes do usuário
-    function verDetalhesUsuario(userId) {
-        const modal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
-        document.getElementById('detalhesConteudo').innerHTML = `
-            <div class="text-center">
-                <div class="avatar-lg bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-                    <i class="bi bi-person-fill text-primary fs-1"></i>
+        async function verDetalhesUsuario(userId) {
+            try {
+                // Mostrar loading
+                document.getElementById('detalhesConteudo').innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
                 </div>
-                <h4>Detalhes do Usuário</h4>
-                <p class="text-muted">Funcionalidade em desenvolvimento</p>
-                <p>ID: ${userId}</p>
-                <button class="btn btn-primary" onclick="promoverUsuario(${userId})">
-                    <i class="bi bi-shield-plus me-1"></i>Promover para Protetor
-                </button>
+                <p class="mt-2 text-muted">Carregando detalhes do usuário...</p>
             </div>
         `;
-        modal.show();
-    }
+
+                const modal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
+                modal.show();
+
+                // Buscar dados do usuário
+                const response = await fetch(`/admin/usuario/${userId}/detalhes`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.usuario;
+                    document.getElementById('detalhesConteudo').innerHTML = criarConteudoDetalhes(user);
+                } else {
+                    document.getElementById('detalhesConteudo').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Erro ao carregar detalhes: ${data.message}
+                </div>
+            `;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('detalhesConteudo').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Erro ao carregar detalhes do usuário.
+            </div>
+        `;
+            }
+        }
+
+        // Criar conteúdo HTML para os detalhes
+        function criarConteudoDetalhes(user) {
+            const tipoBadge = user.tipo === 'admin' ?
+                '<span class="badge bg-danger"><i class="bi bi-shield-check me-1"></i>Admin</span>' :
+                user.tipo === 'protetor' ?
+                    '<span class="badge bg-success"><i class="bi bi-heart me-1"></i>Protetor</span>' :
+                    '<span class="badge bg-info"><i class="bi bi-person me-1"></i>Adotante</span>';
+
+            const verificadoBadge = user.verificado ?
+                '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Verificado</span>' :
+                '<span class="badge bg-warning"><i class="bi bi-clock me-1"></i>Pendente</span>';
+
+            return `
+        <div class="row">
+            <!-- Coluna de Informações Pessoais -->
+            <div class="col-md-6">
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="avatar-lg bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                                <i class="bi bi-person-fill text-white fs-2"></i>
+                            </div>
+                            <h4 class="mb-1">${user.nome}</h4>
+                            <div class="mb-2">
+                                ${tipoBadge}
+                                ${verificadoBadge}
+                            </div>
+                            <p class="text-muted mb-0">ID: ${user.id}</p>
+                        </div>
+
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Informações Pessoais
+                        </h6>
+                        
+                        <div class="mb-2">
+                            <strong><i class="bi bi-envelope me-2"></i>Email:</strong>
+                            <div class="text-muted">${user.email}</div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <strong><i class="bi bi-telephone me-2"></i>Telefone:</strong>
+                            <div class="text-muted">${user.telefone}</div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <strong><i class="bi bi-calendar me-2"></i>Data de Nascimento:</strong>
+                            <div class="text-muted">${user.data_nascimento}</div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <strong><i class="bi bi-clock me-2"></i>Data de Cadastro:</strong>
+                            <div class="text-muted">${user.data_cadastro}</div>
+                        </div>
+
+                        <div class="mt-3">
+                            <strong><i class="bi bi-journal-text me-2"></i>Biografia:</strong>
+                            <div class="text-muted mt-1 p-2 bg-white rounded border">${user.bio}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna de Endereço e Estatísticas -->
+            <div class="col-md-6">
+                <!-- Endereço -->
+                <div class="card border-0 bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-geo-alt me-2"></i>Localização
+                        </h6>
+                        
+                        <div class="mb-2">
+                            <strong>Endereço:</strong>
+                            <div class="text-muted">${user.endereco}</div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <strong>Cidade/Estado:</strong>
+                            <div class="text-muted">${user.cidade} / ${user.estado}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="card border-0 bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-graph-up me-2"></i>Estatísticas
+                        </h6>
+                        
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="p-3 bg-white rounded border">
+                                    <div class="h4 text-primary mb-1">${user.estatisticas.total_adocoes}</div>
+                                    <small class="text-muted">Adoções</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 bg-white rounded border">
+                                    <div class="h4 text-success mb-1">${user.estatisticas.total_pets}</div>
+                                    <small class="text-muted">Pets Cadastrados</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações Rápidas -->
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-lightning me-2"></i>Ações Rápidas
+                        </h6>
+                        
+                        <div class="d-grid gap-2">
+                            ${user.tipo === 'adotante' ? `
+                                <button class="btn btn-outline-success btn-sm" onclick="promoverUsuario(${user.id})">
+                                    <i class="bi bi-shield-plus me-1"></i>Promover para Protetor
+                                </button>
+                            ` : ''}
+                            
+                            <button class="btn btn-outline-warning btn-sm" onclick="editarUsuario(${user.id})">
+                                <i class="bi bi-pencil me-1"></i>Editar Usuário
+                            </button>
+                            
+                            ${user.id !== usuarioLogadoId && user.tipo !== 'admin' ? `
+                                <button class="btn btn-outline-danger btn-sm" onclick="excluirUsuario(${user.id}, '${user.nome}')">
+                                    <i class="bi bi-trash me-1"></i>Excluir Usuário
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adoções Recentes -->
+        ${user.adocoes_recentes.length > 0 ? `
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 bg-light">
+                    <div class="card-body">
+                        <h6 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-clock-history me-2"></i>Adoções Recentes
+                        </h6>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pet</th>
+                                        <th>Data da Adoção</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${user.adocoes_recentes.map(adocao => `
+                                        <tr>
+                                            <td>${adocao.pet_nome}</td>
+                                            <td>${adocao.data_adocao}</td>
+                                            <td>
+                                                <span class="badge ${adocao.status === 'aprovada' ? 'bg-success' : adocao.status === 'pendente' ? 'bg-warning' : 'bg-secondary'}">
+                                                    ${adocao.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ` : ''}
+    `;
+        }
+
+        // Adicione esta variável no início do seu JavaScript para armazenar o ID do usuário logado
+        // Coloque isso antes das funções, preferencialmente no topo do script
+        const usuarioLogadoId = "{{ usuario.id }}";  // Isso vai funcionar no template Jinja2
 
     // Promover usuário para protetor
     function promoverUsuario(userId) {

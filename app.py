@@ -878,11 +878,9 @@ def admin_dashboard():
             total_pets=0,
             total_adocoes=0)
 
-
-
 @app.route('/admin/usuarios')
 def admin_usuarios():
-    """Página de administração para gerenciar usuários adotantes com paginação"""
+    """Página de administração para gerenciar todos os usuários com paginação"""
     usuario = obter_usuario_atual()
     
     # ✅ Verificar se é admin
@@ -893,23 +891,30 @@ def admin_usuarios():
     try:
         # ✅ Configuração da paginação
         pagina = request.args.get('pagina', 1, type=int)
-        por_pagina = 10  # ✅ MUDAR AQUI: Quantidade de usuários por página
+        por_pagina = 10
         
         # Calcular offset
         offset = (pagina - 1) * por_pagina
         
         cur = mysql.connection.cursor()
         
-        # ✅ Contar total de usuários adotantes
-        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo = 'adotante'")
+        # ✅ MODIFICADO: Contar total de TODOS os usuários (adotantes, protetores e admins)
+        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo IN ('adotante', 'protetor', 'admin')")
         total_usuarios = cur.fetchone()[0]
         
-        # ✅ Buscar usuários com paginação
+        # ✅ MODIFICADO: Buscar TODOS os usuários com paginação
         cur.execute("""
             SELECT id, nome, email, tipo, data_cadastro, telefone, verificado
             FROM usuarios 
-            WHERE tipo = 'adotante'
-            ORDER BY data_cadastro DESC
+            WHERE tipo IN ('adotante', 'protetor', 'admin')
+            ORDER BY 
+                CASE 
+                    WHEN tipo = 'admin' THEN 1
+                    WHEN tipo = 'protetor' THEN 2
+                    WHEN tipo = 'adotante' THEN 3
+                    ELSE 4
+                END,
+                data_cadastro DESC
             LIMIT %s OFFSET %s
         """, (por_pagina, offset))
         usuarios_data = cur.fetchall()
@@ -947,6 +952,52 @@ def admin_usuarios():
         flash(f'Erro ao carregar usuários: {str(e)}', 'error')
         return redirect('/home')
 
+# ✅ CORREÇÃO: Removido o espaço antes do @app.route
+@app.route('/admin/usuario/<int:user_id>/excluir', methods=['DELETE'])
+def excluir_usuario(user_id):
+    """Excluir usuário e seus registros relacionados"""
+    usuario = obter_usuario_atual()
+    
+    if not usuario or usuario.get('tipo') != 'admin':
+        return jsonify({'success': False, 'message': 'Acesso negado'})
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # ✅ VERIFICAR SE É O PRÓPRIO USUÁRIO
+        if user_id == usuario['id']:
+            return jsonify({'success': False, 'message': 'Não é possível excluir a si mesmo'})
+        
+        # ✅ VERIFICAR SE O USUÁRIO É ADMIN
+        cur.execute("SELECT tipo FROM usuarios WHERE id = %s", (user_id,))
+        user_tipo = cur.fetchone()
+        if user_tipo and user_tipo[0] == 'admin':
+            return jsonify({'success': False, 'message': 'Não é possível excluir administradores'})
+        
+        # ✅ EXCLUIR REGISTROS RELACIONADOS NAS ADOÇÕES
+        cur.execute("DELETE FROM adocoes WHERE usuario_id = %s", (user_id,))
+        print(f"✅ Registros de adoções excluídos para usuário {user_id}")
+        
+        # ✅ EXCLUIR OUTROS REGISTROS RELACIONADOS (se houver outras tabelas)
+        # Exemplo: cur.execute("DELETE FROM outra_tabela WHERE usuario_id = %s", (user_id,))
+        
+        # ✅ AGORA EXCLUIR O USUÁRIO
+        cur.execute("DELETE FROM usuarios WHERE id = %s", (user_id,))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        print(f"✅ Usuário {user_id} excluído com sucesso")
+        return jsonify({'success': True, 'message': 'Usuário excluído com sucesso'})
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        print(f"❌ Erro ao excluir usuário {user_id}: {str(e)}")
+        return jsonify({'success': False, 'message': f'Erro ao excluir usuário: {str(e)}'})
+
+
+
+        
 
 
 @app.route('/admin/protetores')
