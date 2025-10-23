@@ -879,6 +879,76 @@ def admin_dashboard():
             total_adocoes=0)
 
 
+
+@app.route('/admin/usuarios')
+def admin_usuarios():
+    """Página de administração para gerenciar usuários adotantes com paginação"""
+    usuario = obter_usuario_atual()
+    
+    # ✅ Verificar se é admin
+    if not usuario or usuario.get('tipo') != 'admin':
+        flash('Acesso negado. Área restrita para administradores.', 'error')
+        return redirect('/home')
+    
+    try:
+        # ✅ Configuração da paginação
+        pagina = request.args.get('pagina', 1, type=int)
+        por_pagina = 10  # ✅ MUDAR AQUI: Quantidade de usuários por página
+        
+        # Calcular offset
+        offset = (pagina - 1) * por_pagina
+        
+        cur = mysql.connection.cursor()
+        
+        # ✅ Contar total de usuários adotantes
+        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo = 'adotante'")
+        total_usuarios = cur.fetchone()[0]
+        
+        # ✅ Buscar usuários com paginação
+        cur.execute("""
+            SELECT id, nome, email, tipo, data_cadastro, telefone, verificado
+            FROM usuarios 
+            WHERE tipo = 'adotante'
+            ORDER BY data_cadastro DESC
+            LIMIT %s OFFSET %s
+        """, (por_pagina, offset))
+        usuarios_data = cur.fetchall()
+        cur.close()
+        
+        # Calcular total de páginas
+        total_paginas = (total_usuarios + por_pagina - 1) // por_pagina
+        
+        # Formatar usuários
+        usuarios = []
+        for user in usuarios_data:
+            usuarios.append({
+                'id': user[0],
+                'nome': user[1],
+                'email': user[2],
+                'tipo': user[3],
+                'data_cadastro': user[4].strftime('%d/%m/%Y %H:%M') if user[4] else 'N/A',
+                'telefone': user[5] or 'Não informado',
+                'verificado': user[6]
+            })
+        
+        print(f"✅ Página {pagina}: {len(usuarios)} de {total_usuarios} usuários")
+        
+        return render_template('admin_usuarios.html', 
+                             usuario=usuario, 
+                             usuarios=usuarios,
+                             pagina_atual=pagina,
+                             total_paginas=total_paginas,
+                             total_usuarios=total_usuarios,
+                             por_pagina=por_pagina,
+                             pagina='admin_usuarios')
+    
+    except Exception as e:
+        print(f"❌ Erro ao carregar usuários: {str(e)}")
+        flash(f'Erro ao carregar usuários: {str(e)}', 'error')
+        return redirect('/home')
+
+
+
 @app.route('/admin/protetores')
 def admin_protetores():
     """Página de gerenciamento de protetores"""
@@ -1374,6 +1444,9 @@ def meus_favoritos():
                              pagina='meus-favoritos', 
                              pets=[],
                              total_favoritos=0)
+
+
+
 
 
 

@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Usuários - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Tabela de Usuários -->
+            <div class="card shadow-sm">
+                <!-- Cabeçalho principal -->
+                <div class="card-header bg-light border-0">
+                    <div class="text-center py-3">
+                        <h1 class="h3 mb-2 text-dark">
+                            <i class="bi bi-people me-2"></i>Gerenciar Usuários Adotantes
+                        </h1>
+                        <p class="text-muted mb-3">Administre os usuários adotantes do sistema</p>
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <span class="badge bg-primary fs-6">
+                                <i class="bi bi-person me-1"></i>{{ total_usuarios }} usuários
+                            </span>
+                            {% if total_paginas > 1 %}
+                            <span class="badge bg-info fs-6">
+                                <i class="bi bi-file-text me-1"></i>Página {{ pagina_atual }}/{{ total_paginas }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de ações -->
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 text-dark">
+                            <i class="bi bi-list-ul me-2"></i>Lista de Usuários
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <!-- <button class="btn btn-outline-success btn-sm" onclick="promoverParaProtetor()">
+                                <i class="bi bi-shield-plus me-1"></i>Promover para Protetor
+                            </button> -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if usuarios %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="tabelaUsuarios">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50px">
+                                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th width="60px">Nº</th>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Data Cadastro</th>
+                                    <th>Status</th>
+                                    <th width="120px">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in usuarios %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="user-checkbox" value="{{ user.id }}">
+                                    </td>
+                                    <td>
+                                        <strong class="text-muted">{{ (pagina_atual - 1) * por_pagina + loop.index
+                                            }}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-light rounded me-3">
+                                                <i class="bi bi-person-fill text-primary p-2"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ user.nome }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ user.data_cadastro }}</small>
+                                    </td>
+                                    <td>
+                                        {% if user.tipo == 'admin' %}
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-shield-check me-1"></i>Admin
+                                        </span>
+                                        {% elif user.tipo == 'protetor' %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-heart me-1"></i>Protetor
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-person me-1"></i>Adotante
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary"
+                                                onclick="verDetalhesUsuario('{{ user.id }}')" title="Ver detalhes">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning"
+                                                onclick="editarUsuario('{{ user.id }}')" title="Editar usuário">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            {% if user.id != usuario.id %}
+                                            <button class="btn btn-outline-danger"
+                                                onclick="excluirUsuario('{{ user.id }}', '{{ user.nome }}')"
+                                                title="Excluir usuário">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-outline-secondary" disabled
+                                                title="Não é possível excluir a si mesmo">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINAÇÃO -->
+                    {% if total_paginas > 1 %}
+                    <nav aria-label="Navegação de páginas" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <!-- Botão Anterior -->
+                            <li class="page-item {% if pagina_atual == 1 %}disabled{% endif %}">
+                                <a class="page-link"
+                                    href="{{ url_for('admin_usuarios', pagina=pagina_atual-1) if pagina_atual > 1 else '#' }}">
+                                    <i class="bi bi-chevron-left"></i> Anterior
+                                </a>
+                            </li>
+
+                            <!-- Páginas -->
+                            {% for num in range(1, total_paginas + 1) %}
+                            {% if num == pagina_atual %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num >= pagina_atual - 2 and num <= pagina_atual + 2 %} <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_usuarios', pagina=num) }}">{{ num }}</a>
+                                </li>
+                                {% elif num == 1 or num == total_paginas %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin_usuarios', pagina=num) }}">{{ num
+                                        }}</a>
+                                </li>
+                                {% elif num == pagina_atual - 3 or num == pagina_atual + 3 %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+
+                                <!-- Botão Próximo -->
+                                <li class="page-item {% if pagina_atual == total_paginas %}disabled{% endif %}">
+                                    <a class="page-link"
+                                        href="{{ url_for('admin_usuarios', pagina=pagina_atual+1) if pagina_atual < total_paginas else '#' }}">
+                                        Próximo <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                        </ul>
+
+                        <!-- Informações da paginação -->
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                Mostrando <strong>{{ (pagina_atual - 1) * por_pagina + 1 }}-{{ (pagina_atual - 1) *
+                                    por_pagina + usuarios|length }}</strong>
+                                de <strong>{{ total_usuarios }}</strong> usuários
+                                (Página {{ pagina_atual }} de {{ total_paginas }})
+                            </small>
+                        </div>
+                    </nav>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-people display-1 text-muted"></i>
+                        <h4 class="text-muted mt-3">Nenhum usuário adotante encontrado</h4>
+                        <p class="text-muted">Não há usuários adotantes cadastrados no sistema.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes -->
+<div class="modal fade" id="modalDetalhes" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Usuário</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detalhesConteudo">
+                <!-- Conteúdo carregado via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+    }
+
+    .user-checkbox {
+        transform: scale(1.2);
+    }
+
+    /* Estilos para paginação */
+    .pagination .page-link {
+        color: #495057;
+        border: 1px solid #dee2e6;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.04);
+    }
+</style>
+
+<script>
+    // Selecionar todos os checkboxes
+    function toggleSelectAll() {
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        const selectAll = document.getElementById('selectAll');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+    }
+
+    // Ver detalhes do usuário
+    function verDetalhesUsuario(userId) {
+        const modal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
+        document.getElementById('detalhesConteudo').innerHTML = `
+            <div class="text-center">
+                <div class="avatar-lg bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                    <i class="bi bi-person-fill text-primary fs-1"></i>
+                </div>
+                <h4>Detalhes do Usuário</h4>
+                <p class="text-muted">Funcionalidade em desenvolvimento</p>
+                <p>ID: ${userId}</p>
+                <button class="btn btn-primary" onclick="promoverUsuario(${userId})">
+                    <i class="bi bi-shield-plus me-1"></i>Promover para Protetor
+                </button>
+            </div>
+        `;
+        modal.show();
+    }
+
+    // Promover usuário para protetor
+    function promoverUsuario(userId) {
+        if (confirm('Tem certeza que deseja promover este usuário para Protetor?')) {
+            fetch(`/admin/usuario/${userId}/promover`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Usuário promovido com sucesso!');
+                        location.reload();
+                    } else {
+                        alert('Erro ao promover usuário: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Erro ao promover usuário.');
+                    console.error('Error:', error);
+                });
+        }
+    }
+
+    // Promover múltiplos usuários
+    function promoverParaProtetor() {
+        const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+
+        if (selectedUsers.length === 0) {
+            alert('Selecione pelo menos um usuário para promover.');
+            return;
+        }
+
+        if (confirm(`Deseja promover ${selectedUsers.length} usuário(s) para Protetor?`)) {
+            fetch('/admin/usuarios/promover', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ users: selectedUsers })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`${data.promoted} usuário(s) promovido(s) com sucesso!`);
+                        location.reload();
+                    } else {
+                        alert('Erro ao promover usuários: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Erro ao promover usuários.');
+                    console.error('Error:', error);
+                });
+        }
+    }
+
+    // Editar usuário
+    function editarUsuario(userId) {
+        alert(`Editar usuário ${userId} - Funcionalidade em desenvolvimento`);
+    }
+
+    // Excluir usuário
+    function excluirUsuario(userId, userName) {
+        if (confirm(`Tem certeza que deseja excluir o usuário "${userName}"? Esta ação não pode ser desfeita.`)) {
+            fetch(`/admin/usuario/${userId}/excluir`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Usuário excluído com sucesso!');
+                        location.reload();
+                    } else {
+                        alert('Erro ao excluir usuário: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Erro ao excluir usuário.');
+                    console.error('Error:', error);
+                });
+        }
+    }
+</script>
+{% endblock %}
