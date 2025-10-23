@@ -3,19 +3,17 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{% block title %}Adote-me 🐾{% endblock %}</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-  <!-- Estilo específico da home (opcional) -->
   {% if pagina == 'home' %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
   {% endif %}
@@ -34,117 +32,94 @@
   data-mostrar-modal="{{ 'true' if mostrar_modal else 'false' }}">
 
   <!-- Header e Navegação -->
-  <header>
-    <div class="container-header">
-      <div class="logo">Adote-<span>me 🐾</span></div>
-      <nav>
-        <ul>
-          <li><a href="/home" class="{% if pagina == 'home' %}active{% endif %}">Página Inicial</a></li>
-          <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre nós</a></li>
-          <li><a href="/blog" class="{% if pagina == 'blog' %}active{% endif %}">Blog</a></li>
-          <li><a href="/adotar" class="{% if pagina == 'adotar' %}active{% endif %}">Pets para adoção</a></li>
-
-          <!-- Mostrar "Cadastrar Pet" apenas para admin -->
-          {% if usuario and usuario.tipo == 'admin' %}
-          <li><a href="/cadastrar" class="{% if pagina == 'cadastrar' %}active{% endif %}">Cadastrar Pet</a></li>
-          {% endif %}
-        </ul>
-      </nav>
-
-      <!-- BOTÕES DE AUTENTICAÇÃO - APENAS UMA DIV -->
-      <div class="auth-buttons">
-        {% if usuario and usuario.id %}
-        <div class="dropdown">
-          <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            Olá, {{ usuario.nome }}
-            {% if usuario.tipo == 'admin' %} 🧑‍💻
-            {% else %} 😊
+  <header class="bg-light shadow-sm">
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light p-3">
+        <a class="navbar-brand fw-bold" href="/home">Adote-<span class="text-primary">me 🐾</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a href="/home" class="nav-link {% if pagina == 'home' %}active{% endif %}">Página Inicial</a></li>
+            <li class="nav-item"><a href="/sobre" class="nav-link {% if pagina == 'sobre' %}active{% endif %}">Sobre nós</a></li>
+            <li class="nav-item"><a href="/blog" class="nav-link {% if pagina == 'blog' %}active{% endif %}">Blog</a></li>
+            <li class="nav-item"><a href="/adotar" class="nav-link {% if pagina == 'adotar' %}active{% endif %}">Pets para adoção</a></li>
+            {% if usuario and usuario.tipo == 'admin' %}
+            <li class="nav-item"><a href="/cadastrar" class="nav-link {% if pagina == 'cadastrar' %}active{% endif %}">Cadastrar Pet</a></li>
             {% endif %}
-          </button>
-          <ul class="dropdown-menu">
-            <!-- PARA ADMIN -->
-            {% if usuario.tipo == 'admin' %}
-            <li><a class="dropdown-item" href="/admin">
-                <i class="bi bi-speedometer2"></i> Dashboard Admin
-              </a></li>
-            <li><a class="dropdown-item" href="/admin/protetores">
-                <i class="bi bi-people"></i> Gerenciar Usuários
-              </a></li>
-
-            <!-- PARA USUÁRIO COMUM (ADOTANTE) -->
-            {% else %}
-            <!-- <li><a class="dropdown-item" href="/minha-conta">
-                <i class="bi bi-person"></i> Minha Conta
-              </a></li> -->
-            <li><a class="dropdown-item" href="/meus-favoritos">
-                <i class="bi bi-heart"></i> Meus Favoritos
-              </a></li>
-            <li><a class="dropdown-item" href="/minhas-adocoes">
-                <i class="bi bi-house-check"></i> Minhas Adoções
-              </a></li>
-            {% endif %}
-
-            <!-- OPÇÕES COMUNS A TODOS -->
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item text-danger" href="/logout">
-                <i class="bi bi-box-arrow-right"></i> Sair
-              </a></li>
           </ul>
+
+          <div class="d-flex align-items-center">
+            {% if usuario and usuario.id %}
+            <div class="dropdown">
+              <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Olá, {{ usuario.nome }}
+                {% if usuario.tipo == 'admin' %} 🧑‍💻{% else %} 😊{% endif %}
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                {% if usuario.tipo == 'admin' %}
+                <li><a class="dropdown-item" href="/admin"><i class="bi bi-speedometer2"></i> Dashboard Admin</a></li>
+                <li><a class="dropdown-item" href="/admin/protetores"><i class="bi bi-people"></i> Gerenciar Usuários</a></li>
+                {% else %}
+                <li><a class="dropdown-item" href="/meus-favoritos"><i class="bi bi-heart"></i> Meus Favoritos</a></li>
+                <li><a class="dropdown-item" href="/minhas-adocoes"><i class="bi bi-house-check"></i> Minhas Adoções</a></li>
+                {% endif %}
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right"></i> Sair</a></li>
+              </ul>
+            </div>
+            {% else %}
+            <a href="/login" class="btn btn-link me-2">Entrar</a>
+            <a href="/cadastro" class="btn btn-primary">Cadastrar</a>
+            {% endif %}
+          </div>
         </div>
-        {% else %}
-        <a href="/login" class="btn-login">Entrar</a>
-        <a href="/cadastro" class="btn-register">Cadastrar</a>
-        {% endif %}
-      </div>
+      </nav>
     </div>
   </header>
 
   <!-- Conteúdo da página -->
-  <main>
+  <main class="container my-4">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer global -->
-  <footer>
-    <div class="footer-content">
-      <div class="footer-column">
-        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">me🐾</span></div>
-        <p>Conectando pets a lares amorosos desde 2025. Nossa missão é reduzir o número de animais abandonados através
-          da adoção responsável.</p>
+  <footer class="bg-dark text-light py-4 mt-auto">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-4 mb-3">
+          <div class="logo fs-4 fw-bold">Adote-<span class="text-white">me🐾</span></div>
+          <p>Conectando pets a lares amorosos desde 2025. Nossa missão é reduzir o número de animais abandonados através da adoção responsável.</p>
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+          <h5>Links Rápidos</h5>
+          <ul class="list-unstyled">
+            <li><a class="text-light text-decoration-none" href="/home">Página Inicial</a></li>
+            <li><a class="text-light text-decoration-none" href="/sobre">Sobre nós</a></li>
+            <li><a class="text-light text-decoration-none" href="/blog">Blog</a></li>
+            <li><a class="text-light text-decoration-none" href="/adotar">Pets para adoção</a></li>
+          </ul>
+        </div>
+        <div class="col-12 col-md-4 mb-3">
+          <h5>Contato</h5>
+          <ul class="list-unstyled">
+            <li>Email: contato@adote-me.com</li>
+            <li>Telefone: (92) 1234-5678</li>
+            <li>Endereço: Manaus, AM</li>
+          </ul>
+        </div>
       </div>
-
-      <div class="footer-column">
-        <h3>Links Rápidos</h3>
-        <ul>
-          <li><a href="/home">Página Inicial</a></li>
-          <li><a href="/sobre">Sobre nós</a></li>
-          <li><a href="/blog">Blog</a></li>
-          <li><a href="/adotar">Pets para adoção</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h3>Contato</h3>
-        <ul>
-          <li>Email: contato@adote-me.com</li>
-          <li>Telefone: (92) 1234-5678</li>
-          <li>Endereço: Manaus, AM</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="copyright">
-      <p>&copy; 2025 Adote-me. Todos os direitos reservados.</p>
+      <div class="text-center mt-3 small">&copy; 2025 Adote-me. Todos os direitos reservados.</div>
     </div>
   </footer>
 
-
-
-
   <script>
-    // Função global para favoritar pets
+    // Funções JS mantidas conforme seu código original
     function toggleFavorito(petId, button) {
       if (!button) return;
 
@@ -157,7 +132,6 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            // Atualiza o ícone e estilo do botão
             const icon = button.querySelector('i');
             if (data.is_favorito) {
               icon.className = 'bi bi-heart-fill';
@@ -166,8 +140,6 @@
               icon.className = 'bi bi-heart';
               button.classList.remove('btn-favorito-ativo');
             }
-
-            // Mostra mensagem de feedback
             showGlobalAlert(data.message, 'success');
           } else {
             showGlobalAlert(data.message, 'error');
@@ -179,32 +151,22 @@
         });
     }
 
-    // Função para mostrar alertas globais
     function showGlobalAlert(message, type) {
       const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
       const alertDiv = document.createElement('div');
       alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
       alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
       alertDiv.innerHTML = `
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       `;
-
       document.body.appendChild(alertDiv);
-
-      setTimeout(() => {
-        if (alertDiv.parentNode) {
-          alertDiv.remove();
-        }
-      }, 3000);
+      setTimeout(() => { if (alertDiv.parentNode) alertDiv.remove(); }, 3000);
     }
 
-    // Verifica e atualiza o estado dos botões de favorito na página
     document.addEventListener('DOMContentLoaded', function () {
-      // Verifica o estado dos favoritos para cada pet na página
       document.querySelectorAll('[data-pet-id]').forEach(button => {
         const petId = button.getAttribute('data-pet-id');
-
         fetch(`/api/verificar-favorito/${petId}`)
           .then(response => response.json())
           .then(data => {
@@ -217,14 +179,12 @@
               button.classList.remove('btn-favorito-ativo');
             }
           })
-          .catch(error => {
-            console.error('Erro ao verificar favorito:', error);
-          });
+          .catch(error => console.error('Erro ao verificar favorito:', error));
       });
     });
   </script>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

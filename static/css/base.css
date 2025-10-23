@@ -116,10 +116,10 @@
         }
 
 
-            footer {
-  background-color: var(--secondary-color);
-  color: white;
-  padding: 50px 0 20px;
+    footer {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 50px 0 20px;
 }
 
 .footer-content {
