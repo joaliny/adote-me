@@ -115,6 +115,13 @@
             border-color: #2980b9;
         }
 
+        .btn-rounded {
+  min-width: 100px; /* largura mínima */
+  padding: 10px 25px;
+  text-align: center;
+}
+
+
 
     footer {
     background-color: var(--secondary-color);
