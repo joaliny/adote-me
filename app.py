@@ -1213,7 +1213,7 @@ def criar_admin_teste():
 def sobre():
     """Página sobre o sistema"""
     usuario = obter_usuario_atual()
-    return render_template('sobre.html', usuario=usuario)
+    return render_template('sobre.html', usuario=usuario, pagina='sobre')
 
 
 @app.route("/termos")
