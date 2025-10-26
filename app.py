@@ -459,28 +459,70 @@ def redefinir_senha(token):
 @app.route('/')
 @app.route('/home')
 def home():
-    """Página inicial com lista de pets"""
+    """Página inicial com lista de pets e carrossel de pets perdidos"""
     usuario = obter_usuario_atual()
     
-    # Buscar pets do MySQL
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM pets ORDER BY id DESC LIMIT 6")
-    pets_data = cur.fetchall()
-    cur.close()
-    
-    # Formatar pets
-    pets = []
-    for pet in pets_data:
-        pets.append({
-            'id': pet[0],
-            'nome': pet[1],
-            'especie': pet[2],
-            'idade': pet[3],
-            'descricao': pet[4],
-            'imagem_url': pet[5]
-        })
-    
-    return render_template('home.html', usuario=usuario, pagina='home', pets=pets)
+    try:
+        # Buscar pets do MySQL (já existente)
+        cur1 = mysql.connection.cursor()  # Primeiro cursor
+        cur1.execute("SELECT * FROM pets ORDER BY id DESC LIMIT 6")
+        pets_data = cur1.fetchall()
+        cur1.close()  # Fechar primeiro cursor
+        
+        # BUSCAR PETS PERDIDOS PARA O CARROSSEL (NOVO)
+        cur2 = mysql.connection.cursor()  # Segundo cursor
+        cur2.execute('''
+            SELECT id, nome, especie, raca, local_desaparecimento, 
+                   contato_telefone, foto_path, data_desaparecimento
+            FROM pets_perdidos 
+            WHERE status = 'perdido' 
+            ORDER BY data_criacao DESC 
+            LIMIT 8
+        ''')
+        pets_perdidos_carrossel_data = cur2.fetchall()
+        cur2.close()  # Fechar segundo cursor
+        
+        # Formatar pets (já existente)
+        pets = []
+        for pet in pets_data:
+            pets.append({
+                'id': pet[0],
+                'nome': pet[1],
+                'especie': pet[2],
+                'idade': pet[3],
+                'descricao': pet[4],
+                'imagem_url': pet[5]
+            })
+        
+        # Formatar pets perdidos para o carrossel (NOVO)
+        pets_perdidos_carrossel = []
+        for pet in pets_perdidos_carrossel_data:
+            pets_perdidos_carrossel.append({
+                'id': pet[0],
+                'nome': pet[1],
+                'especie': pet[2],
+                'raca': pet[3],
+                'local_desaparecimento': pet[4],
+                'contato_telefone': pet[5],
+                'foto_path': pet[6],
+                'data_desaparecimento': pet[7]
+            })
+        
+        return render_template('home.html', 
+                             usuario=usuario, 
+                             pagina='home', 
+                             pets=pets,
+                             pets_perdidos_carrossel=pets_perdidos_carrossel)
+                             
+    except Exception as e:
+        print(f"❌ Erro na página inicial: {e}")
+        # Em caso de erro, retornar pelo menos os pets normais
+        usuario = obter_usuario_atual()
+        return render_template('home.html', 
+                             usuario=usuario, 
+                             pagina='home', 
+                             pets=[],
+                             pets_perdidos_carrossel=[])
 
 
 @app.route('/adotar')

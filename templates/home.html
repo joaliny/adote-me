@@ -175,6 +175,82 @@
         </div>
     </section>
 
+
+    <!-- Carrossel Pets Perdidos - Versão Clean -->
+    {% if pets_perdidos_carrossel %}
+    <section class="pets-perdidos-carrossel" style="padding: 50px 0; background: #f8f9fa;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 style="color: #2c3e50; font-weight: 600; margin-bottom: 10px;">Pets Perdidos</h2>
+                <p style="color: #6c757d;">Ajude esses amigos a voltarem para casa</p>
+                {% if pets_perdidos_carrossel|length >= 4 %}
+                <a href="/pets-perdidos" class="btn btn-outline-primary mt-3" style="border-radius: 20px;">
+                    Ver Todos
+                </a>
+                {% endif %}
+            </div>
+    
+            <div class="carrossel-container">
+                <div class="carrossel-wrapper">
+                    <div class="carrossel-track" id="carrosselPerdidos">
+                        {% for pet in pets_perdidos_carrossel %}
+                        <div class="carrossel-item">
+                            <div class="pet-card-mini">
+                                <div class="pet-image-mini">
+                                    {% if pet.foto_path %}
+                                    <img src="{{ url_for('static', filename='imagens/' + pet.foto_path) }}"
+                                        alt="{{ pet.nome }}">
+                                    {% else %}
+                                    <img src="{{ url_for('static', filename='imagens/pet-default.jpg') }}"
+                                        alt="Imagem padrão">
+                                    {% endif %}
+                                    <div class="pet-status-mini">Perdido</div>
+                                </div>
+                                <div class="pet-info-mini">
+                                    <h5>{{ pet.nome }}</h5>
+                                    <div class="pet-meta">
+                                        <span class="especie">{{ pet.especie }}</span>
+                                        {% if pet.raca %}<span class="raca">{{ pet.raca }}</span>{% endif %}
+                                    </div>
+                                    <p class="local">{{ pet.local_desaparecimento[:25] }}{% if
+                                        pet.local_desaparecimento|length > 25 %}...{% endif %}</p>
+                                    <div class="pet-actions-mini">
+                                        {% if pet.contato_telefone %}
+                                        <a href="https://wa.me/55{{ pet.contato_telefone|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') }}?text=Olá! Vi que você está procurando o {{ pet.nome }}"
+                                            target="_blank" class="btn-whatsapp-mini">
+                                            <i class="bi bi-whatsapp"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="/pets-perdidos" class="btn-info-mini">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+    
+                <!-- Indicadores -->
+                <div class="carrossel-indicators">
+                    {% for i in range(pets_perdidos_carrossel|length) %}
+                    <button class="carrossel-indicator" data-slide="{{ i }}"></button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
+    
+    
+    <script>
+       
+    </script>
+    
+    
+
    <!-- Modal para Dicas com IA -->
 <div id="modalDicas" class="modal">
     <div class="modal-content">
@@ -210,7 +286,6 @@
         </div>
     </div>
 </div>
-
 
 
 
@@ -467,10 +542,114 @@ document.addEventListener('DOMContentLoaded', function() {
     }
             `;
             document.head.appendChild(style);
-    
-</script>
 
+
+            
+            // animação carrossel de pets perdidos 
+             
+             let carrosselIndex = 0;
+                let autoPlayInterval;
+
+                // Adicione verificação se os elementos existem
+                const carrossel = document.getElementById('carrosselPerdidos');
+                const items = document.querySelectorAll('.carrossel-item');
+                const indicators = document.querySelectorAll('.carrossel-indicator');
+
+                // Adiciona listener aos indicadores usando data-slide (evita injetar {{ i }} em onclick)
+                indicators.forEach((indicator, index) => {
+                    const slideIndex = indicator.getAttribute('data-slide');
+                    const idx = slideIndex !== null ? parseInt(slideIndex, 10) : index;
+                    indicator.addEventListener('click', () => irParaSlide(idx));
+                });
+
+                function getItemsPerView() {
+                    if (window.innerWidth < 769) return 1;
+                    if (window.innerWidth < 1025) return 2;
+                    return 3;
+                }
+
+                function atualizarCarrossel() {
+                    // Verifique se os elementos existem
+                    if (!carrossel || items.length === 0) return;
+
+                    const itemsPerView = getItemsPerView();
+                    const itemWidth = items[0].offsetWidth + 20;
+                    const translateX = -carrosselIndex * itemWidth;
+                    carrossel.style.transform = `translateX(${translateX}px)`;
+
+                    // Atualizar indicadores
+                    indicators.forEach((indicator, index) => {
+                        indicator.classList.toggle('active', index === carrosselIndex);
+                    });
+                }
+
+                function moverCarrossel(direction) {
+                    if (items.length === 0) return;
+
+                    const totalItems = items.length;
+                    const itemsPerView = getItemsPerView();
+
+                    carrosselIndex += direction;
+
+                    if (carrosselIndex < 0) {
+                        carrosselIndex = totalItems - itemsPerView;
+                    } else if (carrosselIndex > totalItems - itemsPerView) {
+                        carrosselIndex = 0;
+                    }
+
+                    atualizarCarrossel();
+                    resetAutoPlay();
+                }
+
+                function irParaSlide(index) {
+                    carrosselIndex = index;
+                    atualizarCarrossel();
+                    resetAutoPlay();
+                }
+
+                function iniciarAutoPlay() {
+                    // Limpe qualquer intervalo existente primeiro
+                    if (autoPlayInterval) {
+                        clearInterval(autoPlayInterval);
+                    }
+                    autoPlayInterval = setInterval(() => {
+                        moverCarrossel(1);
+                    }, 4000);
+                }
+
+                function resetAutoPlay() {
+                    if (autoPlayInterval) {
+                        clearInterval(autoPlayInterval);
+                    }
+                    iniciarAutoPlay();
+                }
+
+                function pausarAutoPlay() {
+                    if (autoPlayInterval) {
+                        clearInterval(autoPlayInterval);
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Espere um pouco para garantir que o DOM está totalmente carregado
+                    setTimeout(() => {
+                        atualizarCarrossel();
+                        iniciarAutoPlay();
+                    }, 100);
+
+                    // Pausar auto-play quando o mouse estiver sobre o carrossel
+                    const carrosselContainer = document.querySelector('.carrossel-container');
+                    if (carrosselContainer) {
+                        carrosselContainer.addEventListener('mouseenter', pausarAutoPlay);
+                        carrosselContainer.addEventListener('mouseleave', iniciarAutoPlay);
+                    }
+
+                    window.addEventListener('resize', function () {
+                        atualizarCarrossel();
+                    });
+                });
     
+  </script>
 
     {% endblock %}
 
