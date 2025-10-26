@@ -15,6 +15,8 @@ import secrets
 import google.generativeai as genai
 
 
+
+
 # Carregar variáveis de ambiente
 load_dotenv()
 
@@ -33,6 +35,14 @@ mysql = MySQL(app)
 # Configurações de upload
 UPLOAD_FOLDER = 'static/imagens'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+# ✅ ADICIONE ESTA FUNÇÃO:
+def allowed_file(filename):
+    """Verifica se o arquivo tem uma extensão permitida"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 
 # Configurações de e-mail
 email_sistema = os.getenv("EMAIL_SISTEMA")
@@ -1497,10 +1507,165 @@ def meus_favoritos():
                              total_favoritos=0)
 
 
+# ========== Rotas de Pets Perdidos ==========
+@app.route('/divulgar-perdido')
+def divulgar_perdido():
+    if 'usuario_id' not in session:
+        flash('Você precisa estar logado para divulgar um pet perdido.', 'warning')
+        return redirect('/login')
+    
+    usuario = obter_usuario_atual()  # ← ADICIONE ESTA LINHA
+    return render_template('divulgar_perdido.html', pagina='divulgar_perdido', usuario=usuario)
+
+@app.route('/divulgar-perdido', methods=['POST'])
+def processar_divulgar_perdido():
+    if 'usuario_id' not in session:
+        flash('Você precisa estar logado.', 'error')
+        return redirect('/login')
+        
+    
+    try:
+        # Dados básicos do pet
+        nome = request.form.get('nome')
+        especie = request.form.get('especie')
+        raca = request.form.get('raca', '')
+        cor = request.form.get('cor', '')
+        porte = request.form.get('porte', '')
+        sexo = request.form.get('sexo', '')
+        idade = request.form.get('idade', '')
+        caracteristicas = request.form.get('caracteristicas', '')
+        
+        # Detalhes do desaparecimento
+        data_desaparecimento = request.form.get('data_desaparecimento')
+        local = request.form.get('local')
+        referencia = request.form.get('referencia', '')
+        descricao = request.form.get('descricao')
+        
+        # Características especiais
+        microchip = 1 if request.form.get('microchip') else 0
+        coleira = 1 if request.form.get('coleira') else 0
+        vacinado = 1 if request.form.get('vacinado') else 0
+        
+        # Contato
+        contato_nome = request.form.get('contato_nome')
+        contato_telefone = request.form.get('contato_telefone')
+        contato_email = request.form.get('contato_email', '')
+        
+        # ✅ Processar imagem COM FUNÇÃO DEFINIDA
+        foto_path = None
+        if 'foto' in request.files:
+            file = request.files['foto']
+            if file and file.filename != '' and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                file.save(file_path)
+                foto_path = unique_filename
+                print(f"✅ Foto salva: {foto_path}")
+            else:
+                print("⚠️ Nenhuma foto válida enviada")
+        
+        # Inserir no banco de dados
+        cur = mysql.connection.cursor()
+        
+        cur.execute('''
+            INSERT INTO pets_perdidos 
+            (usuario_id, nome, especie, raca, cor, porte, sexo, idade, caracteristicas,
+             data_desaparecimento, local_desaparecimento, referencia, descricao,
+             microchip, coleira, vacinado, contato_nome, contato_telefone, contato_email,
+             foto_path, data_criacao, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (session['usuario_id'], nome, especie, raca, cor, porte, sexo, idade, caracteristicas,
+              data_desaparecimento, local, referencia, descricao,
+              microchip, coleira, vacinado, contato_nome, contato_telefone, contato_email,
+              foto_path, datetime.now(), 'perdido'))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Pet perdido divulgado com sucesso! A comunidade vai ajudar a encontrar.', 'success')
+        return redirect('/pets-perdidos')
+        
+    except Exception as e:
+        print(f"❌ Erro detalhado: {traceback.format_exc()}")
+        flash(f'Erro ao divulgar pet: {str(e)}', 'error')
+        return redirect('/divulgar-perdido')
+
+@app.route('/pets-perdidos')
+def pets_perdidos():
+    """Página para listar todos os pets perdidos"""
+    try:
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)  # ← MUDE AQUI
+        cur.execute('''
+            SELECT 
+                pp.id, pp.usuario_id, pp.nome, pp.especie, pp.raca, pp.cor, pp.porte, 
+                pp.sexo, pp.idade, pp.caracteristicas, pp.data_desaparecimento, 
+                pp.local_desaparecimento, pp.referencia, pp.descricao, pp.microchip, 
+                pp.coleira, pp.vacinado, pp.contato_nome, pp.contato_telefone, 
+                pp.contato_email, pp.foto_path, pp.data_criacao, pp.status,
+                u.nome as usuario_nome
+            FROM pets_perdidos pp
+            LEFT JOIN usuarios u ON pp.usuario_id = u.id
+            WHERE pp.status = "perdido"
+            ORDER BY pp.data_criacao DESC
+        ''')
+        
+        pets_perdidos = cur.fetchall()  # ← AGORA JÁ VEM COMO DICIONÁRIO
+        cur.close()
+        
+        usuario = obter_usuario_atual()
+        return render_template('pets_perdidos.html', 
+                             pets_perdidos=pets_perdidos, 
+                             usuario=usuario,
+                             pagina='pets_perdidos')
+        
+    except Exception as e:
+        print(f"❌ Erro ao carregar pets perdidos: {e}")
+        flash('Erro ao carregar lista de pets perdidos.', 'error')
+        return render_template('pets_perdidos.html', 
+                             pets_perdidos=[], 
+                             usuario=obter_usuario_atual(),
+                             pagina='pets_perdidos')
+                             
+
+@app.route('/pet-encontrado/<int:pet_id>')
+def marcar_como_encontrado(pet_id):
+    if 'usuario_id' not in session:
+        flash('Você precisa estar logado.', 'error')
+        return redirect('/login')
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verificar se o usuário é o dono do anúncio
+        cur.execute('SELECT usuario_id FROM pets_perdidos WHERE id = %s', (pet_id,))
+        pet = cur.fetchone()
+        
+        if pet and pet[0] == session['usuario_id']:
+            cur.execute('''
+                UPDATE pets_perdidos 
+                SET status = "encontrado", data_encontrado = %s
+                WHERE id = %s
+            ''', (datetime.now(), pet_id))
+            
+            mysql.connection.commit()
+            flash('Que bom que encontrou seu pet! 🎉', 'success')
+        else:
+            flash('Você não tem permissão para esta ação.', 'error')
+        
+        cur.close()
+        return redirect('/pets-perdidos')
+        
+    except Exception as e:
+        flash(f'Erro ao marcar pet como encontrado: {str(e)}', 'error')
+        return redirect('/pets-perdidos')
 
 
 
 
+
+        
+     
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
