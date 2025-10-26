@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+import pymysql, pymysql.cursors
+pymysql.install_as_MySQLdb()
 from flask_mysqldb import MySQL
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,23 +16,53 @@ import traceback
 import secrets
 import google.generativeai as genai
 
-
-
-
-# Carregar variáveis de ambiente
+# Carregar variáveis de ambiente do .env
 load_dotenv()
 
+# ========== CONFIGURAÇÃO DO FLASK ==========
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY") or ("dev-" + secrets.token_hex(16))
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False # Defina como True se estiver usando HTTPS
 
 # ========== CONFIGURAÇÕES ==========
-app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_HOST'] = '127.0.0.1'
+app.config['MYSQL_PORT'] = 3306
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'adote-me'
-app.secret_key = 'sua-chave-secreta-aqui'
+app.config['MYSQL_CHARSET'] = 'utf8mb4'
 
+# Função para obter conexão PyMySQL (fallback)
+def get_db():
+    return pymysql.connect(
+        host=app.config.get('MYSQL_HOST', '127.0.0.1'),
+        user=app.config.get('MYSQL_USER', 'root'),
+        password=app.config.get('MYSQL_PASSWORD', ''),
+        database=app.config.get('MYSQL_DB', 'adote-me'),
+        port=int(app.config.get('MYSQL_PORT', 3306)),
+        charset=app.config.get('MYSQL_CHARSET', 'utf8mb4'),
+        autocommit=False,
+    )
 
-mysql = MySQL(app)
+# Função para obter cursor (flask_mysqldb ou PyMySQL)
+def db_cursor():
+    """Retorna cursor usando flask_mysqldb se existir, senão PyMySQL."""
+    conn = getattr(mysql, "connection", None)
+    if conn is None:
+        conn = get_db()
+        from_fallback = True
+    else:
+        from_fallback = False
+
+    cur = conn.cursor()
+
+    # devolve junto a info se é fallback para podermos fechar depois
+    return conn, cur, from_fallback
+
+#mysql = MySQL(app)
+mysql = MySQL()
+mysql.init_app(app)
 
 # Configurações de upload
 UPLOAD_FOLDER = 'static/imagens'
@@ -52,8 +84,11 @@ senha_email = os.getenv("SENHA_EMAIL")
 GEMINI_API_KEY = "AIzaSyBAJIxOHZcsF2aowxVdZTGQ9i8aUkQHFLg"
 genai.configure(api_key=GEMINI_API_KEY)
 
-
-
+# Mudanças na conexão e cursor do MySQL (HENRIQUE)
+# cur = mysql.connection.cursor()  ===>  conn, cur, fb = db_cursor()
+# mysql.connection.commit()  =========>  conn.commit()
+# cur.close()  =======================>  cur.close(); if fb: conn.close()
+# mysql.connection.rollback()  =======>  conn.rollback()
 
 
 # ========= Verificar/Adicionar colunas de recuperação de senha ==========
@@ -61,7 +96,7 @@ def verificar_colunas_recuperacao():
     """Verifica e cria as colunas necessárias para recuperação de senha"""
     try:
         with app.app_context():  # ⭐⭐ CORREÇÃO AQUI ⭐⭐
-            cur = mysql.connection.cursor()
+            conn, cur, fb = db_cursor()
             
             # Tentar adicionar as colunas (ignora erro se já existirem)
             try:
@@ -75,9 +110,10 @@ def verificar_colunas_recuperacao():
                 print("✅ Coluna reset_token_expira criada")
             except Exception:
                 print("ℹ️ Coluna reset_token_expira já existe")
-            
-            mysql.connection.commit()
+
+            conn.commit()
             cur.close()
+            if fb: conn.close()
             return True
             
     except Exception as e:
@@ -162,10 +198,11 @@ def login_usuario():
 
         print(f"Tentativa de login: {email}")
 
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute("SELECT id, nome, email, senha, tipo FROM usuarios WHERE email = %s", (email,))
         usuario = cur.fetchone()
         cur.close()
+        if fb: conn.close()
 
         if usuario:
             senha_hash = usuario[3]
@@ -252,11 +289,12 @@ def cadastrar_usuario():
             return redirect(url_for('cadastro'))
 
         # Verificar se email já existe
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
         if cur.fetchone():
             flash('Este email já está cadastrado.', 'error')
             cur.close()
+            if fb: conn.close()
             return redirect(url_for('cadastro'))
 
         # Criptografar senha
@@ -270,9 +308,10 @@ def cadastrar_usuario():
                                     data_cadastro, nome_organizacao, cnpj, verificado)
                 VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s)
             """, (nome, email, senha_hash, telefone, endereco, tipo, nome_organizacao, cnpj, 0))
-            
-            mysql.connection.commit()
+
+            conn.commit()
             cur.close()
+            if fb: conn.close()
             print("Usuário inserido no banco com sucesso!")
             
         except Exception as db_error:
@@ -320,7 +359,7 @@ def esqueci_senha():
         print(f"📧 Solicitação de recuperação para: {email}")
         
         try:
-            cur = mysql.connection.cursor()
+            conn, cur, fb = db_cursor()
             cur.execute("SELECT id, nome FROM usuarios WHERE email = %s", (email,))
             usuario = cur.fetchone()
             
@@ -337,9 +376,10 @@ def esqueci_senha():
                     "UPDATE usuarios SET reset_token = %s, reset_token_expira = %s WHERE email = %s",
                     (token, expira_em, email)
                 )
-                mysql.connection.commit()
+                conn.commit()
                 cur.close()
-                
+                if fb: conn.close()
+                print("✅ Token salvo no banco de dados")
                 # Enviar e-mail com o link de recuperação
                 link_recuperacao = url_for('redefinir_senha', token=token, _external=True)
                 
@@ -402,7 +442,7 @@ def esqueci_senha():
 def redefinir_senha(token):
     """Página para redefinir a senha usando o token"""
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute(
             "SELECT id, email, reset_token_expira FROM usuarios WHERE reset_token = %s",
             (token,)
@@ -436,13 +476,14 @@ def redefinir_senha(token):
                 "UPDATE usuarios SET senha = %s, reset_token = NULL, reset_token_expira = NULL WHERE id = %s",
                 (senha_hash, usuario[0])
             )
-            mysql.connection.commit()
+            conn.commit()
             cur.close()
-            
+            if fb: conn.close()
             flash('Senha redefinida com sucesso! Faça login com sua nova senha.', 'success')
             return redirect(url_for('login'))
         
         cur.close()
+        if fb: conn.close()
         return render_template('redefinir_senha.html', token=token, pagina='redefinir_senha')
         
     except Exception as e:
@@ -463,11 +504,12 @@ def home():
     usuario = obter_usuario_atual()
     
     # Buscar pets do MySQL
-    cur = mysql.connection.cursor()
+    conn, cur, fb = db_cursor()
     cur.execute("SELECT * FROM pets ORDER BY id DESC LIMIT 6")
     pets_data = cur.fetchall()
     cur.close()
-    
+    if fb: conn.close()
+
     # Formatar pets
     pets = []
     for pet in pets_data:
@@ -490,7 +532,7 @@ def adotar():
     especie = request.args.get('especie')
     idade = request.args.get('idade')
 
-    cur = mysql.connection.cursor()
+    conn, cur, fb = db_cursor()
 
     # Montar a query com filtros
     query = "SELECT * FROM pets WHERE 1=1"
@@ -509,6 +551,7 @@ def adotar():
     cur.execute(query, valores)
     pets_data = cur.fetchall()
     cur.close()
+    if fb: conn.close()
 
     # Formatar pets
     pets = []
@@ -534,10 +577,11 @@ def detalhes_pet(id):
     mostrar_modal_login = request.args.get('mostrar_modal_login') == 'true'  # ✅ NOVO
     
     
-    cur = mysql.connection.cursor()
+    conn, cur, fb = db_cursor()
     cur.execute("SELECT * FROM pets WHERE id = %s", (id,))
     pet = cur.fetchone()
     cur.close()
+    if fb: conn.close()
 
     if pet:
         pet_detalhado = {
@@ -579,11 +623,12 @@ def cadastrar():
         else:
             imagem_url = ''
 
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute("INSERT INTO pets (nome, especie, idade, descricao, imagem_url) VALUES (%s, %s, %s, %s, %s)",
                     (nome, especie, idade, descricao, imagem_url))
-        mysql.connection.commit()
+        conn.commit()
         cur.close()
+        if fb: conn.close()
 
         return redirect('/home')
 
@@ -629,7 +674,7 @@ def solicitar_adocao(id):
 
         print("✅ Todos os campos válidos")
 
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # ✅ VERIFICAR SE O PET EXISTE
         cur.execute("SELECT id, nome, especie, idade FROM pets WHERE id = %s", (id,))
@@ -639,6 +684,7 @@ def solicitar_adocao(id):
             print(f"❌ Pet com ID {id} não encontrado")
             flash('Pet não encontrado.', 'error')
             cur.close()
+            if fb: conn.close()
             return redirect(url_for('adotar'))
         
         pet_nome = pet[1]
@@ -661,13 +707,14 @@ def solicitar_adocao(id):
                     status VARCHAR(20) DEFAULT 'pendente'
                 )
             """)
-            mysql.connection.commit()
+            conn.commit()
             print("✅ Tabela 'adocoes' verificada/criada com sucesso")
             
         except Exception as e:
             print(f"❌ Erro ao verificar/criar tabela: {e}")
             flash('Erro no banco de dados.', 'error')
             cur.close()
+            if fb: conn.close()
             return redirect(url_for('detalhes_pet', id=id))
 
         # ✅ INSERIR SOLICITAÇÃO NO BANCO
@@ -676,19 +723,21 @@ def solicitar_adocao(id):
                 INSERT INTO adocoes (pet_id, usuario_id, nome, email, telefone, mensagem) 
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (id, usuario['id'], nome, email, telefone, mensagem))
-            
-            mysql.connection.commit()
+
+            conn.commit()
             adocao_id = cur.lastrowid
             print(f"✅ Solicitação inserida com ID: {adocao_id}")
             
         except Exception as e:
             print(f"❌ Erro ao inserir solicitação: {e}")
-            mysql.connection.rollback()
+            conn.rollback()
             flash('Erro ao salvar solicitação no banco de dados.', 'error')
             cur.close()
+            if fb: conn.close()
             return redirect(url_for('detalhes_pet', id=id))
 
         cur.close()
+        if fb: conn.close()
 
         # ✅ TENTAR ENVIAR E-MAIL (OPCIONAL)
         try:
@@ -744,7 +793,7 @@ def minhas_adocoes():
         return redirect(url_for('login'))
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         print(f"🔍 Buscando adoções para usuário ID: {usuario['id']}")
         
@@ -762,6 +811,7 @@ def minhas_adocoes():
         
         adocoes_data = cur.fetchall()
         cur.close()
+        if fb: conn.close()
         
         print(f"✅ Encontradas {len(adocoes_data)} adoções")
         
@@ -810,7 +860,7 @@ def cancelar_adocao(adocao_id):
         return jsonify({'success': False, 'message': 'Faça login para cancelar adoções.'})
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # Verificar se a adoção pertence ao usuário
         cur.execute("""
@@ -829,8 +879,9 @@ def cancelar_adocao(adocao_id):
             WHERE id = %s
         """, (adocao_id,))
         
-        mysql.connection.commit()
+        conn.commit()
         cur.close()
+        if fb: conn.close()
         
         return jsonify({
             'success': True,
@@ -854,8 +905,8 @@ def admin_dashboard():
         return redirect(url_for('login'))
     
     try:
-        cur = mysql.connection.cursor()
-        
+        conn, cur, fb = db_cursor()
+
         # Buscar estatísticas em tempo real
         cur.execute("SELECT COUNT(*) FROM usuarios")
         total_usuarios = cur.fetchone()[0]
@@ -870,6 +921,7 @@ def admin_dashboard():
         total_adocoes = cur.fetchone()[0]
         
         cur.close()
+        if fb: conn.close() 
         
         return render_template('admin_dashboard.html', 
             usuario=usuario, 
@@ -905,9 +957,9 @@ def admin_usuarios():
         
         # Calcular offset
         offset = (pagina - 1) * por_pagina
-        
-        cur = mysql.connection.cursor()
-        
+
+        conn, cur, fb = db_cursor()
+
         # ✅ MODIFICADO: Contar total de TODOS os usuários (adotantes, protetores e admins)
         cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo IN ('adotante', 'protetor', 'admin')")
         total_usuarios = cur.fetchone()[0]
@@ -929,6 +981,7 @@ def admin_usuarios():
         """, (por_pagina, offset))
         usuarios_data = cur.fetchall()
         cur.close()
+        if fb: conn.close()
         
         # Calcular total de páginas
         total_paginas = (total_usuarios + por_pagina - 1) // por_pagina
@@ -972,7 +1025,7 @@ def excluir_usuario(user_id):
         return jsonify({'success': False, 'message': 'Acesso negado'})
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # ✅ VERIFICAR SE É O PRÓPRIO USUÁRIO
         if user_id == usuario['id']:
@@ -993,15 +1046,16 @@ def excluir_usuario(user_id):
         
         # ✅ AGORA EXCLUIR O USUÁRIO
         cur.execute("DELETE FROM usuarios WHERE id = %s", (user_id,))
-        
-        mysql.connection.commit()
+
+        conn.commit()
         cur.close()
+        if fb: conn.close()
         
         print(f"✅ Usuário {user_id} excluído com sucesso")
         return jsonify({'success': True, 'message': 'Usuário excluído com sucesso'})
         
     except Exception as e:
-        mysql.connection.rollback()
+        conn.rollback()
         print(f"❌ Erro ao excluir usuário {user_id}: {str(e)}")
         return jsonify({'success': False, 'message': f'Erro ao excluir usuário: {str(e)}'})
 
@@ -1019,7 +1073,7 @@ def admin_protetores():
         return redirect(url_for('login'))
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute("""
             SELECT id, nome, email, telefone, nome_organizacao, cnpj, data_cadastro, verificado 
             FROM usuarios 
@@ -1028,6 +1082,7 @@ def admin_protetores():
         """)
         protetores_data = cur.fetchall()
         cur.close()
+        if fb: conn.close()
         
         # Formatar dados
         protetores = []
@@ -1065,7 +1120,7 @@ def admin_pets():
         return redirect(url_for('login'))
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute("""
             SELECT p.id, p.nome, p.especie, p.idade, p.descricao, p.imagem_url, 
                    u.nome as protetor_nome, p.data_cadastro 
@@ -1075,6 +1130,7 @@ def admin_pets():
         """)
         pets_data = cur.fetchall()
         cur.close()
+        if fb: conn.close()
         
         pets = []
         for pet in pets_data:
@@ -1111,7 +1167,7 @@ def admin_relatorios():
         return redirect(url_for('login'))
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # Estatísticas para relatórios
         cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo = 'adotante'")
@@ -1132,7 +1188,8 @@ def admin_relatorios():
         especies_stats = cur.fetchall()
         
         cur.close()
-        
+        if fb: conn.close()
+
         # Formatar estatísticas de espécies
         especies_formatadas = []
         for especie in especies_stats:
@@ -1190,7 +1247,7 @@ def protetor_dashboard():
 def criar_admin_teste():
     """Rota para criar um usuário admin de teste"""
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # Senha simples para teste
         senha = "123"
@@ -1205,9 +1262,11 @@ def criar_admin_teste():
             VALUES (%s, %s, %s, %s, %s, NOW(), %s)
         """, ('Admin Teste', 'admin@teste.com', senha_hash, 'admin', '(92) 98888-8888', 1))
 
-        mysql.connection.commit()
+        conn.commit()
         cur.close()
-
+        if fb: conn.close()
+        
+         # Retornar detalhes do admin criado    
         return """
         <h1>✅ Admin criado com sucesso!</h1>
         <p><strong>Email:</strong> admin@teste.com</p>
@@ -1259,6 +1318,10 @@ def ia_dicas():
     return jsonify({'resposta': resposta})
 
 
+
+def resposta_fallback(pergunta):
+    """Fornece uma resposta padrão quando a IA falha"""
+    return "Desculpe, não foi possível gerar uma resposta no momento. Tente novamente mais tarde."
 
 def gerar_resposta_gemini(pergunta):
     """Gera resposta usando Google Gemini AI com modelos disponíveis"""
@@ -1352,11 +1415,12 @@ def primeiro_admin():
                 return redirect(url_for('primeiro_admin'))
 
             # Verificar se email já existe
-            cur = mysql.connection.cursor()
+            conn, cur, fb = db_cursor()
             cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
             if cur.fetchone():
                 flash('Este email já está cadastrado.', 'error')
                 cur.close()
+                if fb: conn.close()
                 return redirect(url_for('primeiro_admin'))
 
             # Criptografar senha
@@ -1367,9 +1431,10 @@ def primeiro_admin():
                 INSERT INTO usuarios (nome, email, senha, telefone, tipo, verificado, data_cadastro)
                 VALUES (%s, %s, %s, %s, %s, %s, NOW())
             """, (nome, email, senha_hash, telefone, 'admin', True))
-            
-            mysql.connection.commit()
+
+            conn.commit()
             cur.close()
+            if fb: conn.close()
             
             flash(f'✅ Administrador {nome} cadastrado com sucesso! Faça login para continuar.', 'success')
             return redirect(url_for('login'))
@@ -1394,7 +1459,7 @@ def favoritar_pet(pet_id):
         return jsonify({'success': False, 'message': 'Faça login para favoritar pets.'})
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # Verificar se já está favoritado
         cur.execute(
@@ -1419,10 +1484,11 @@ def favoritar_pet(pet_id):
             )
             action = 'adicionado'
             is_favorito = True
-        
-        mysql.connection.commit()
+
+        conn.commit()
         cur.close()
-        
+        if fb: conn.close()
+
         return jsonify({
             'success': True,
             'action': action,
@@ -1443,14 +1509,15 @@ def verificar_favorito(pet_id):
         return jsonify({'is_favorito': False})
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute(
             "SELECT id FROM favoritos WHERE usuario_id = %s AND pet_id = %s",
             (usuario['id'], pet_id)
         )
         favorito = cur.fetchone()
         cur.close()
-        
+        if fb: conn.close()
+
         return jsonify({'is_favorito': bool(favorito)})
         
     except Exception as e:
@@ -1467,7 +1534,7 @@ def meus_favoritos():
         return redirect(url_for('login'))
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         cur.execute("""
             SELECT p.* 
             FROM pets p
@@ -1478,6 +1545,7 @@ def meus_favoritos():
         
         pets_data = cur.fetchall()
         cur.close()
+        if fb: conn.close()
         
         # Formatar pets
         pets = []
@@ -1566,7 +1634,7 @@ def processar_divulgar_perdido():
                 print("⚠️ Nenhuma foto válida enviada")
         
         # Inserir no banco de dados
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         cur.execute('''
             INSERT INTO pets_perdidos 
@@ -1580,8 +1648,9 @@ def processar_divulgar_perdido():
               microchip, coleira, vacinado, contato_nome, contato_telefone, contato_email,
               foto_path, datetime.now(), 'perdido'))
         
-        mysql.connection.commit()
+        conn.commit()
         cur.close()
+        if fb: conn.close()
         
         flash('Pet perdido divulgado com sucesso! A comunidade vai ajudar a encontrar.', 'success')
         return redirect('/pets-perdidos')
@@ -1595,7 +1664,7 @@ def processar_divulgar_perdido():
 def pets_perdidos():
     """Página para listar todos os pets perdidos"""
     try:
-        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)  # ← MUDE AQUI
+        conn, cur, fb = db_cursor()
         cur.execute('''
             SELECT 
                 pp.id, pp.usuario_id, pp.nome, pp.especie, pp.raca, pp.cor, pp.porte, 
@@ -1612,6 +1681,7 @@ def pets_perdidos():
         
         pets_perdidos = cur.fetchall()  # ← AGORA JÁ VEM COMO DICIONÁRIO
         cur.close()
+        if fb: conn.close()
         
         usuario = obter_usuario_atual()
         return render_template('pets_perdidos.html', 
@@ -1635,7 +1705,7 @@ def marcar_como_encontrado(pet_id):
         return redirect('/login')
     
     try:
-        cur = mysql.connection.cursor()
+        conn, cur, fb = db_cursor()
         
         # Verificar se o usuário é o dono do anúncio
         cur.execute('SELECT usuario_id FROM pets_perdidos WHERE id = %s', (pet_id,))
@@ -1647,13 +1717,14 @@ def marcar_como_encontrado(pet_id):
                 SET status = "encontrado", data_encontrado = %s
                 WHERE id = %s
             ''', (datetime.now(), pet_id))
-            
-            mysql.connection.commit()
+
+            conn.commit()
             flash('Que bom que encontrou seu pet! 🎉', 'success')
         else:
             flash('Você não tem permissão para esta ação.', 'error')
         
         cur.close()
+        if fb: conn.close()
         return redirect('/pets-perdidos')
         
     except Exception as e:
