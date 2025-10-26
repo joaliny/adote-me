@@ -15,6 +15,8 @@ import secrets
 import google.generativeai as genai
 
 
+
+
 # Carregar variáveis de ambiente
 load_dotenv()
 
@@ -33,6 +35,14 @@ mysql = MySQL(app)
 # Configurações de upload
 UPLOAD_FOLDER = 'static/imagens'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+# ✅ ADICIONE ESTA FUNÇÃO:
+def allowed_file(filename):
+    """Verifica se o arquivo tem uma extensão permitida"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 
 # Configurações de e-mail
 email_sistema = os.getenv("EMAIL_SISTEMA")
@@ -442,36 +452,211 @@ def redefinir_senha(token):
 
 
 
-    
+
+
+
+
+
+@app.route('/atualizar-banco')
+def atualizar_banco():
+    """Rota temporária para atualizar a estrutura do banco"""
+    try:
+        from flask import current_app
+        
+        with current_app.app_context():
+            resultado = atualizar_tabela_pets_forcado()
+            return f"<h1>Banco Atualizado!</h1><pre>{resultado}</pre>"
+            
+    except Exception as e:
+        return f"<h1>Erro:</h1><pre>{str(e)}</pre>"
+
+def atualizar_tabela_pets_forcado():
+    """Adiciona as colunas faltantes na tabela pets"""
+    try:
+        print("🔄 ADICIONANDO COLUNAS FALTANTES NA TABELA PETS...")
+        
+        cur = mysql.connection.cursor()
+        
+        # Lista de colunas para adicionar
+        colunas_para_adicionar = [
+            ("porte", "ALTER TABLE pets ADD COLUMN porte ENUM('pequeno', 'medio', 'grande')"),
+            ("sexo", "ALTER TABLE pets ADD COLUMN sexo ENUM('macho', 'femea')"),
+            ("localizacao", "ALTER TABLE pets ADD COLUMN localizacao VARCHAR(255)"),
+            ("historia", "ALTER TABLE pets ADD COLUMN historia TEXT"),
+            ("informacoes_saude", "ALTER TABLE pets ADD COLUMN informacoes_saude TEXT")
+        ]
+        
+        resultados = []
+        
+        for nome_coluna, sql in colunas_para_adicionar:
+            try:
+                # Verificar se a coluna já existe
+                cur.execute(f"SHOW COLUMNS FROM pets LIKE '{nome_coluna}'")
+                if not cur.fetchone():
+                    # Coluna não existe, vamos adicionar
+                    cur.execute(sql)
+                    resultado = f"✅ COLUNA ADICIONADA: {nome_coluna}"
+                    print(resultado)
+                    resultados.append(resultado)
+                else:
+                    resultado = f"✅ COLUNA JÁ EXISTIA: {nome_coluna}"
+                    print(resultado)
+                    resultados.append(resultado)
+                    
+            except Exception as e:
+                erro = f"⚠️ Erro com coluna {nome_coluna}: {e}"
+                print(erro)
+                resultados.append(erro)
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        resultado_final = "🎉 TABELA PETS ATUALIZADA COM SUCESSO!"
+        print(resultado_final)
+        resultados.append(resultado_final)
+        
+        # Verificar novamente a estrutura
+        diagnosticar_tabela_pets()
+        
+        return "<br>".join(resultados)
+        
+    except Exception as e:
+        erro = f"❌ ERRO GRAVE ao atualizar tabela: {e}"
+        print(erro)
+        return erro
+
+def diagnosticar_tabela_pets():
+    """Verifica a estrutura real da tabela pets"""
+    try:
+        cur = mysql.connection.cursor()
+        
+        # 1. Verificar estrutura atual
+        cur.execute("DESCRIBE pets")
+        colunas = cur.fetchall()
+        
+        print("📋 ESTRUTURA ATUAL DA TABELA PETS:")
+        for coluna in colunas:
+            print(f"  - {coluna[0]} ({coluna[1]})")
+        
+        # 2. Verificar se as colunas novas existem
+        colunas_novas = ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']
+        colunas_existentes = [coluna[0] for coluna in colunas]
+        
+        print(f"\n🔍 COLUNAS NOVAS:")
+        for coluna in colunas_novas:
+            if coluna in colunas_existentes:
+                print(f"  ✅ {coluna} - EXISTE")
+            else:
+                print(f"  ❌ {coluna} - NÃO EXISTE")
+        
+        cur.close()
+        
+    except Exception as e:
+        print(f"❌ Erro ao diagnosticar tabela: {e}")
 
 # ========== Rotas de Pets ==========
 
 @app.route('/')
 @app.route('/home')
 def home():
-    """Página inicial com lista de pets"""
+    """Página inicial com lista de pets e carrossel de pets perdidos"""
     usuario = obter_usuario_atual()
     
-    # Buscar pets do MySQL
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM pets ORDER BY id DESC LIMIT 6")
-    pets_data = cur.fetchall()
-    cur.close()
-    
-    # Formatar pets
-    pets = []
-    for pet in pets_data:
-        pets.append({
-            'id': pet[0],
-            'nome': pet[1],
-            'especie': pet[2],
-            'idade': pet[3],
-            'descricao': pet[4],
-            'imagem_url': pet[5]
-        })
-    
-    return render_template('home.html', usuario=usuario, pagina='home', pets=pets)
-
+    try:
+        # Buscar pets do MySQL - QUERY SEGURA
+        cur1 = mysql.connection.cursor()
+        
+        # Verificar quais colunas existem
+        cur1.execute("SHOW COLUMNS FROM pets")
+        colunas_existentes = [coluna[0] for coluna in cur1.fetchall()]
+        
+        # Montar query baseada nas colunas existentes
+        if all(col in colunas_existentes for col in ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']):
+            # Se todas as colunas existem
+            cur1.execute("""
+                SELECT id, nome, especie, idade, descricao, imagem_url, 
+                       porte, sexo, localizacao, historia, informacoes_saude
+                FROM pets 
+                ORDER BY id DESC 
+                LIMIT 6
+            """)
+        else:
+            # Se não existem, usar apenas colunas básicas
+            print("⚠️ Colunas extras não encontradas, usando apenas campos básicos")
+            cur1.execute("""
+                SELECT id, nome, especie, idade, descricao, imagem_url
+                FROM pets 
+                ORDER BY id DESC 
+                LIMIT 6
+            """)
+            
+        pets_data = cur1.fetchall()
+        cur1.close()
+        
+        # BUSCAR PETS PERDIDOS PARA O CARROSSEL
+        cur2 = mysql.connection.cursor()
+        cur2.execute('''
+            SELECT id, nome, especie, raca, local_desaparecimento, 
+                   contato_telefone, foto_path, data_desaparecimento
+            FROM pets_perdidos 
+            WHERE status = 'perdido' 
+            ORDER BY data_criacao DESC 
+            LIMIT 8
+        ''')
+        pets_perdidos_carrossel_data = cur2.fetchall()
+        cur2.close()
+        
+        # Formatar pets - ADAPTABLE
+        pets = []
+        for pet in pets_data:
+            pet_dict = {
+                'id': pet[0],
+                'nome': pet[1],
+                'especie': pet[2],
+                'idade': pet[3],
+                'descricao': pet[4],
+                'imagem_url': pet[5]
+            }
+            
+            # Adicionar campos extras se existirem
+            if len(pet) > 6:
+                pet_dict.update({
+                    'porte': pet[6] if len(pet) > 6 else None,
+                    'sexo': pet[7] if len(pet) > 7 else None,
+                    'localizacao': pet[8] if len(pet) > 8 else None,
+                    'historia': pet[9] if len(pet) > 9 else None,
+                    'informacoes_saude': pet[10] if len(pet) > 10 else None
+                })
+                
+            pets.append(pet_dict)
+        
+        # Formatar pets perdidos para o carrossel
+        pets_perdidos_carrossel = []
+        for pet in pets_perdidos_carrossel_data:
+            pets_perdidos_carrossel.append({
+                'id': pet[0],
+                'nome': pet[1],
+                'especie': pet[2],
+                'raca': pet[3],
+                'local_desaparecimento': pet[4],
+                'contato_telefone': pet[5],
+                'foto_path': pet[6],
+                'data_desaparecimento': pet[7]
+            })
+        
+        return render_template('home.html', 
+                             usuario=usuario, 
+                             pagina='home', 
+                             pets=pets,
+                             pets_perdidos_carrossel=pets_perdidos_carrossel)
+                             
+    except Exception as e:
+        print(f"❌ Erro na página inicial: {e}")
+        return render_template('home.html', 
+                             usuario=usuario, 
+                             pagina='home', 
+                             pets=[],
+                             pets_perdidos_carrossel=[])
 
 @app.route('/adotar')
 def adotar():
@@ -479,11 +664,33 @@ def adotar():
     usuario = obter_usuario_atual()
     especie = request.args.get('especie')
     idade = request.args.get('idade')
+    porte = request.args.get('porte')
+    sexo = request.args.get('sexo')
 
     cur = mysql.connection.cursor()
 
-    # Montar a query com filtros
-    query = "SELECT * FROM pets WHERE 1=1"
+    # Verificar quais colunas existem
+    cur.execute("SHOW COLUMNS FROM pets")
+    colunas_existentes = [coluna[0] for coluna in cur.fetchall()]
+
+    # Montar query baseada nas colunas existentes
+    if all(col in colunas_existentes for col in ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']):
+        # Se todas as colunas existem
+        query = """
+            SELECT id, nome, especie, idade, descricao, imagem_url, 
+                   porte, sexo, localizacao, historia, informacoes_saude 
+            FROM pets 
+            WHERE 1=1
+        """
+    else:
+        # Se não existem, usar apenas colunas básicas
+        print("⚠️ Colunas extras não encontradas, usando apenas campos básicos")
+        query = """
+            SELECT id, nome, especie, idade, descricao, imagem_url
+            FROM pets 
+            WHERE 1=1
+        """
+
     valores = []
 
     if especie:
@@ -494,23 +701,44 @@ def adotar():
         query += " AND idade <= %s"
         valores.append(idade)
 
+    # Só adicionar filtros de porte e sexo se as colunas existirem
+    if porte and 'porte' in colunas_existentes:
+        query += " AND porte = %s"
+        valores.append(porte)
+
+    if sexo and 'sexo' in colunas_existentes:
+        query += " AND sexo = %s"
+        valores.append(sexo)
+
     query += " ORDER BY id DESC"
     
     cur.execute(query, valores)
     pets_data = cur.fetchall()
     cur.close()
 
-    # Formatar pets
+    # Formatar pets - ADAPTABLE
     pets = []
     for pet in pets_data:
-        pets.append({
+        pet_dict = {
             'id': pet[0],
             'nome': pet[1],
             'especie': pet[2],
             'idade': pet[3],
             'descricao': pet[4],
             'imagem_url': pet[5]
-        })
+        }
+        
+        # Adicionar campos extras se existirem
+        if len(pet) > 6:
+            pet_dict.update({
+                'porte': pet[6] if len(pet) > 6 else None,
+                'sexo': pet[7] if len(pet) > 7 else None,
+                'localizacao': pet[8] if len(pet) > 8 else None,
+                'historia': pet[9] if len(pet) > 9 else None,
+                'informacoes_saude': pet[10] if len(pet) > 10 else None
+            })
+            
+        pets.append(pet_dict)
 
     return render_template('adotar.html', pets=pets, pagina='adotar', usuario=usuario)
 
@@ -521,11 +749,29 @@ def detalhes_pet(id):
     usuario = obter_usuario_atual() 
     sucesso = request.args.get('sucesso', False)
     nome = request.args.get('nome', '')
-    mostrar_modal_login = request.args.get('mostrar_modal_login') == 'true'  # ✅ NOVO
-    
+    mostrar_modal_login = request.args.get('mostrar_modal_login') == 'true'
     
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM pets WHERE id = %s", (id,))
+    
+    # Verificar quais colunas existem
+    cur.execute("SHOW COLUMNS FROM pets")
+    colunas_existentes = [coluna[0] for coluna in cur.fetchall()]
+    
+    # Montar query baseada nas colunas existentes
+    if all(col in colunas_existentes for col in ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']):
+        cur.execute("""
+            SELECT id, nome, especie, idade, descricao, imagem_url, 
+                   porte, sexo, localizacao, historia, informacoes_saude 
+            FROM pets 
+            WHERE id = %s
+        """, (id,))
+    else:
+        cur.execute("""
+            SELECT id, nome, especie, idade, descricao, imagem_url
+            FROM pets 
+            WHERE id = %s
+        """, (id,))
+        
     pet = cur.fetchone()
     cur.close()
 
@@ -538,12 +784,23 @@ def detalhes_pet(id):
             'descricao': pet[4],
             'imagem_url': pet[5]
         }
+        
+        # Adicionar campos extras se existirem
+        if len(pet) > 6:
+            pet_detalhado.update({
+                'porte': pet[6] if len(pet) > 6 else None,
+                'sexo': pet[7] if len(pet) > 7 else None,
+                'localizacao': pet[8] if len(pet) > 8 else None,
+                'historia': pet[9] if len(pet) > 9 else None,
+                'informacoes_saude': pet[10] if len(pet) > 10 else None
+            })
+            
         return render_template('detalhes_pet.html', 
             pet=pet_detalhado, 
             pagina='detalhes_pet',
             mostrar_modal=sucesso,
             nome=nome,
-            mostrar_modal_login=mostrar_modal_login,  # ✅ NOVO
+            mostrar_modal_login=mostrar_modal_login,
             usuario=usuario)
     else:
         return "Pet não encontrado", 404
@@ -555,30 +812,75 @@ def cadastrar():
     usuario = obter_usuario_atual()
 
     if request.method == 'POST':
-        nome = request.form['nome']
-        especie = request.form['especie']
-        idade = request.form['idade']
-        descricao = request.form['descricao']
+        try:
+            # Dados básicos
+            nome = request.form.get('nome', '').strip()
+            especie = request.form.get('especie', '').strip()
+            idade = request.form.get('idade', '').strip()
+            descricao = request.form.get('descricao', '').strip()
 
-        imagem = request.files['imagem']
-        if imagem.filename != '':
+            # Novos campos
+            porte = request.form.get('porte', '').strip()
+            sexo = request.form.get('sexo', '').strip()
+            localizacao = request.form.get('localizacao', '').strip()
+            historia = request.form.get('historia', '').strip()
+            informacoes_saude = request.form.get('informacoes_saude', '').strip()
+
+            # Validações
+            if not all([nome, especie, idade]):
+                flash('Por favor, preencha pelo menos nome, espécie e idade.', 'error')
+                return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
+
+            imagem = request.files.get('imagem')
+            if not imagem or imagem.filename == '':
+                flash('Por favor, selecione uma imagem do pet.', 'error')
+                return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
+
+            # Processar imagem
             nome_arquivo = secure_filename(imagem.filename)
+            imagem_url = f"/static/imagens/{nome_arquivo}"
             caminho_imagem = os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo)
             imagem.save(caminho_imagem)
-            imagem_url = f"/static/imagens/{nome_arquivo}"
-        else:
-            imagem_url = ''
 
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO pets (nome, especie, idade, descricao, imagem_url) VALUES (%s, %s, %s, %s, %s)",
-                    (nome, especie, idade, descricao, imagem_url))
-        mysql.connection.commit()
-        cur.close()
+            cur = mysql.connection.cursor()
+            
+            # VERIFICAR QUAIS COLUNAS EXISTEM ANTES DE INSERIR
+            cur.execute("SHOW COLUMNS FROM pets")
+            colunas_existentes = [coluna[0] for coluna in cur.fetchall()]
+            
+            if all(col in colunas_existentes for col in ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']):
+                # Se todas as colunas existem, inserir com todos os campos
+                cur.execute("""
+                    INSERT INTO pets 
+                    (nome, especie, idade, descricao, imagem_url, porte, sexo, localizacao, historia, informacoes_saude, usuario_id) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    nome, especie, int(idade), descricao, imagem_url, 
+                    porte, sexo, localizacao, historia, informacoes_saude,
+                    usuario['id']
+                ))
+                print("✅ Pet cadastrado com TODOS os campos")
+            else:
+                # Se não existem, inserir apenas campos básicos
+                cur.execute("""
+                    INSERT INTO pets 
+                    (nome, especie, idade, descricao, imagem_url, usuario_id) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (nome, especie, int(idade), descricao, imagem_url, usuario['id']))
+                print("✅ Pet cadastrado com campos BÁSICOS")
+            
+            mysql.connection.commit()
+            cur.close()
 
-        return redirect('/home')
+            flash('Pet cadastrado com sucesso!', 'success')
+            return redirect('/home')
+
+        except Exception as e:
+            print(f"❌ Erro ao cadastrar pet: {e}")
+            flash(f'Erro ao cadastrar pet: {str(e)}', 'error')
+            return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
 
     return render_template('cadastrar.html', pagina='cadastrar', usuario=usuario)
-
 
 
 
@@ -878,6 +1180,127 @@ def admin_dashboard():
             total_pets=0,
             total_adocoes=0)
 
+@app.route('/admin/usuarios')
+def admin_usuarios():
+    """Página de administração para gerenciar todos os usuários com paginação"""
+    usuario = obter_usuario_atual()
+    
+    # ✅ Verificar se é admin
+    if not usuario or usuario.get('tipo') != 'admin':
+        flash('Acesso negado. Área restrita para administradores.', 'error')
+        return redirect('/home')
+    
+    try:
+        # ✅ Configuração da paginação
+        pagina = request.args.get('pagina', 1, type=int)
+        por_pagina = 10
+        
+        # Calcular offset
+        offset = (pagina - 1) * por_pagina
+        
+        cur = mysql.connection.cursor()
+        
+        # ✅ MODIFICADO: Contar total de TODOS os usuários (adotantes, protetores e admins)
+        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo IN ('adotante', 'protetor', 'admin')")
+        total_usuarios = cur.fetchone()[0]
+        
+        # ✅ MODIFICADO: Buscar TODOS os usuários com paginação
+        cur.execute("""
+            SELECT id, nome, email, tipo, data_cadastro, telefone, verificado
+            FROM usuarios 
+            WHERE tipo IN ('adotante', 'protetor', 'admin')
+            ORDER BY 
+                CASE 
+                    WHEN tipo = 'admin' THEN 1
+                    WHEN tipo = 'protetor' THEN 2
+                    WHEN tipo = 'adotante' THEN 3
+                    ELSE 4
+                END,
+                data_cadastro DESC
+            LIMIT %s OFFSET %s
+        """, (por_pagina, offset))
+        usuarios_data = cur.fetchall()
+        cur.close()
+        
+        # Calcular total de páginas
+        total_paginas = (total_usuarios + por_pagina - 1) // por_pagina
+        
+        # Formatar usuários
+        usuarios = []
+        for user in usuarios_data:
+            usuarios.append({
+                'id': user[0],
+                'nome': user[1],
+                'email': user[2],
+                'tipo': user[3],
+                'data_cadastro': user[4].strftime('%d/%m/%Y %H:%M') if user[4] else 'N/A',
+                'telefone': user[5] or 'Não informado',
+                'verificado': user[6]
+            })
+        
+        print(f"✅ Página {pagina}: {len(usuarios)} de {total_usuarios} usuários")
+        
+        return render_template('admin_usuarios.html', 
+                             usuario=usuario, 
+                             usuarios=usuarios,
+                             pagina_atual=pagina,
+                             total_paginas=total_paginas,
+                             total_usuarios=total_usuarios,
+                             por_pagina=por_pagina,
+                             pagina='admin_usuarios')
+    
+    except Exception as e:
+        print(f"❌ Erro ao carregar usuários: {str(e)}")
+        flash(f'Erro ao carregar usuários: {str(e)}', 'error')
+        return redirect('/home')
+
+# ✅ CORREÇÃO: Removido o espaço antes do @app.route
+@app.route('/admin/usuario/<int:user_id>/excluir', methods=['DELETE'])
+def excluir_usuario(user_id):
+    """Excluir usuário e seus registros relacionados"""
+    usuario = obter_usuario_atual()
+    
+    if not usuario or usuario.get('tipo') != 'admin':
+        return jsonify({'success': False, 'message': 'Acesso negado'})
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # ✅ VERIFICAR SE É O PRÓPRIO USUÁRIO
+        if user_id == usuario['id']:
+            return jsonify({'success': False, 'message': 'Não é possível excluir a si mesmo'})
+        
+        # ✅ VERIFICAR SE O USUÁRIO É ADMIN
+        cur.execute("SELECT tipo FROM usuarios WHERE id = %s", (user_id,))
+        user_tipo = cur.fetchone()
+        if user_tipo and user_tipo[0] == 'admin':
+            return jsonify({'success': False, 'message': 'Não é possível excluir administradores'})
+        
+        # ✅ EXCLUIR REGISTROS RELACIONADOS NAS ADOÇÕES
+        cur.execute("DELETE FROM adocoes WHERE usuario_id = %s", (user_id,))
+        print(f"✅ Registros de adoções excluídos para usuário {user_id}")
+        
+        # ✅ EXCLUIR OUTROS REGISTROS RELACIONADOS (se houver outras tabelas)
+        # Exemplo: cur.execute("DELETE FROM outra_tabela WHERE usuario_id = %s", (user_id,))
+        
+        # ✅ AGORA EXCLUIR O USUÁRIO
+        cur.execute("DELETE FROM usuarios WHERE id = %s", (user_id,))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        print(f"✅ Usuário {user_id} excluído com sucesso")
+        return jsonify({'success': True, 'message': 'Usuário excluído com sucesso'})
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        print(f"❌ Erro ao excluir usuário {user_id}: {str(e)}")
+        return jsonify({'success': False, 'message': f'Erro ao excluir usuário: {str(e)}'})
+
+
+
+        
+
 
 @app.route('/admin/protetores')
 def admin_protetores():
@@ -1092,7 +1515,7 @@ def criar_admin_teste():
 def sobre():
     """Página sobre o sistema"""
     usuario = obter_usuario_atual()
-    return render_template('sobre.html', usuario=usuario)
+    return render_template('sobre.html', usuario=usuario, pagina='sobre')
 
 
 @app.route("/termos")
@@ -1376,7 +1799,165 @@ def meus_favoritos():
                              total_favoritos=0)
 
 
+# ========== Rotas de Pets Perdidos ==========
+@app.route('/divulgar-perdido')
+def divulgar_perdido():
+    if 'usuario_id' not in session:
+        flash('Você precisa estar logado para divulgar um pet perdido.', 'warning')
+        return redirect('/login')
+    
+    usuario = obter_usuario_atual()  # ← ADICIONE ESTA LINHA
+    return render_template('divulgar_perdido.html', pagina='divulgar_perdido', usuario=usuario)
 
+@app.route('/divulgar-perdido', methods=['POST'])
+def processar_divulgar_perdido():
+    if 'usuario_id' not in session:
+        flash('Você precisa estar logado.', 'error')
+        return redirect('/login')
+        
+    
+    try:
+        # Dados básicos do pet
+        nome = request.form.get('nome')
+        especie = request.form.get('especie')
+        raca = request.form.get('raca', '')
+        cor = request.form.get('cor', '')
+        porte = request.form.get('porte', '')
+        sexo = request.form.get('sexo', '')
+        idade = request.form.get('idade', '')
+        caracteristicas = request.form.get('caracteristicas', '')
+        
+        # Detalhes do desaparecimento
+        data_desaparecimento = request.form.get('data_desaparecimento')
+        local = request.form.get('local')
+        referencia = request.form.get('referencia', '')
+        descricao = request.form.get('descricao')
+        
+        # Características especiais
+        microchip = 1 if request.form.get('microchip') else 0
+        coleira = 1 if request.form.get('coleira') else 0
+        vacinado = 1 if request.form.get('vacinado') else 0
+        
+        # Contato
+        contato_nome = request.form.get('contato_nome')
+        contato_telefone = request.form.get('contato_telefone')
+        contato_email = request.form.get('contato_email', '')
+        
+        # ✅ Processar imagem COM FUNÇÃO DEFINIDA
+        foto_path = None
+        if 'foto' in request.files:
+            file = request.files['foto']
+            if file and file.filename != '' and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                file.save(file_path)
+                foto_path = unique_filename
+                print(f"✅ Foto salva: {foto_path}")
+            else:
+                print("⚠️ Nenhuma foto válida enviada")
+        
+        # Inserir no banco de dados
+        cur = mysql.connection.cursor()
+        
+        cur.execute('''
+            INSERT INTO pets_perdidos 
+            (usuario_id, nome, especie, raca, cor, porte, sexo, idade, caracteristicas,
+             data_desaparecimento, local_desaparecimento, referencia, descricao,
+             microchip, coleira, vacinado, contato_nome, contato_telefone, contato_email,
+             foto_path, data_criacao, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (session['usuario_id'], nome, especie, raca, cor, porte, sexo, idade, caracteristicas,
+              data_desaparecimento, local, referencia, descricao,
+              microchip, coleira, vacinado, contato_nome, contato_telefone, contato_email,
+              foto_path, datetime.now(), 'perdido'))
+        
+        mysql.connection.commit()
+        cur.close()
+        
+        flash('Pet perdido divulgado com sucesso! A comunidade vai ajudar a encontrar.', 'success')
+        return redirect('/pets-perdidos')
+        
+    except Exception as e:
+        print(f"❌ Erro detalhado: {traceback.format_exc()}")
+        flash(f'Erro ao divulgar pet: {str(e)}', 'error')
+        return redirect('/divulgar-perdido')
+
+@app.route('/pets-perdidos')
+def pets_perdidos():
+    """Página para listar todos os pets perdidos"""
+    try:
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)  # ← MUDE AQUI
+        cur.execute('''
+            SELECT 
+                pp.id, pp.usuario_id, pp.nome, pp.especie, pp.raca, pp.cor, pp.porte, 
+                pp.sexo, pp.idade, pp.caracteristicas, pp.data_desaparecimento, 
+                pp.local_desaparecimento, pp.referencia, pp.descricao, pp.microchip, 
+                pp.coleira, pp.vacinado, pp.contato_nome, pp.contato_telefone, 
+                pp.contato_email, pp.foto_path, pp.data_criacao, pp.status,
+                u.nome as usuario_nome
+            FROM pets_perdidos pp
+            LEFT JOIN usuarios u ON pp.usuario_id = u.id
+            WHERE pp.status = "perdido"
+            ORDER BY pp.data_criacao DESC
+        ''')
+        
+        pets_perdidos = cur.fetchall()  # ← AGORA JÁ VEM COMO DICIONÁRIO
+        cur.close()
+        
+        usuario = obter_usuario_atual()
+        return render_template('pets_perdidos.html', 
+                             pets_perdidos=pets_perdidos, 
+                             usuario=usuario,
+                             pagina='pets_perdidos')
+        
+    except Exception as e:
+        print(f"❌ Erro ao carregar pets perdidos: {e}")
+        flash('Erro ao carregar lista de pets perdidos.', 'error')
+        return render_template('pets_perdidos.html', 
+                             pets_perdidos=[], 
+                             usuario=obter_usuario_atual(),
+                             pagina='pets_perdidos')
+                             
+
+@app.route('/pet-encontrado/<int:pet_id>')
+def marcar_como_encontrado(pet_id):
+    if 'usuario_id' not in session:
+        flash('Você precisa estar logado.', 'error')
+        return redirect('/login')
+    
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Verificar se o usuário é o dono do anúncio
+        cur.execute('SELECT usuario_id FROM pets_perdidos WHERE id = %s', (pet_id,))
+        pet = cur.fetchone()
+        
+        if pet and pet[0] == session['usuario_id']:
+            cur.execute('''
+                UPDATE pets_perdidos 
+                SET status = "encontrado", data_encontrado = %s
+                WHERE id = %s
+            ''', (datetime.now(), pet_id))
+            
+            mysql.connection.commit()
+            flash('Que bom que encontrou seu pet! 🎉', 'success')
+        else:
+            flash('Você não tem permissão para esta ação.', 'error')
+        
+        cur.close()
+        return redirect('/pets-perdidos')
+        
+    except Exception as e:
+        flash(f'Erro ao marcar pet como encontrado: {str(e)}', 'error')
+        return redirect('/pets-perdidos')
+
+
+
+
+
+        
+     
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

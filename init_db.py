@@ -56,6 +56,16 @@ def create_database():
                     descricao TEXT,
                     imagem_url VARCHAR(255),
                     usuario_id INT,
+
+
+                    -- NOVOS CAMPOS ADICIONADOS --
+                    porte ENUM('pequeno', 'medio', 'grande'),
+                    sexo ENUM('macho', 'femea'),
+                    localizacao VARCHAR(255),
+                    historia TEXT,
+                    informacoes_saude TEXT,
+                    -- FIM DOS NOVOS CAMPOS --
+
                     data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
                 )
@@ -94,7 +104,39 @@ def create_database():
             ''')
             print("✅ Tabela 'favoritos' criada/verificada")
             
-            # 7. Criar admin principal apenas se não existir nenhum admin
+            # 7. Criar tabela de pets perdidos ← ADICIONE AQUI
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS pets_perdidos (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    usuario_id INT NOT NULL,
+                    nome VARCHAR(100) NOT NULL,
+                    especie VARCHAR(50) NOT NULL,
+                    raca VARCHAR(100),
+                    cor VARCHAR(50),
+                    porte ENUM('pequeno', 'medio', 'grande'),
+                    sexo ENUM('macho', 'femea'),
+                    idade VARCHAR(50),
+                    caracteristicas TEXT,
+                    data_desaparecimento DATE NOT NULL,
+                    local_desaparecimento VARCHAR(255) NOT NULL,
+                    referencia TEXT,
+                    descricao TEXT NOT NULL,
+                    microchip BOOLEAN DEFAULT FALSE,
+                    coleira BOOLEAN DEFAULT FALSE,
+                    vacinado BOOLEAN DEFAULT FALSE,
+                    contato_nome VARCHAR(100) NOT NULL,
+                    contato_telefone VARCHAR(20) NOT NULL,
+                    contato_email VARCHAR(100),
+                    foto_path VARCHAR(255),
+                    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    data_encontrado DATETIME,
+                    status ENUM('perdido', 'encontrado') DEFAULT 'perdido',
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+                )
+            ''')
+            print("✅ Tabela 'pets_perdidos' criada/verificada")
+
+            # 8. Criar admin principal apenas se não existir nenhum admin
             criar_admin_principal(cursor)
             
             connection.commit()
@@ -102,7 +144,7 @@ def create_database():
             connection.close()
             
             print("🎉 Banco de dados inicializado com sucesso!")
-            print("📊 Tabelas criadas: usuarios, pets, adocoes")
+            print("📊 Tabelas criadas: usuarios, pets, adocoes, favoritos, pets_perdidos")
             
     except Error as e:
         print(f"❌ Erro ao criar banco de dados: {e}")

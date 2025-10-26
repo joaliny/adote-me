@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+
+{% block title %}Pets Perdidos - Adote-me{% endblock %}
+
+{% block content %}
+<style>
+    .pets-perdidos-section {
+        padding: 60px 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .page-header h1 {
+        color: #2c3e50;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #2877a3, #2c3e50);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .page-header .subtitle {
+        color: #6c757d;
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #2877a3, #3498db);
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 119, 163, 0.3);
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 119, 163, 0.4);
+        background: linear-gradient(135deg, #1e5f82, #2877a3);
+    }
+
+    /* CONTAINER DOS CARDS COM ALTURA FIXA */
+    .pets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .pet-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        /* ALTURA FLEXÍVEL MAS CONTROLADA */
+        min-height: 650px;
+        /* ALTURA MÍNIMA PADRÃO */
+    }
+
+    .pet-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .pet-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+        /* ALTURA FIXA PARA IMAGENS */
+        flex-shrink: 0;
+    }
+
+    .pet-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .pet-card:hover .pet-image {
+        transform: scale(1.05);
+    }
+
+    .pet-status {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #dc3545, #e74c3c);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        z-index: 2;
+    }
+
+    .pet-info {
+        padding: 25px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pet-name {
+        color: #2c3e50;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pet-name::before {
+        content: "🐾";
+        font-size: 1.2rem;
+    }
+
+    .pet-details {
+        color: #5a6c7d;
+        margin-bottom: 20px;
+        line-height: 1.6;
+        flex: 0 0 auto;
+    }
+
+    .pet-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 5px;
+    }
+
+    .pet-detail-item strong {
+        color: #2c3e50;
+        min-width: 80px;
+    }
+
+    .local-info {
+        background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+        padding: 15px;
+        border-radius: 12px;
+        margin: 15px 0;
+        border-left: 4px solid #2877a3;
+        flex: 0 0 auto;
+    }
+
+    .local-info strong {
+        color: #2877a3;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .pet-description {
+        color: #5a6c7d;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #e67e22;
+        flex: 0 0 auto;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+
+    .contact-info {
+        background: linear-gradient(135deg, #fff3cd, #fff8e1);
+        padding: 15px;
+        border-radius: 12px;
+        margin-top: auto;
+        /* EMPURRA PARA BAIXO */
+        border: 1px solid #ffeaa7;
+        flex: 0 0 auto;
+    }
+
+    .contact-info strong {
+        color: #e67e22;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    .contact-detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        padding: 4px 0;
+        font-size: 0.9rem;
+    }
+
+    .btn-whatsapp {
+        background: linear-gradient(135deg, #25D366, #128C7E);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 8px;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+
+    .btn-whatsapp:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    }
+
+    .btn-encontrado {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-encontrado:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        margin-bottom: 25px;
+        color: #bdc3c7;
+        opacity: 0.7;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        max-width: 500px;
+        margin: 0 auto 30px;
+        line-height: 1.6;
+    }
+
+    .alert-custom {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    /* RESPONSIVIDADE */
+    @media (max-width: 768px) {
+        .pets-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .pet-card {
+            min-height: 600px;
+        }
+
+        .pet-image-container {
+            height: 200px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .pets-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* Animações */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .pet-card {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+</style>
+
+<section class="pets-perdidos-section">
+    <div class="container">
+        <div class="page-header">
+            <h1>🚨 Pets Perdidos</h1>
+            <p class="subtitle">Ajude a reunir essas famílias. Cada informação pode ser a peça que falta para um
+                reencontro emocionante!</p>
+
+            <div class="mt-4">
+                <a href="/divulgar-perdido" class="btn btn-primary-custom">
+                    <i class="bi bi-megaphone-fill me-2"></i> Divulgar Pet Perdido
+                </a>
+            </div>
+        </div>
+
+        <!-- Mensagens Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div
+            class="alert alert-{{ 'danger' if category == 'error' else category }} alert-custom alert-dismissible fade show">
+            <div class="d-flex align-items-center">
+                <i
+                    class="bi bi-{{ 'exclamation-triangle-fill' if category == 'error' else 'info-circle-fill' }} me-2"></i>
+                {{ message }}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% if pets_perdidos %}
+        <div class="pets-grid">
+            {% for pet in pets_perdidos %}
+            <div class="pet-card">
+                <div class="pet-image-container">
+                    {% if pet.foto_path %}
+                    <img src="{{ url_for('static', filename='imagens/' + pet.foto_path) }}" alt="{{ pet.nome }}"
+                        class="pet-image">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='imagens/pet-default.jpg') }}" alt="Imagem padrão"
+                        class="pet-image">
+                    {% endif %}
+                    <span class="pet-status">PERDIDO</span>
+                </div>
+
+                <div class="pet-info">
+                    <h3 class="pet-name">{{ pet.nome }}</h3>
+
+                    <div class="pet-details">
+                        <div class="pet-detail-item">
+                            <strong>Espécie:</strong>
+                            <span>{{ pet.especie }}</span>
+                        </div>
+                        {% if pet.raca %}
+                        <div class="pet-detail-item">
+                            <strong>Raça:</strong>
+                            <span>{{ pet.raca }}</span>
+                        </div>
+                        {% endif %}
+                        {% if pet.idade %}
+                        <div class="pet-detail-item">
+                            <strong>Idade:</strong>
+                            <span>{{ pet.idade }}</span>
+                        </div>
+                        {% endif %}
+                        {% if pet.cor %}
+                        <div class="pet-detail-item">
+                            <strong>Cor:</strong>
+                            <span>{{ pet.cor }}</span>
+                        </div>
+                        {% endif %}
+                        {% if pet.porte %}
+                        <div class="pet-detail-item">
+                            <strong>Porte:</strong>
+                            <span>{{ pet.porte }}</span>
+                        </div>
+                        {% endif %}
+                        {% if pet.sexo %}
+                        <div class="pet-detail-item">
+                            <strong>Sexo:</strong>
+                            <span>{{ pet.sexo }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="local-info">
+                        <strong><i class="bi bi-geo-alt-fill"></i> Desapareceu em:</strong>
+                        <div>{{ pet.local_desaparecimento }}</div>
+                        <small class="text-muted">
+                            <i class="bi bi-calendar-event"></i>
+                            Data: {{ pet.data_desaparecimento.strftime('%d/%m/%Y') if pet.data_desaparecimento else 'Não
+                            informada' }}
+                        </small>
+                    </div>
+
+                    {% if pet.descricao %}
+                    <div class="pet-description">
+                        <strong><i class="bi bi-card-text"></i> Descrição:</strong>
+                        <div class="mt-2">{{ pet.descricao }}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="contact-info">
+                        <strong><i class="bi bi-telephone-fill"></i> Contato:</strong>
+
+                        {% if pet.contato_nome %}
+                        <div class="contact-detail">
+                            <i class="bi bi-person-circle text-primary"></i>
+                            <span><strong>Responsável:</strong> {{ pet.contato_nome }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if pet.contato_telefone %}
+                        <div class="contact-detail">
+                            <i class="bi bi-phone text-success"></i>
+                            <a href="tel:{{ pet.contato_telefone }}" class="text-decoration-none text-dark">
+                                <strong>Telefone:</strong> {{ pet.contato_telefone }}
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="contact-detail text-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span>⚠️ Telefone não informado</span>
+                        </div>
+                        {% endif %}
+
+                        {% if pet.contato_email %}
+                        <div class="contact-detail">
+                            <i class="bi bi-envelope text-primary"></i>
+                            <a href="mailto:{{ pet.contato_email }}" class="text-decoration-none text-dark">
+                                <strong>Email:</strong> {{ pet.contato_email }}
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if pet.contato_telefone %}
+                        <a href="https://wa.me/55{{ pet.contato_telefone|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') }}?text=Olá! Vi que você está procurando o {{ pet.nome }}"
+                            target="_blank" class="btn btn-whatsapp text-white">
+                            <i class="bi bi-whatsapp me-2"></i> WhatsApp
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botão para marcar como encontrado (apenas para o dono) -->
+                    {% if usuario and usuario.id == pet.usuario_id %}
+                    <a href="/pet-encontrado/{{ pet.id }}" class="btn btn-encontrado text-white"
+                        onclick="return confirm('Tem certeza que encontrou {{ pet.nome }}?')">
+                        <i class="bi bi-check-circle-fill me-2"></i> Encontrado
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-search-heart"></i>
+            <h3>Nenhum pet perdido encontrado</h3>
+            <p>No momento, não há pets perdidos cadastrados em nossa plataforma. Seja o primeiro a divulgar e ajude a
+                encontrar um amiguinho!</p>
+            <a href="/divulgar-perdido" class="btn btn-primary-custom mt-3">
+                <i class="bi bi-plus-circle me-2"></i> Seja o primeiro a divulgar
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

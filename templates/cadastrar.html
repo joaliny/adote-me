@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Página Inicial - Adote-me{% endblock %}
+{% block title %}Cadastrar Pet - Adote-me{% endblock %}
 {% block content %}
 
 <section class="form-section">
@@ -10,39 +10,301 @@
     </div>
 
     <form method="POST" action="/cadastrar" enctype="multipart/form-data" class="form-cadastro">
+      <!-- Informações Básicas -->
       <div class="form-group">
         <label for="nome">Nome do Pet:</label>
         <input type="text" id="nome" name="nome" class="form-control" placeholder="Digite o nome do pet" required>
       </div>
 
-      <div class="form-group">
-        <label for="especie">Espécie:</label>
-        <select id="especie" name="especie" class="form-control" required>
-          <option value="" disabled selected>Selecione a espécie</option>
-          <option value="cachorro">Cachorro</option>
-          <option value="gato">Gato</option>
-          <option value="outro">Outro</option>
-        </select>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="especie">Espécie:</label>
+          <select id="especie" name="especie" class="form-control" required>
+            <option value="" disabled selected>Selecione a espécie</option>
+            <option value="cachorro">Cachorro</option>
+            <option value="gato">Gato</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="porte">Porte:</label>
+          <select id="porte" name="porte" class="form-control" required>
+            <option value="" disabled selected>Selecione o porte</option>
+            <option value="pequeno">Pequeno</option>
+            <option value="medio">Médio</option>
+            <option value="grande">Grande</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="sexo">Sexo:</label>
+          <select id="sexo" name="sexo" class="form-control" required>
+            <option value="" disabled selected>Selecione o sexo</option>
+            <option value="macho">Macho</option>
+            <option value="femea">Fêmea</option>
+          </select>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="idade">Idade (anos):</label>
-        <input type="number" id="idade" name="idade" class="form-control" min="0" max="30" placeholder="Idade em anos" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="idade">Idade (anos):</label>
+          <input type="number" id="idade" name="idade" class="form-control" min="0" max="30" placeholder="Idade em anos"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="localizacao">Localização:</label>
+          <input type="text" id="localizacao" name="localizacao" class="form-control"
+            placeholder="Cidade, Estado - Ex: Manaus, AM" required>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="descricao">Descrição:</label>
-        <textarea id="descricao" name="descricao" class="form-control" placeholder="Descreva o pet: personalidade, hábitos, necessidades especiais, etc."></textarea>
+      <!-- Informações Detalhadas em Colunas -->
+      <div class="form-columns">
+        <div class="form-column">
+          <div class="form-group">
+            <label for="descricao">Descrição e Personalidade:</label>
+            <textarea id="descricao" name="descricao" class="form-control"
+              placeholder="Personalidade, hábitos, comportamento, etc." rows="6"></textarea>
+          </div>
+        </div>
+
+        <div class="form-column">
+          <div class="form-group">
+            <label for="historia">História do Pet:</label>
+            <textarea id="historia" name="historia" class="form-control"
+              placeholder="Como foi resgatado, background, situação anterior, etc." rows="6"></textarea>
+          </div>
+        </div>
+
+        <div class="form-column">
+          <div class="form-group">
+            <label for="informacoes_saude">Informações de Saúde:</label>
+            <textarea id="informacoes_saude" name="informacoes_saude" class="form-control"
+              placeholder="Vacinas, condições médicas, cuidados especiais, etc." rows="6"></textarea>
+          </div>
+        </div>
       </div>
 
+      <!-- Upload de Imagem -->
       <div class="form-group">
         <label for="imagem">Foto do Pet:</label>
-        <input type="file" id="imagem" name="imagem" class="form-control" accept="image/*">
-        <small style="color: #6c757d; display: block; margin-top: 5px;">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB.</small>
+        <input type="file" id="imagem" name="imagem" class="form-control" accept="image/*" required>
+        <small style="color: #6c757d; display: block; margin-top: 5px;">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo:
+          5MB.</small>
       </div>
 
-      <button type="submit" class="btn-submit">Cadastrar Pet</button>
+      <!-- Botões lado a lado -->
+      <div class="form-buttons">
+        <button type="submit" class="btn-submit btn-primary">
+          <i class="fas fa-paw"></i> Cadastrar Pet
+        </button>
+        <button type="reset" class="btn-submit btn-secondary">
+          <i class="fas fa-redo"></i> Limpar Campos
+        </button>
+        <a href="/home" class="btn-submit btn-cancel">
+          <i class="fas fa-times"></i> Cancelar
+        </a>
+      </div>
     </form>
   </div>
 </section>
+
+<style>
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+
+  .form-columns {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+
+  .form-column {
+    flex: 1;
+  }
+
+  .form-column .form-group {
+    height: 100%;
+  }
+
+  .form-column textarea {
+    height: 150px;
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+
+  .form-buttons .btn-submit {
+    flex: 1;
+    min-width: 160px;
+    max-width: 200px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #2471a3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+  }
+
+  .btn-secondary:hover {
+    background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+  }
+
+  .btn-cancel {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+  }
+
+  .btn-cancel:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  /* Melhorias para o formulário */
+  .form-cadastro {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+
+    .form-row,
+    .form-columns {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .form-buttons {
+      flex-direction: column;
+    }
+
+    .form-buttons .btn-submit {
+      max-width: 100%;
+    }
+
+    .form-cadastro {
+      padding: 25px 20px;
+      margin: 0 10px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .container-form {
+      padding: 0 10px;
+    }
+
+    .form-title h2 {
+      font-size: 1.8rem;
+    }
+
+    .form-title p {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* Animações suaves */
+  .form-cadastro {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
 {% endblock %}
