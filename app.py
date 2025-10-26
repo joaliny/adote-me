@@ -34,6 +34,9 @@ app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD', '')
 app.config['MYSQL_DB'] = os.getenv('MYSQL_DB', 'adote-me')
 app.config['MYSQL_CHARSET'] = 'utf8mb4'
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # Use a variável do .env
+genai.configure(api_key=GEMINI_API_KEY)
+
 # Função para obter conexão PyMySQL (fallback)
 def get_db():
     return pymysql.connect(
@@ -75,15 +78,6 @@ def allowed_file(filename):
     """Verifica se o arquivo tem uma extensão permitida"""
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-
-
-# Configurações de e-mail
-email_sistema = os.getenv("EMAIL_SISTEMA")
-senha_email = os.getenv("SENHA_EMAIL")
-
-# Configurar a chave da API do Gemini
-GEMINI_API_KEY = "AIzaSyBAJIxOHZcsF2aowxVdZTGQ9i8aUkQHFLg"
-genai.configure(api_key=GEMINI_API_KEY)
 
 # Mudanças na conexão e cursor do MySQL (HENRIQUE)
 # cur = mysql.connection.cursor()  ===>  conn, cur, fb = db_cursor()
@@ -247,56 +241,84 @@ def cadastrar_usuario():
     try:
         print("=== INICIANDO CADASTRO DE USUÁRIO ===")
         
-        # Dados pessoais
+        # --- DADOS DO FORMULÁRIO ---
+        
+        # Tipo de conta
+        tipo = request.form.get('tipo_conta') # 'adotante' ou 'protetor'
+
+        # Dados comuns
         nome = request.form.get('nome')
         email = request.form.get('email')
         senha = request.form.get('senha')
         confirmar_senha = request.form.get('confirmar_senha')
         telefone = request.form.get('telefone')
         
-        print(f"Dados recebidos: {nome}, {email}, {telefone}")
-
-        # Verificar campos obrigatórios
-        if not all([nome, email, senha, confirmar_senha, telefone]):
-            missing = []
-            if not nome: missing.append('nome')
-            if not email: missing.append('email')
-            if not senha: missing.append('senha')
-            if not confirmar_senha: missing.append('confirmar_senha')
-            if not telefone: missing.append('telefone')
-            
-            flash(f'Campos obrigatórios faltando: {", ".join(missing)}', 'error')
-            return redirect(url_for('cadastro'))
-
         # Endereço
         cep = request.form.get('cep', '')
-        cidade = request.form.get('cidade', '')
-        endereco_completo = request.form.get('endereco', '')
+        logradouro = request.form.get('logradouro', '')
         numero = request.form.get('numero', '')
+        bairro = request.form.get('bairro', '')
+        cidade = request.form.get('cidade', '')
+        estado = request.form.get('estado', '')
         
-        # Montar endereço completo
-        endereco = f"{endereco_completo}, {numero}, {cidade} - CEP: {cep}" if endereco_completo else ""
+        # Dados condicionais
+        cpf = request.form.get('cpf') if tipo == 'adotante' else None
+        cnpj = request.form.get('cnpj') if tipo == 'protetor' else None
+        nome_organizacao = request.form.get('nome_organizacao') if tipo == 'protetor' else None
+        
+        print(f"Dados recebidos: Tipo={tipo}, Nome={nome}, Email={email}")
 
-        # Tipo de usuário
-        tipo = 'protetor' if request.form.get('protetor') else 'adotante'
-        nome_organizacao = request.form.get('nome_organizacao', '')
-        cnpj = request.form.get('cnpj', '')
+        # --- VALIDAÇÕES ---
+        if not all([tipo, nome, email, senha, confirmar_senha, telefone, cep, logradouro, numero, bairro, cidade, estado]):
+            flash('Preencha todos os campos obrigatórios (*).', 'error')
+            return redirect(url_for('cadastro'))
+            
+        if tipo == 'adotante' and not cpf:
+            flash('O CPF é obrigatório para adotantes.', 'error')
+            return redirect(url_for('cadastro'))
+            
+        if tipo == 'protetor' and (not cnpj or not nome_organizacao):
+            flash('Nome da Organização e CNPJ são obrigatórios para protetores.', 'error')
+            return redirect(url_for('cadastro'))
 
-        print(f"Tipo: {tipo}, Organização: {nome_organizacao}")
-
-        # Validação de senha
         if senha != confirmar_senha:
             flash('As senhas não coincidem.', 'error')
             return redirect(url_for('cadastro'))
-
-        # Verificar se email já existe
-        conn, cur, fb = db_cursor()
-        cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
-        if cur.fetchone():
-            flash('Este email já está cadastrado.', 'error')
-            cur.close()
-            if fb: conn.close()
+            
+        if len(senha) < 6:
+            flash('A senha deve ter no mínimo 6 caracteres.', 'error')
             return redirect(url_for('cadastro'))
+
+        # --- PROCESSAMENTO DO BANCO ---
+        conn, cur, fb = db_cursor()
+
+        # Verificar duplicidade (Email, CPF, CNPJ)
+        try:
+            if cpf:
+                cur.execute("SELECT id FROM usuarios WHERE email = %s OR cpf = %s", (email, cpf))
+            elif cnpj:
+                cur.execute("SELECT id FROM usuarios WHERE email = %s OR cnpj = %s", (email, cnpj))
+            else:
+                 cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
+                 
+            if cur.fetchone():
+                flash('Email, CPF ou CNPJ já cadastrado.', 'error')
+                cur.close()
+                if fb: conn.close()
+                return redirect(url_for('cadastro'))
+                
+        except Exception as db_error:
+            # Trata erro se o campo for nulo e tiver unique (ex: dois protetores sem cpf)
+            if "Duplicate entry" in str(db_error) and "for key 'cpf'" in str(db_error):
+                # Ignora, pois o CPF é nulo
+                pass
+            elif "Duplicate entry" in str(db_error) and "for key 'cnpj'" in str(db_error):
+                 # Ignora, pois o CNPJ é nulo
+                pass
+            else:
+                 print(f"ERRO AO VERIFICAR DUPLICIDADE: {str(db_error)}")
+                 flash(f'Erro no banco de dados: {str(db_error)}', 'error')
+                 return redirect(url_for('cadastro'))
 
         # Criptografar senha
         senha_hash = generate_password_hash(senha)
@@ -305,10 +327,16 @@ def cadastrar_usuario():
         # Inserir no banco
         try:
             cur.execute("""
-                INSERT INTO usuarios (nome, email, senha, telefone, endereco, tipo, 
-                                    data_cadastro, nome_organizacao, cnpj, verificado)
-                VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s)
-            """, (nome, email, senha_hash, telefone, endereco, tipo, nome_organizacao, cnpj, 0))
+                INSERT INTO usuarios 
+                (nome, email, senha, telefone, tipo, 
+                 cep, logradouro, numero, bairro, cidade, estado,
+                 cpf, nome_organizacao, cnpj, 
+                 verificado, data_cadastro)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            """, (nome, email, senha_hash, telefone, tipo, 
+                  cep, logradouro, numero, bairro, cidade, estado,
+                  cpf, nome_organizacao, cnpj,
+                  False)) # Verificado=False por padrão
 
             conn.commit()
             cur.close()
@@ -316,9 +344,10 @@ def cadastrar_usuario():
             print("Usuário inserido no banco com sucesso!")
             
         except Exception as db_error:
-            print(f"ERRO NO BANCO: {str(db_error)}")
+            conn.rollback()
+            print(f"ERRO NO INSERT: {str(db_error)}")
             print(f"Traceback: {traceback.format_exc()}")
-            flash(f'Erro no banco de dados: {str(db_error)}', 'error')
+            flash(f'Erro ao salvar no banco de dados: {str(db_error)}', 'error')
             return redirect(url_for('cadastro'))
 
         flash('Usuário cadastrado com sucesso! Faça login para continuar.', 'success')
@@ -1016,6 +1045,62 @@ def admin_usuarios():
         flash(f'Erro ao carregar usuários: {str(e)}', 'error')
         return redirect('/home')
 
+# Rota para buscar detalhes do usuário para o modal
+@app.route('/admin/usuario/<int:user_id>/detalhes', methods=['GET'])
+def get_detalhes_usuario(user_id):
+    """Busca detalhes de um usuário para o modal"""
+    usuario = obter_usuario_atual()
+    if not usuario or usuario.get('tipo') != 'admin':
+        return jsonify({'success': False, 'message': 'Acesso negado'})
+        
+    try:
+        conn, cur, fb = db_cursor()
+        
+        # Buscar dados do usuário (ajuste os campos conforme seu banco)
+        cur.execute("""
+            SELECT id, nome, email, telefone, tipo, verificado, 
+                   cep, logradouro, numero, bairro, cidade, estado, 
+                   data_cadastro, cpf, cnpj, nome_organizacao
+            FROM usuarios 
+            WHERE id = %s
+        """, (user_id,))
+        user_data = cur.fetchone()
+        
+        if not user_data:
+            return jsonify({'success': False, 'message': 'Usuário não encontrado'})
+            
+        # Formatar dados (exemplo)
+        user = {
+            "id": user_data[0],
+            "nome": user_data[1],
+            "email": user_data[2],
+            "telefone": user_data[3] or "Não informado",
+            "tipo": user_data[4],
+            "verificado": user_data[5],
+            "endereco_completo": f"{user_data[7] or ''}, {user_data[8] or ''} - {user_data[9] or ''}",
+            "cidade_estado": f"{user_data[10] or ''} / {user_data[11] or ''}",
+            "cep": user_data[6] or "Não informado",
+            "data_cadastro": user_data[12].strftime('%d/%m/%Y %H:%M') if user_data[12] else 'N/A',
+            "cpf": user_data[13] or "N/A",
+            "cnpj": user_data[14] or "N/A",
+            "nome_organizacao": user_data[15] or "N/A",
+            # Mock de estatísticas (você precisaria de mais queries para isso)
+            "estatisticas": {
+                "total_adocoes": 0,
+                "total_pets": 0
+            },
+            "adocoes_recentes": []
+        }
+        
+        cur.close()
+        if fb: conn.close()
+        
+        return jsonify({'success': True, 'usuario': user})
+
+    except Exception as e:
+        print(f"❌ Erro ao buscar detalhes: {str(e)}")
+        return jsonify({'success': False, 'message': 'Erro interno no servidor'})
+
 # ✅ CORREÇÃO: Removido o espaço antes do @app.route
 @app.route('/admin/usuario/<int:user_id>/excluir', methods=['DELETE'])
 def excluir_usuario(user_id):
@@ -1060,8 +1145,78 @@ def excluir_usuario(user_id):
         print(f"❌ Erro ao excluir usuário {user_id}: {str(e)}")
         return jsonify({'success': False, 'message': f'Erro ao excluir usuário: {str(e)}'})
 
+# ========== Rotas de Gerenciamento de Adoções ==========
+@app.route('/admin/adocoes')
+def admin_adocoes():
+    """Página para gerenciar todas as solicitações de adoção"""
+    usuario = obter_usuario_atual()
+    if not usuario or usuario['tipo'] != 'admin':
+        flash('Acesso restrito a administradores.', 'error')
+        return redirect(url_for('login'))
+        
+    try:
+        conn, cur, fb = db_cursor()
+        
+        # Query para buscar adoções com dados do pet e do solicitante
+        cur.execute("""
+            SELECT 
+                a.id, a.data_solicitacao, a.status,
+                p.nome as pet_nome, p.imagem_url as pet_imagem,
+                u.nome as usuario_nome,
+                a.nome as solicitante_nome, a.telefone as solicitante_telefone
+            FROM adocoes a
+            JOIN pets p ON a.pet_id = p.id
+            LEFT JOIN usuarios u ON a.usuario_id = u.id
+            ORDER BY a.data_solicitacao DESC
+        """)
+        adocoes_data = cur.fetchall()
+        cur.close()
+        if fb: conn.close()
+        
+        adocoes = []
+        for row in adocoes_data:
+            adocoes.append({
+                "id": row[0],
+                "data_solicitacao": row[1].strftime('%d/%m/%Y %H:%M'),
+                "status": row[2],
+                "pet_nome": row[3],
+                "pet_imagem": row[4] or '/static/imagens/pet-default.jpg',
+                "usuario_nome": row[5] or "Visitante",
+                "solicitante_nome": row[6],
+                "solicitante_telefone": row[7]
+            })
+            
+        return render_template('admin_adocoes.html', 
+                             usuario=usuario, 
+                             adocoes=adocoes,
+                             pagina='admin_adocoes')
+                             
+    except Exception as e:
+        print(f"❌ Erro ao carregar adoções admin: {str(e)}")
+        flash('Erro ao carregar solicitações de adoção.', 'error')
+        return redirect(url_for('admin_dashboard'))
 
-
+@app.route('/admin/adocao/<int:adocao_id>/status', methods=['POST'])
+def admin_mudar_status_adocao(adocao_id):
+    """Muda o status de uma adoção (aprovar/rejeitar)"""
+    usuario = obter_usuario_atual()
+    if not usuario or usuario.get('tipo') != 'admin':
+        return jsonify({'success': False, 'message': 'Acesso negado'})
+        
+    novo_status = request.json.get('status')
+    if novo_status not in ('aprovada', 'rejeitada'):
+        return jsonify({'success': False, 'message': 'Status inválido'})
+        
+    try:
+        conn, cur, fb = db_cursor()
+        cur.execute("UPDATE adocoes SET status = %s WHERE id = %s", (novo_status, adocao_id))
+        conn.commit()
+        cur.close()
+        if fb: conn.close()
+        return jsonify({'success': True, 'message': f'Adoção {novo_status} com sucesso!'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': 'Erro ao atualizar status'})
         
 
 

@@ -36,12 +36,32 @@ def create_database():
                     email VARCHAR(100) UNIQUE NOT NULL,
                     senha VARCHAR(255) NOT NULL,
                     telefone VARCHAR(20),
-                    endereco TEXT,
+                    
+                    -- Tipo de usuário
                     tipo ENUM('adotante', 'protetor', 'admin') DEFAULT 'adotante',
-                    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    
+                    -- Endereço (campos separados)
+                    cep VARCHAR(9),
+                    logradouro VARCHAR(255),
+                    numero VARCHAR(20),
+                    bairro VARCHAR(100),
+                    cidade VARCHAR(100),
+                    estado VARCHAR(2),
+                    
+                    -- Dados Adotante
+                    cpf VARCHAR(14) UNIQUE, 
+                    
+                    -- Dados Protetor/ONG
                     nome_organizacao VARCHAR(100),
-                    cnpj VARCHAR(18),
-                    verificado BOOLEAN DEFAULT FALSE
+                    cnpj VARCHAR(18) UNIQUE, 
+                    
+                    -- Campos de controle
+                    verificado BOOLEAN DEFAULT FALSE,
+                    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    
+                    -- Campos de recuperação de senha
+                    reset_token VARCHAR(100) NULL,
+                    reset_token_expira DATETIME NULL
                 )
             ''')
             print("✅ Tabela 'usuarios' criada/verificada")

@@ -36,18 +36,20 @@
   <!-- Header e Navegação -->
   <header>
     <div class="container-header">
-      <div class="logo">Adote-<span>aqui 🐾</span></div>
+      <a href="/home" class="logo">Adote-<span>aqui 🐾</span></a>
       <nav>
         <ul>
           <li><a href="/home" class="{% if pagina == 'home' %}active{% endif %}">Início</a></li>
           <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre</a></li>
           <li><a href="/blog" class="{% if pagina == 'blog' %}active{% endif %}">Blog</a></li>
           <li><a href="/adotar" class="{% if pagina == 'adotar' %}active{% endif %}">Adoção</a></li>
+          
+          {% if usuario and usuario.tipo != 'adotante' %}
           <li><a href="/divulgar-perdido" class="{% if pagina == 'divulgar_perdido' %}active{% endif %}">Divulgar Pet Perdido</a></li>
+          {% endif %}
+          
           <li><a href="/pets-perdidos" class="{% if pagina == 'pets_perdidos' %}active{% endif %}">Ver Pet Perdido</a></li>
 
-
-          <!-- Mostrar "Cadastrar Pet" apenas para admin -->
           {% if usuario and usuario.tipo == 'admin' %}
           <li><a href="/cadastrar" class="{% if pagina == 'cadastrar' %}active{% endif %}">Cadastrar Pet</a></li>
           {% endif %}
@@ -59,7 +61,7 @@
         {% if usuario and usuario.id %}
         <div class="dropdown">
           <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            Olá, {{ usuario.nome }}
+            Olá, {{ usuario.nome.split(' ')[0] }}
             {% if usuario.tipo == 'admin' %} 🧑‍💻
             {% else %} 😊
             {% endif %}
@@ -76,9 +78,9 @@
 
             <!-- PARA USUÁRIO COMUM (ADOTANTE) -->
             {% else %}
-            <!-- <li><a class="dropdown-item" href="/minha-conta">
+            <li><a class="dropdown-item" href="/minha-conta">
                 <i class="bi bi-person"></i> Minha Conta
-              </a></li> -->
+              </a></li>
             <li><a class="dropdown-item" href="/meus-favoritos">
                 <i class="bi bi-heart"></i> Meus Favoritos
               </a></li>
@@ -113,7 +115,7 @@
   <footer>
     <div class="footer-content">
       <div class="footer-column">
-        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">aqui🐾</span></div>
+        <a href="/home" class="logo">Adote-<span style="filter: brightness(0) invert(1);">aqui🐾</span></a>
         <p>Conectando pets a lares amorosos desde 2025. Nossa missão é reduzir o número de animais abandonados através
           da adoção responsável.</p>
       </div>

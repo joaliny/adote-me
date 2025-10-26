@@ -4,193 +4,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cadastro - Adote-me</title>
+    <title>Cadastro - Adote-aqui</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --blue-dark: #0b2342;
-            --beige: #fff7ef;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: "Poppins", sans-serif;
-        }
-
-        body {
-            display: flex;
-            min-height: 100vh;
-            background-color: var(--blue-dark);
-        }
-
-        /* LADO ESQUERDO (logo) - reduzido para dar mais espaço ao form */
-        .left-side {
-            width: 40%;
-            /* <- menor para dar espaço ao form */
-            background-color: #00487B;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            box-sizing: border-box;
-        }
-
-        .left-side img {
-            width: 700px;
-            /* aumente aqui se quiser a logo maior */
-            max-width: 85%;
-            height: auto;
-            display: block;
-            filter: none;
-        }
-
-        /* LADO DIREITO (formulário) */
-        .right-side {
-            width: 60%;
-            /* <- maior para o formulário */
-            background: var(--beige);
-            display: flex;
-            align-items: flex-start;
-            /* alinhado ao topo para não cortar */
-            justify-content: center;
-            padding: 60px 80px;
-            /* espaço ao redor do form */
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        /* Caixa do formulário (faz o form "maior") */
-        .register-box {
-            width: 100%;
-            max-width: 760px;
-            /* <- aumente para deixar ainda maior */
-            background: #ffffff;
-            padding: 36px;
-            border-radius: 14px;
-            box-shadow: 0 8px 28px rgba(7, 13, 29, 0.08);
-            box-sizing: border-box;
-        }
-
-        h2 {
-            color: #00487B;
-            text-align: center;
-            margin-bottom: 22px;
-            font-weight: 700;
-        }
-
-        h4 {
-            color: #00487B;
-            font-weight: 600;
-            margin-top: 1rem;
-        }
-
-        /* estilo dos campos semelhante ao login */
-        .form-label {
-            color: var(--blue-dark);
-            font-weight: 500;
-        }
-
-        .input-group {
-            border: 1px solid rgba(11, 35, 66, 0.12);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .input-group .input-group-text {
-            background: transparent;
-            border: 0;
-            color: var(--blue-dark);
-        }
-
-        .form-control {
-            border: 1;
-            border-radius: 10px;
-            padding: 12px 14px;
-            box-shadow: none;
-        }
-
-        /* botões */
-        .btn-primary {
-            background-color: #00487B;
-            border: none;
-            border-radius: 28px;
-            padding: 12px 18px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background-color: #102f5d;
-        }
-
-        /* checkboxes e links */
-        .form-check-label,
-        .text-center p {
-            color: var(--blue-dark);
-        }
-
-        /* responsividade */
-        @media (max-width: 992px) {
-            .left-side {
-                width: 45%;
-            }
-
-            .right-side {
-                width: 55%;
-                padding: 40px 30px;
-            }
-
-            .left-side img {
-                width: 320px;
-            }
-
-            .register-box {
-                max-width: 640px;
-                padding: 28px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
-            .left-side,
-            .right-side {
-                width: 100%;
-            }
-
-            .left-side {
-                padding: 30px 15px;
-            }
-
-            .left-side img {
-                width: 60%;
-                max-width: 320px;
-            }
-
-            .right-side {
-                padding: 20px 18px;
-                align-items: center;
-            }
-
-            .register-box {
-                max-width: 520px;
-                margin: 10px;
-            }
-        }
-    </style>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cadastro_user.css') }}">
 </head>
 
 <body>
 
     <div class="left-side">
-        <!-- atualize o caminho do logo se necessário -->
         <img src="{{ url_for('static', filename='imagens/logo-adote-me.png') }}" alt="Logo Adote-me">
     </div>
 
@@ -198,78 +22,100 @@
         <div class="register-box">
             <h2>Criar Conta</h2>
 
-            <form method="POST" action="{{ url_for('cadastrar_usuario') }}">
-                <h4>Dados Pessoais</h4>
+            <form method="POST" action="{{ url_for('cadastrar_usuario') }}" id="form-cadastro">
+                
+                <h4>Tipo de Conta *</h4>
+                <div class="tipo-conta-container">
+                    <label class="tipo-conta-label" for="tipo-adotante">
+                        <input type="radio" id="tipo-adotante" name="tipo_conta" value="adotante" checked required>
+                        <span><i class="bi bi-person-fill"></i>Sou Adotante</span>
+                    </label>
+                    
+                    <label class="tipo-conta-label" for="tipo-protetor">
+                        <input type="radio" id="tipo-protetor" name="tipo_conta" value="protetor" required>
+                        <span><i class="bi bi-shield-fill-check"></i>Sou Protetor / ONG</span>
+                    </label>
+                </div>
 
+                <div id="campos-adotante">
+                    <h4>Dados Pessoais</h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="cpf">CPF *</label>
+                            <input id="cpf" name="cpf" class="form-control" type="text" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="campos-protetor" style="display:none;">
+                    <h4>Dados da Organização</h4>
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <label class="form-label" for="nome_organizacao">Nome da Organização/ONG *</label>
+                            <input id="nome_organizacao" name="nome_organizacao" class="form-control" type="text">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="cnpj">CNPJ *</label>
+                            <input id="cnpj" name="cnpj" class="form-control" type="text">
+                        </div>
+                    </div>
+                </div>
+
+                <h4 id="titulo-dados-comuns">Dados de Contato</h4>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label" for="nome">Nome Completo *</label>
+                        <label class="form-label" for="nome">Nome do Responsável *</label>
                         <input id="nome" name="nome" class="form-control" type="text" required>
                     </div>
-
                     <div class="col-md-6">
                         <label class="form-label" for="email">Email *</label>
                         <input id="email" name="email" class="form-control" type="email" required>
                     </div>
-
                     <div class="col-12">
-                        <label class="form-label" for="telefone">Telefone *</label>
+                        <label class="form-label" for="telefone">Telefone (WhatsApp) *</label>
                         <input id="telefone" name="telefone" class="form-control" type="tel" required>
                     </div>
-
                     <div class="col-md-6">
-                        <label class="form-label" for="senha">Senha *</label>
-                        <input id="senha" name="senha" class="form-control" type="password" required>
+                        <label class="form-label" for="senha">Senha * (mín. 6 caracteres)</label>
+                        <input id="senha" name="senha" class="form-control" type="password" required minlength="6">
                     </div>
-
                     <div class="col-md-6">
                         <label class="form-label" for="confirmar_senha">Confirmar Senha *</label>
-                        <input id="confirmar_senha" name="confirmar_senha" class="form-control" type="password"
-                            required>
+                        <input id="confirmar_senha" name="confirmar_senha" class="form-control" type="password" required>
                     </div>
                 </div>
 
                 <h4 class="mt-4">Endereço</h4>
-
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label" for="cep">CEP</label>
-                        <input id="cep" name="cep" class="form-control" type="text">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="cidade">Cidade</label>
-                        <input id="cidade" name="cidade" class="form-control" type="text">
+                    <div class="col-md-4">
+                        <label class="form-label" for="cep">CEP *</label>
+                        <input id="cep" name="cep" class="form-control" type="text" required>
+                        <div class="cep-loading">Buscando...</div>
+                        <div class="cep-error">CEP não encontrado.</div>
                     </div>
                     <div class="col-md-8">
-                        <label class="form-label" for="endereco">Endereço</label>
-                        <input id="endereco" name="endereco" class="form-control" type="text">
+                        <label class="form-label" for="logradouro">Endereço (Rua, Av.) *</label>
+                        <input id="logradouro" name="logradouro" class="form-control" type="text" readonly required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label" for="numero">Número</label>
-                        <input id="numero" name="numero" class="form-control" type="text">
+                        <label class="form-label" for="numero">Número *</label>
+                        <input id="numero" name="numero" class="form-control" type="text" required>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="bairro">Bairro *</label>
+                        <input id="bairro" name="bairro" class="form-control" type="text" readonly required>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label" for="cidade">Cidade *</label>
+                        <input id="cidade" name="cidade" class="form-control" type="text" readonly required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" for="estado">Estado *</label>
+                        <input id="estado" name="estado" class="form-control" type="text" readonly required>
                     </div>
                 </div>
 
-                <!-- <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" id="protetor" name="protetor">
-                    <label class="form-check-label" for="protetor">Sou protetor/representante de ONG</label>
-                </div>
-
-                <div id="campos-protetor" style="display:none; margin-top:12px;">
-                    <h5>Dados da Organização</h5>
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label class="form-label" for="nome_organizacao">Nome da Organização/ONG</label>
-                            <input id="nome_organizacao" name="nome_organizacao" class="form-control" type="text">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="cnpj">CNPJ (opcional)</label>
-                            <input id="cnpj" name="cnpj" class="form-control" type="text">
-                        </div>
-                    </div>
-                </div> -->
-
-                <div class="form-check mt-3">
+                <div class="form-check mt-4">
                     <input class="form-check-input" type="checkbox" id="termos" name="termos" required>
                     <label class="form-check-label" for="termos">
                         Concordo com os <a href="/termos" target="_blank">Termos de Uso</a> e <a href="/privacidade"
@@ -290,37 +136,167 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const checkbox = document.getElementById('protetor');
-            const campos = document.getElementById('campos-protetor');
-            if (checkbox) {
-                checkbox.addEventListener('change', () => {
-                    campos.style.display = checkbox.checked ? 'block' : 'none';
-                });
+            
+            // --- LÓGICA PARA TROCAR O FORMULÁRIO ---
+            const tipoAdotante = document.getElementById('tipo-adotante');
+            const tipoProtetor = document.getElementById('tipo-protetor');
+            const camposAdotante = document.getElementById('campos-adotante');
+            const camposProtetor = document.getElementById('campos-protetor');
+            const tituloDadosComuns = document.getElementById('titulo-dados-comuns');
+            
+            // Inputs condicionais
+            const cpfInput = document.getElementById('cpf');
+            const cnpjInput = document.getElementById('cnpj');
+            const orgInput = document.getElementById('nome_organizacao');
+            
+            function alternarFormulario() {
+                if (tipoProtetor.checked) {
+                    // Modo Protetor
+                    camposAdotante.style.display = 'none';
+                    camposProtetor.style.display = 'block';
+                    tituloDadosComuns.innerText = 'Dados do Responsável (ONG/Protetor)';
+                    
+                    // Ajusta 'required'
+                    cpfInput.required = false;
+                    cnpjInput.required = true;
+                    orgInput.required = true;
+                    
+                } else {
+                    // Modo Adotante (padrão)
+                    camposAdotante.style.display = 'block';
+                    camposProtetor.style.display = 'none';
+                    tituloDadosComuns.innerText = 'Dados Pessoais';
+                    
+                    // Ajusta 'required'
+                    cpfInput.required = true;
+                    cnpjInput.required = false;
+                    orgInput.required = false;
+                }
+            }
+            
+            // Adiciona listeners
+            tipoAdotante.addEventListener('change', alternarFormulario);
+            tipoProtetor.addEventListener('change', alternarFormulario);
+            // Chama a função 1x no início
+            alternarFormulario();
+
+            
+            // --- LÓGICA DAS MÁSCARAS ---
+            
+            // Função genérica de máscara
+            function aplicarMascara(event, mascara) {
+                let valor = event.target.value.replace(/\D/g, '');
+                let valorMascarado = '';
+                let k = 0;
+                for (let i = 0; i < mascara.length; i++) {
+                    if (mascara[i] === '#') {
+                        if (valor[k]) {
+                            valorMascarado += valor[k++];
+                        }
+                    } else {
+                        if (valor[k]) {
+                            valorMascarado += mascara[i];
+                        }
+                    }
+                }
+                event.target.value = valorMascarado;
             }
 
-            // máscaras simples (opcional)
-            const telInput = document.getElementById('telefone');
-            if (telInput) {
-                telInput.addEventListener('input', function (e) {
-                    let v = e.target.value.replace(/\D/g, '');
-                    if (v.length > 11) v = v.slice(0, 11);
-                    v = v.replace(/^(\d{2})(\d)/, "($1) $2");
-                    v = v.replace(/(\d{5})(\d)/, "$1-$2");
-                    e.target.value = v;
-                });
-            }
+            // Aplicando máscaras
+            document.getElementById('telefone').addEventListener('input', (e) => {
+                aplicarMascara(e, '(##) #####-####');
+            });
+            
+            document.getElementById('cep').addEventListener('input', (e) => {
+                aplicarMascara(e, '#####-###');
+            });
 
+            document.getElementById('cpf').addEventListener('input', (e) => {
+                aplicarMascara(e, '###.###.###-##');
+            });
+
+            document.getElementById('cnpj').addEventListener('input', (e) => {
+                aplicarMascara(e, '##.###.###/####-##');
+            });
+
+
+            // --- LÓGICA DO AUTOPREENCHIMENTO DE CEP ---
             const cepInput = document.getElementById('cep');
-            if (cepInput) {
-                cepInput.addEventListener('input', function (e) {
-                    let v = e.target.value.replace(/\D/g, '');
-                    if (v.length > 8) v = v.slice(0, 8);
-                    v = v.replace(/(\d{5})(\d)/, '$1-$2');
-                    e.target.value = v;
-                });
+            const loadingMsg = document.querySelector('.cep-loading');
+            const errorMsg = document.querySelector('.cep-error');
+            
+            const logradouroInput = document.getElementById('logradouro');
+            const bairroInput = document.getElementById('bairro');
+            const cidadeInput = document.getElementById('cidade');
+            const estadoInput = document.getElementById('estado');
+            const numeroInput = document.getElementById('numero');
+
+            function limparFormularioCEP(erro = false) {
+                logradouroInput.value = '';
+                bairroInput.value = '';
+                cidadeInput.value = '';
+                estadoInput.value = '';
+                
+                logradouroInput.readOnly = erro;
+                bairroInput.readOnly = erro;
+                cidadeInput.readOnly = erro;
+                estadoInput.readOnly = erro;
+
+                loadingMsg.style.display = 'none';
+                errorMsg.style.display = erro ? 'block' : 'none';
             }
+
+            cepInput.addEventListener('blur', async function() {
+                const cep = this.value.replace(/\D/g, ''); // Limpa CEP
+                
+                if (cep.length === 8) {
+                    limparFormularioCEP();
+                    loadingMsg.style.display = 'block';
+                    
+                    try {
+                        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                        const data = await response.json();
+                        
+                        loadingMsg.style.display = 'none';
+
+                        if (data.erro) {
+                            limparFormularioCEP(true); // CEP não encontrado, permite digitar
+                            errorMsg.innerText = 'CEP não encontrado. Por favor, digite o endereço.'
+                            errorMsg.style.display = 'block';
+                            logradouroInput.readOnly = false;
+                            bairroInput.readOnly = false;
+                            cidadeInput.readOnly = false;
+                            estadoInput.readOnly = false;
+                        } else {
+                            // Sucesso
+                            logradouroInput.value = data.logradouro;
+                            bairroInput.value = data.bairro;
+                            cidadeInput.value = data.localidade;
+                            estadoInput.value = data.uf;
+                            
+                            // Trava campos preenchidos
+                            logradouroInput.readOnly = !!data.logradouro;
+                            bairroInput.readOnly = !!data.bairro;
+                            cidadeInput.readOnly = true;
+                            estadoInput.readOnly = true;
+                            
+                            // Foca no número
+                            numeroInput.focus();
+                        }
+                    } catch (error) {
+                        limparFormularioCEP(true); // Erro na API, permite digitar
+                        errorMsg.innerText = 'Não foi possível buscar o CEP. Digite o endereço.'
+                        errorMsg.style.display = 'block';
+                        logradouroInput.readOnly = false;
+                        bairroInput.readOnly = false;
+                        cidadeInput.readOnly = false;
+                        estadoInput.readOnly = false;
+                    }
+                } else {
+                    limparFormularioCEP(false); // CEP inválido
+                }
+            });
         });
     </script>
 </body>
-
 </html>

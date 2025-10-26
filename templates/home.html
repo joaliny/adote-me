@@ -36,8 +36,14 @@
     <!-- Seção Grade de Botões - FORA DO CARROSSEL -->
     <section class="grade-botoes-section">
         <div class="grade-botoes">
-            <!-- <a href="/adotar" class="botao azul">PETS PARA ADOÇÃO</a> -->
+
+            {% if usuario and usuario.tipo != 'adotante' %}
             <a href="/divulgar-perdido" class="botao azul-escuro">🐾 DIVULGAR PET PERDIDO</a>
+            
+            {% else %}
+            <a href="/pets-perdidos" class="botao azul-escuro">VER PETS PERDIDOS</a>
+            {% endif %}
+
             <button class="botao laranja" onclick="abrirModalDicas()">GERAR DICAS DE CUIDADO COM IA</button>
             <a href="/encontrar" class="botao marrom">ENCONTRAR PET PERFEITO COM IA</a>
         </div>

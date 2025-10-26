@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Adoções - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="h3 mb-4">Gerenciar Solicitações de Adoção</h1>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Pet</th>
+                            <th>Solicitante</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for adocao in adocoes %}
+                        <tr id="adocao-{{ adocao.id }}">
+                            <td>
+                                <img src="{{ adocao.pet_imagem }}" alt="{{ adocao.pet_nome }}"
+                                    class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">
+                                {{ adocao.pet_nome }}
+                            </td>
+                            <td>
+                                {{ adocao.solicitante_nome }}
+                                <br>
+                                <small class="text-muted">{{ adocao.solicitante_telefone }}</small>
+                            </td>
+                            <td>{{ adocao.data_solicitacao }}</td>
+                            <td>
+                                <span class="badge" id="status-{{ adocao.id }}">
+                                    {{ adocao.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if adocao.status == 'pendente' %}
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-success" onclick="mudarStatus('{{ adocao.id }}', 'aprovada')">
+                                        <i class="bi bi-check-lg"></i> Aprovar
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="mudarStatus('{{ adocao.id }}', 'rejeitada')">
+                                        <i class="bi bi-x-lg"></i> Rejeitar
+                                    </button>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">Processada</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Atualiza a cor do status da badge
+    function atualizarBadges() {
+        document.querySelectorAll('.badge').forEach(badge => {
+            const status = badge.textContent.trim();
+            if (status === 'pendente') {
+                badge.classList.add('bg-warning');
+            } else if (status === 'aprovada') {
+                badge.classList.add('bg-success');
+            } else if (status === 'rejeitada') {
+                badge.classList.add('bg-danger');
+            } else {
+                badge.classList.add('bg-secondary');
+            }
+        });
+    }
+
+    async function mudarStatus(adocaoId, novoStatus) {
+        if (!confirm(`Tem certeza que deseja "${novoStatus}" esta adoção?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/adocao/${adocaoId}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: novoStatus })
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                // Atualiza a UI
+                const badge = document.getElementById(`status-${adocaoId}`);
+                badge.textContent = novoStatus;
+                
+                const row = document.getElementById(`adocao-${adocaoId}`);
+                row.querySelector('.btn-group').innerHTML = '<span class="text-muted">Processada</span>';
+                
+                atualizarBadges(); // Atualiza a cor
+            } else {
+                alert('Erro: ' + data.message);
+            }
+        } catch (error) {
+            alert('Erro de conexão.');
+        }
+    }
+    
+    // Roda ao carregar a página
+    document.addEventListener('DOMContentLoaded', atualizarBadges);
+</script>
+{% endblock %}

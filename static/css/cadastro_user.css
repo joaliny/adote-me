@@ -1,0 +1,254 @@
+:root {
+    --blue-dark: #0b2342;
+    --blue-medium: #00487B;
+    --beige: #fff7ef;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--blue-dark);
+}
+
+/* LADO ESQUERDO (logo) */
+.left-side {
+    width: 40%;
+    background-color: var(--blue-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    box-sizing: border-box;
+    transition: width 0.3s ease;
+}
+
+.left-side img {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    display: block;
+    filter: none;
+}
+
+/* LADO DIREITO (formulário) */
+.right-side {
+    width: 60%;
+    background: var(--beige);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+}
+
+.register-box {
+    width: 100%;
+    max-width: 760px;
+    background: #ffffff;
+    padding: 36px;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(7, 13, 29, 0.08);
+    box-sizing: border-box;
+}
+
+h2 {
+    color: var(--blue-medium);
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 700;
+}
+
+h4 {
+    color: var(--blue-medium);
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+/* Estilo dos campos */
+.form-label {
+    color: var(--blue-dark);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.form-control {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 11px 14px;
+    box-shadow: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--blue-medium);
+    box-shadow: 0 0 0 3px rgba(0, 72, 123, 0.15);
+}
+
+.form-control:read-only {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Estilo dos Radio Buttons (Tipo de Conta) */
+.tipo-conta-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 1.5rem;
+}
+
+.tipo-conta-label {
+    flex: 1;
+    display: block;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.tipo-conta-label:hover {
+    border-color: #aaa;
+}
+
+.tipo-conta-label input[type="radio"] {
+    display: none;
+}
+
+.tipo-conta-label input[type="radio"]:checked + span {
+    color: var(--blue-medium);
+    font-weight: 700;
+}
+
+.tipo-conta-label input[type="radio"]:checked + span i {
+    opacity: 1;
+}
+
+.tipo-conta-label input[type="radio"]:checked + .tipo-conta-label {
+    border-color: var(--blue-medium);
+    background-color: rgba(0, 72, 123, 0.05);
+    box-shadow: 0 4px 10px rgba(0, 72, 123, 0.1);
+}
+
+.tipo-conta-label span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
+    font-size: 0.95rem;
+}
+
+.tipo-conta-label span i {
+    font-size: 1.8rem;
+    opacity: 0.7;
+}
+
+/* Botões */
+.btn-primary {
+    background-color: var(--blue-medium);
+    border: none;
+    border-radius: 28px;
+    padding: 12px 18px;
+    font-weight: 700;
+    color: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #102f5d;
+}
+
+/* Checkboxes e links */
+.form-check-label,
+.text-center p {
+    color: var(--blue-dark);
+}
+
+.form-check-label a,
+.text-center p a {
+    color: var(--blue-medium);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-check-label a:hover,
+.text-center p a:hover {
+    text-decoration: underline;
+}
+
+/* Loading (para CEP) */
+.cep-loading {
+    display: none;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.cep-error {
+    display: none;
+    font-size: 0.8rem;
+    color: #dc3545;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .left-side {
+        width: 40%;
+    }
+
+    .right-side {
+        width: 60%;
+        padding: 40px 30px;
+    }
+
+    .left-side img {
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    .left-side,
+    .right-side {
+        width: 100%;
+    }
+
+    .left-side {
+        padding: 30px 15px;
+        height: 150px;
+        flex: none;
+    }
+
+    .left-side img {
+        width: 40%;
+        max-width: 280px;
+    }
+
+    .right-side {
+        padding: 20px 18px;
+        align-items: flex-start;
+        flex: 1;
+    }
+    
+    .register-box {
+        padding: 24px;
+    }
+
+    .tipo-conta-container {
+        gap: 10px;
+    }
+}
