@@ -1,669 +1,362 @@
-<!-- <!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Adote-me</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            background-color: #0b2342;
-            /* azul da logo */
-            font-family: 'Poppins', sans-serif;
-        }
-
-       .left-side {
-            background-color: #00487B;
-            width: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .left-side img {
-            width: 700px;
-            /* aumentei o tamanho */
-            height: auto;
-        }
-
-
-        .right-side {
-            background-color: #fff7ef;
-            /* bege claro */
-            width: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-box {
-            width: 80%;
-            max-width: 380px;
-        }
-
-        .login-box h2 {
-            text-align: center;
-            font-weight: 700;
-            color: #00487B;
-            margin-bottom: 30px;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: #0b2342;
-        }
-
-        .input-group-text {
-            background-color: transparent;
-            border-right: none;
-            color: #0b2342;
-        }
-
-        .form-control {
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-            box-shadow: none;
-        }
-
-        .input-group {
-            border: 1px solid #0b2342;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background-color: #00487B;
-            border: none;
-            border-radius: 25px;
-            padding: 10px;
-            font-weight: 600;
-        }
-
-        .btn-primary:hover {
-            background-color: #102f5d;
-        }
-
-        .btn-secondary {
-            background-color: #00487B;
-            border: none;
-            border-radius: 25px;
-            padding: 10px;
-            font-weight: 600;
-        }
-
-        .btn-secondary:hover {
-            background-color: #102f5d;
-        }
-
-        .extra-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .extra-options label,
-        .extra-options a {
-            color: #0b2342;
-        }
-
-        .extra-options a {
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .extra-options a:hover {
-            text-decoration: underline;
-        }
-
-        .d-grid button,
-        .d-grid a {
-            font-size: 1rem;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="left-side">
-        <img src="{{ url_for('static', filename='imagens/logo-adote-me.png') }}" alt="Logo Adote-me">
-    </div>
-
-    <div class="right-side">
-        <div class="login-box">
-            <h2>Entrar</h2>
-            <form method="POST" action="{{ url_for('login_usuario') }}">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Login</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="email" class="form-control" id="email" name="email"
-                            placeholder="Endereço de e-mail" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="senha" class="form-label">Senha</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha"
-                            required>
-                    </div>
-                </div>
-
-                <div class="extra-options">
-                    <div>
-                        <input type="checkbox" id="lembrar">
-                        <label for="lembrar">Lembrar de mim</label>
-                    </div>
-                    <a href="#">Esqueci minha senha</a>
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">ENTRAR</button>
-                    <a href="/cadastro" class="btn btn-secondary text-center">CRIAR CONTA</a>
-                </div>
-            </form>
-        </div>
-    </div>
-</body>
-
-</html> -->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Adote-me</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            background-color: #0b2342;
-            /* azul da logo */
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .left-side {
-            background-color: #00487B;
-            width: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .left-side img {
-            width: 700px;
-            /* aumentei o tamanho */
-            height: auto;
-        }
-
-
-        .right-side {
-            background-color: #fff7ef;
-            /* bege claro */
-            width: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-box {
-            width: 80%;
-            max-width: 380px;
-        }
-
-        .login-box h2 {
-            text-align: center;
-            font-weight: 700;
-            color: #00487B;
-            margin-bottom: 30px;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: #0b2342;
-        }
-
-        .input-group-text {
-            background-color: transparent;
-            border-right: none;
-            color: #0b2342;
-        }
-
-        .form-control {
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-            box-shadow: none;
-        }
-
-        .input-group {
-            border: 1px solid #0b2342;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background-color: #00487B;
-            border: none;
-            border-radius: 25px;
-            padding: 10px;
-            font-weight: 600;
-        }
-
-        .btn-primary:hover {
-            background-color: #102f5d;
-        }
-
-        .btn-secondary {
-            background-color: #00487B;
-            border: none;
-            border-radius: 25px;
-            padding: 10px;
-            font-weight: 600;
-        }
-
-        .btn-secondary:hover {
-            background-color: #102f5d;
-        }
-
-        .extra-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .extra-options label,
-        .extra-options a {
-            color: #0b2342;
-        }
-
-        .extra-options a {
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .extra-options a:hover {
-            text-decoration: underline;
-        }
-
-        .d-grid button,
-        .d-grid a {
-            font-size: 1rem;
-        }
-
-        /* Modal de Esqueci Senha */
-        .modal-content {
-            border-radius: 15px;
-            border: none;
-        }
-
-        .modal-header {
-            background-color: #00487B;
-            color: white;
-            border-radius: 15px 15px 0 0;
-        }
-
-        .modal-title {
-            font-weight: 600;
-        }
-
-        .btn-recuperar {
-            background-color: #00487B;
-            border: none;
-            border-radius: 25px;
-            padding: 10px;
-            font-weight: 600;
-            color: white;
-            width: 100%;
-        }
-
-        .btn-recuperar:hover {
-            background-color: #102f5d;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
-            border-radius: 10px;
-        }
-
-
-
-
-    
-    /* Estilos específicos para o modal de recuperação */
-    .modal-content {
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Adote-me</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: #0b2342;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
     }
 
-    .modal-body {
-        padding: 2rem;
+    .container-flex {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
     }
 
-    /* .btn-primary {
-        background: linear-gradient(135deg, #00487B 0%, #0b2342 100%);
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    } */
-
-    .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 5px 15px rgba(0, 72, 123, 0.3);
+    .left-side {
+      background-color: #00487B;
+      width: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .btn-outline-secondary {
-        border: 2px solid #6c757d;
-        border-radius: 25px;
-        font-weight: 300;
-        transition: all 0.3s ease;
+    .left-side img {
+      max-width: 100%;
+      height: auto;
+      max-height: 90vh;
     }
 
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        color: white;
+    .right-side {
+      background-color: #fff7ef;
+      width: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-box {
+      width: 80%;
+      max-width: 380px;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      font-weight: 700;
+      color: #00487B;
+      margin-bottom: 30px;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #0b2342;
     }
 
     .input-group-text {
-        background-color: #f8f9fa;
-        border: 1px solid #ced4da;
-        border-right: none;
+      background-color: transparent;
+      border-right: none;
+      color: #0b2342;
     }
 
     .form-control {
-        border: 1px solid #ced4da;
-        border-left: none;
-        border-radius: 0 6px 6px 0;
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+      box-shadow: none;
     }
 
-    .form-control:focus {
-        box-shadow: none;
-        border-color: #00487B;
+    .input-group {
+      border: 1px solid #0b2342;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
-    .input-group:focus-within .input-group-text {
-        border-color: #00487B;
+    .btn-primary {
+      background-color: #00487B;
+      border: none;
+      border-radius: 25px;
+      padding: 10px;
+      font-weight: 600;
     }
 
-    .border-top {
-        border-color: #e9ecef !important;
+    .btn-primary:hover {
+      background-color: #102f5d;
     }
 
-    /* Animações suaves */
-    .modal.fade .modal-dialog {
-        transform: translateY(-50px);
-        transition: transform 0.3s ease-out;
+    .btn-secondary {
+      background-color: #00487B;
+      border: none;
+      border-radius: 25px;
+      padding: 10px;
+      font-weight: 600;
     }
 
-    .modal.show .modal-dialog {
-        transform: translateY(0);
+    .btn-secondary:hover {
+      background-color: #102f5d;
     }
 
-
-
-
-
-   
-.spinner-pulse {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid #ffffff;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin-pulse 1s ease-in-out infinite;
-}
-
-@keyframes spin-pulse {
-    0% {
-        transform: rotate(0deg);
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    .extra-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
     }
-    50% {
-        transform: rotate(180deg);
-        box-shadow: 0 0 0 5px rgba(255, 255, 255, 0);
-    }
-    100% {
-        transform: rotate(360deg);
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-    }
-}
 
+    .extra-options label,
+    .extra-options a {
+      color: #0b2342;
+    }
+
+    .extra-options a {
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .extra-options a:hover {
+      text-decoration: underline;
+    }
+
+    .d-grid button,
+    .d-grid a {
+      font-size: 1rem;
+    }
+
+    /* Responsividade */
+    @media (max-width: 991.98px) {
+      .left-side,
+      .right-side {
+        width: 100%;
+      }
+      .container-flex {
+        flex-direction: column;
+      }
+      .left-side {
+        padding: 2rem 0;
+      }
+      .right-side {
+        padding: 2rem 1rem;
+      }
+      .left-side img {
+        max-width: 70%;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .left-side img {
+        max-width: 90%;
+      }
+      .login-box {
+        width: 90%;
+      }
+    }
   </style>
-
-    
 </head>
 
 <body>
+  <div class="container-flex">
     <div class="left-side">
-        <img src="{{ url_for('static', filename='imagens/logo-adote-me.png') }}" alt="Logo Adote-me">
+      <img src="{{ url_for('static', filename='imagens/logo-adote-me.png') }}" alt="Logo Adote-me" />
     </div>
 
     <div class="right-side">
-        <div class="login-box">
-            <h2>Entrar</h2>
-            <form method="POST" action="{{ url_for('login_usuario') }}">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Login</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="email" class="form-control" id="email" name="email"
-                            placeholder="Endereço de e-mail" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="senha" class="form-label">Senha</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha"
-                            required>
-                    </div>
-                </div>
-
-                <div class="extra-options">
-                    <div>
-                        <input type="checkbox" id="lembrar">
-                        <label for="lembrar">Lembrar de mim</label>
-                    </div>
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalEsqueciSenha">Esqueci minha senha</a>
-                </div>
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">ENTRAR</button>
-                    <a href="/cadastro" class="btn btn-secondary text-center">CRIAR CONTA</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Esqueci Senha -->
-  <div class="modal fade" id="modalEsqueciSenha" tabindex="-1" aria-labelledby="modalEsqueciSenhaLabel"
-     aria-hidden="true">
-     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body p-4">
-                <!-- Título -->
-                <div class="text-center mb-4">
-                    <h4 class="modal-title fw-bold text-dark">Recuperar Senha</h4>
-                    <p class="text-muted mt-2">Digite seu e-mail para receber um link de recuperação.</p>
-                </div>
-
-                <!-- Mensagem de Sucesso (inicialmente escondida) -->
-                <div id="mensagemSucesso" class="alert alert-success alert-dismissible fade show d-none mb-3">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <span id="textoSucesso">Enviamos um e-mail com instruções para redefinir sua senha.</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-
-                <!-- Mensagem de Erro (inicialmente escondida) -->
-                <div id="mensagemErro" class="alert alert-danger alert-dismissible fade show d-none mb-3">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    <span id="textoErro">Erro ao processar solicitação.</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-
-                <!-- Formulário -->
-                <form id="formEsqueciSenha" method="POST">
-                    <div class="mb-4">
-                        <label for="emailRecuperacao" class="form-label fw-semibold text-dark">Seu e-mail:</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0">
-                                <i class="bi bi-envelope text-muted"></i>
-                            </span>
-                            <input type="email" class="form-control border-start-0" id="emailRecuperacao" name="email"
-                                placeholder="seu@email.com" required>
-                        </div>
-                    </div>
-
-                    <!-- Divisor -->
-                    <div class="border-top my-4"></div>
-
-                    <!-- Botões -->
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg fw-semibold py-2">
-                            <i class="bi bi-send me-2"></i>Enviar Link de Recuperação
-                        </button>
-
-                        <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">
-                            <i class="bi bi-arrow-left me-2"></i>Voltar para o Login
-                        </button>
-                    </div>
-                </form>
+      <div class="login-box">
+        <h2>Entrar</h2>
+        <form method="POST" action="{{ url_for('login_usuario') }}">
+          <div class="mb-3">
+            <label for="email" class="form-label">Login</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Endereço de e-mail"
+                required />
             </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="senha" class="form-label">Senha</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+              <input type="password" class="form-control" id="senha" name="senha" placeholder="Senha" required />
+            </div>
+          </div>
+
+          <div class="extra-options">
+            <div>
+              <input type="checkbox" id="lembrar" />
+              <label for="lembrar">Lembrar de mim</label>
+            </div>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEsqueciSenha">Esqueci minha senha</a>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">ENTRAR</button>
+            <a href="/cadastro" class="btn btn-secondary text-center">CRIAR CONTA</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Esqueci Senha -->
+  <div class="modal fade" id="modalEsqueciSenha" tabindex="-1" aria-labelledby="modalEsqueciSenhaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body p-4">
+          <div class="text-center mb-4">
+            <h4 class="modal-title fw-bold text-dark">Recuperar Senha</h4>
+            <p class="text-muted mt-2">Digite seu e-mail para receber um link de recuperação.</p>
+          </div>
+
+
+          <div id="mensagemSucesso" class="alert alert-success alert-dismissible fade show d-none mb-3">
+            <i class="bi bi-check-circle me-2"></i>
+            <span id="textoSucesso">Enviamos um e-mail com instruções para redefinir sua senha.</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+
+
+          <div id="mensagemErro" class="alert alert-danger alert-dismissible fade show d-none mb-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span id="textoErro">Erro ao processar solicitação.</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+
+          <form id="formEsqueciSenha" method="POST">
+            <div class="mb-4">
+              <label for="emailRecuperacao" class="form-label fw-semibold text-dark">Seu e-mail:</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-envelope text-muted"></i>
+                </span>
+                <input type="email" class="form-control border-start-0" id="emailRecuperacao" name="email"
+                  placeholder="seu@email.com" required />
+              </div>
+            </div>
+
+            <div class="border-top my-4"></div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg fw-semibold py-2">
+                <i class="bi bi-send me-2"></i>Enviar Link de Recuperação
+              </button>
+
+              <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">
+                <i class="bi bi-arrow-left me-2"></i>Voltar para o Login
+              </button>
+            </div>
+          </form>
         </div>
-     </div>
- </div>
+      </div>
+    </div>
+  </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
+  <script>
     document.getElementById('formEsqueciSenha').addEventListener('submit', function (e) {
-            e.preventDefault();
+      e.preventDefault();
 
-            const email = document.getElementById('emailRecuperacao').value.trim();
-            const mensagemSucesso = document.getElementById('mensagemSucesso');
-            const mensagemErro = document.getElementById('mensagemErro');
-            const textoErro = document.getElementById('textoErro');
-            const textoSucesso = document.getElementById('textoSucesso');
-            const form = document.getElementById('formEsqueciSenha');
+      const email = document.getElementById('emailRecuperacao').value.trim();
+      const mensagemSucesso = document.getElementById('mensagemSucesso');
+      const mensagemErro = document.getElementById('mensagemErro');
+      const textoErro = document.getElementById('textoErro');
+      const textoSucesso = document.getElementById('textoSucesso');
+      const form = document.getElementById('formEsqueciSenha');
 
-            // Validação básica do email
-            if (!email || !email.includes('@') || !email.includes('.')) {
-                mostrarErro('Por favor, digite um e-mail válido.');
-                return;
-            }
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        mostrarErro('Por favor, digite um e-mail válido.');
+        return;
+      }
 
-            // Mostrar loading no botão
-            const btnEnviar = this.querySelector('button[type="submit"]');
-            const textoOriginal = btnEnviar.innerHTML;
-            btnEnviar.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Enviando...';
-            btnEnviar.disabled = true;
+      const btnEnviar = this.querySelector('button[type="submit"]');
+      const textoOriginal = btnEnviar.innerHTML;
+      btnEnviar.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Enviando...';
+      btnEnviar.disabled = true;
 
-            // Esconder mensagens anteriores
-            mensagemSucesso.classList.add('d-none');
-            mensagemErro.classList.add('d-none');
+      mensagemSucesso.classList.add('d-none');
+      mensagemErro.classList.add('d-none');
 
-            // Enviar requisição para o backend
-            fetch('{{ url_for("esqueci_senha") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest'  // ⭐⭐ IMPORTANTE: Identifica como AJAX ⭐⭐
-                },
-                body: new URLSearchParams({
-                    'email': email
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        textoSucesso.textContent = data.message;
-                        mostrarSucesso();
-                    } else {
-                        mostrarErro(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    mostrarErro('Erro de conexão. Tente novamente.');
-                })
-                .finally(() => {
-                    // Restaurar botão
-                    btnEnviar.innerHTML = textoOriginal;
-                    btnEnviar.disabled = false;
-                });
+      fetch('{{ url_for("esqueci_senha") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({
+          'email': email
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            textoSucesso.textContent = data.message;
+            mostrarSucesso();
+          } else {
+            mostrarErro(data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          mostrarErro('Erro de conexão. Tente novamente.');
+        })
+        .finally(() => {
+          btnEnviar.innerHTML = textoOriginal;
+          btnEnviar.disabled = false;
         });
+    });
 
-        function mostrarSucesso() {
-            const mensagemSucesso = document.getElementById('mensagemSucesso');
-            const mensagemErro = document.getElementById('mensagemErro');
-            const form = document.getElementById('formEsqueciSenha');
+    function mostrarSucesso() {
+      const mensagemSucesso = document.getElementById('mensagemSucesso');
+      const mensagemErro = document.getElementById('mensagemErro');
+      const form = document.getElementById('formEsqueciSenha');
 
-            mensagemErro.classList.add('d-none');
-            mensagemSucesso.classList.remove('d-none');
-            form.classList.add('d-none');
+      mensagemErro.classList.add('d-none');
+      mensagemSucesso.classList.remove('d-none');
+      form.classList.add('d-none');
 
-            // Fechar modal após 3 segundos
-            setTimeout(() => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEsqueciSenha'));
-                modal.hide();
+      setTimeout(() => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEsqueciSenha'));
+        modal.hide();
 
-                // Resetar formulário quando modal fechar
-                setTimeout(() => {
-                    form.classList.remove('d-none');
-                    document.getElementById('emailRecuperacao').value = '';
-                }, 500);
-            }, 6000);
-        }
+        setTimeout(() => {
+          form.classList.remove('d-none');
+          document.getElementById('emailRecuperacao').value = '';
+        }, 500);
+      }, 6000);
+    }
 
-        function mostrarErro(mensagem) {
-            const mensagemErro = document.getElementById('mensagemErro');
-            const textoErro = document.getElementById('textoErro');
+    function mostrarErro(mensagem) {
+      const mensagemErro = document.getElementById('mensagemErro');
+      const textoErro = document.getElementById('textoErro');
+      textoErro.textContent = mensagem;
+      mensagemErro.classList.remove('d-none');
+      mensagemErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
-            textoErro.textContent = mensagem;
-            mensagemErro.classList.remove('d-none');
+    document.getElementById('modalEsqueciSenha').addEventListener('hidden.bs.modal', function () {
+      const mensagemSucesso = document.getElementById('mensagemSucesso');
+      const mensagemErro = document.getElementById('mensagemErro');
+      const form = document.getElementById('formEsqueciSenha');
+      mensagemSucesso.classList.add('d-none');
+      mensagemErro.classList.add('d-none');
+      form.classList.remove('d-none');
+      document.getElementById('emailRecuperacao').value = '';
+    });
 
-            // Rolagem suave para a mensagem de erro
-            mensagemErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        // Resetar modal quando fechar
-        document.getElementById('modalEsqueciSenha').addEventListener('hidden.bs.modal', function () {
-            const mensagemSucesso = document.getElementById('mensagemSucesso');
-            const mensagemErro = document.getElementById('mensagemErro');
-            const form = document.getElementById('formEsqueciSenha');
-
-            mensagemSucesso.classList.add('d-none');
-            mensagemErro.classList.add('d-none');
-            form.classList.remove('d-none');
-            document.getElementById('emailRecuperacao').value = '';
-        });
-
-        // Focar no campo de email quando o modal abrir
-        document.getElementById('modalEsqueciSenha').addEventListener('shown.bs.modal', function () {
-            document.getElementById('emailRecuperacao').focus();
-        });
-</script>
+    document.getElementById('modalEsqueciSenha').addEventListener('shown.bs.modal', function () {
+      document.getElementById('emailRecuperacao').focus();
+    });
+  </script>
 </body>
 
 </html>

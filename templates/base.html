@@ -3,19 +3,17 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{% block title %}Adote-me 🐾{% endblock %}</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-  <!-- Estilo específico da home (opcional) -->
   {% if pagina == 'home' %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
   {% endif %}
@@ -36,16 +34,13 @@
   <!-- Header e Navegação -->
   <header>
     <div class="container-header">
-      <div class="logo">Adote-<span>aqui 🐾</span></div>
+      <div class="logo">Adote-<span>me 🐾</span></div>
       <nav>
         <ul>
-          <li><a href="/home" class="{% if pagina == 'home' %}active{% endif %}">Início</a></li>
-          <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre</a></li>
+          <li><a href="/home" class="{% if pagina == 'home' %}active{% endif %}">Página Inicial</a></li>
+          <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre nós</a></li>
           <li><a href="/blog" class="{% if pagina == 'blog' %}active{% endif %}">Blog</a></li>
-          <li><a href="/adotar" class="{% if pagina == 'adotar' %}active{% endif %}">Adoção</a></li>
-          <li><a href="/divulgar-perdido" class="{% if pagina == 'divulgar_perdido' %}active{% endif %}">Divulgar Pet Perdido</a></li>
-          <li><a href="/pets-perdidos" class="{% if pagina == 'pets_perdidos' %}active{% endif %}">Ver Pet Perdido</a></li>
-
+          <li><a href="/adotar" class="{% if pagina == 'adotar' %}active{% endif %}">Pets para adoção</a></li>
 
           <!-- Mostrar "Cadastrar Pet" apenas para admin -->
           {% if usuario and usuario.tipo == 'admin' %}
@@ -70,7 +65,7 @@
             <li><a class="dropdown-item" href="/admin">
                 <i class="bi bi-speedometer2"></i> Dashboard Admin
               </a></li>
-            <li><a class="dropdown-item" href="/admin/usuarios">
+            <li><a class="dropdown-item" href="/admin/protetores">
                 <i class="bi bi-people"></i> Gerenciar Usuários
               </a></li>
 
@@ -105,7 +100,7 @@
   </header>
 
   <!-- Conteúdo da página -->
-  <main>
+  <main class="container my-4">
     {% block content %}{% endblock %}
   </main>
 
@@ -113,7 +108,7 @@
   <footer>
     <div class="footer-content">
       <div class="footer-column">
-        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">aqui🐾</span></div>
+        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">me🐾</span></div>
         <p>Conectando pets a lares amorosos desde 2025. Nossa missão é reduzir o número de animais abandonados através
           da adoção responsável.</p>
       </div>
@@ -143,11 +138,8 @@
     </div>
   </footer>
 
-
-
-
   <script>
-    // Função global para favoritar pets
+    // Funções JS mantidas conforme seu código original
     function toggleFavorito(petId, button) {
       if (!button) return;
 
@@ -160,7 +152,6 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            // Atualiza o ícone e estilo do botão
             const icon = button.querySelector('i');
             if (data.is_favorito) {
               icon.className = 'bi bi-heart-fill';
@@ -169,8 +160,6 @@
               icon.className = 'bi bi-heart';
               button.classList.remove('btn-favorito-ativo');
             }
-
-            // Mostra mensagem de feedback
             showGlobalAlert(data.message, 'success');
           } else {
             showGlobalAlert(data.message, 'error');
@@ -182,32 +171,22 @@
         });
     }
 
-    // Função para mostrar alertas globais
     function showGlobalAlert(message, type) {
       const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
       const alertDiv = document.createElement('div');
       alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
       alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
       alertDiv.innerHTML = `
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       `;
-
       document.body.appendChild(alertDiv);
-
-      setTimeout(() => {
-        if (alertDiv.parentNode) {
-          alertDiv.remove();
-        }
-      }, 3000);
+      setTimeout(() => { if (alertDiv.parentNode) alertDiv.remove(); }, 3000);
     }
 
-    // Verifica e atualiza o estado dos botões de favorito na página
     document.addEventListener('DOMContentLoaded', function () {
-      // Verifica o estado dos favoritos para cada pet na página
       document.querySelectorAll('[data-pet-id]').forEach(button => {
         const petId = button.getAttribute('data-pet-id');
-
         fetch(`/api/verificar-favorito/${petId}`)
           .then(response => response.json())
           .then(data => {
@@ -220,14 +199,12 @@
               button.classList.remove('btn-favorito-ativo');
             }
           })
-          .catch(error => {
-            console.error('Erro ao verificar favorito:', error);
-          });
+          .catch(error => console.error('Erro ao verificar favorito:', error));
       });
     });
   </script>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
