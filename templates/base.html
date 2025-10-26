@@ -36,13 +36,16 @@
   <!-- Header e Navegação -->
   <header>
     <div class="container-header">
-      <div class="logo">Adote-<span>me 🐾</span></div>
+      <div class="logo">Adote-<span>aqui 🐾</span></div>
       <nav>
         <ul>
-          <li><a href="/home" class="{% if pagina == 'home' %}active{% endif %}">Página Inicial</a></li>
-          <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre nós</a></li>
+          <li><a href="/home" class="{% if pagina == 'home' %}active{% endif %}">Início</a></li>
+          <li><a href="/sobre" class="{% if pagina == 'sobre' %}active{% endif %}">Sobre</a></li>
           <li><a href="/blog" class="{% if pagina == 'blog' %}active{% endif %}">Blog</a></li>
           <li><a href="/adotar" class="{% if pagina == 'adotar' %}active{% endif %}">Pets para adoção</a></li>
+          <li><a href="/divulgar-perdido" class="{% if pagina == 'divulgar_perdido' %}active{% endif %}">Pet Perdido</a></li>
+          <li><a href="/pets-perdidos" class="{% if pagina == 'pets_perdidos' %}active{% endif %}">Ver Pet Perdido</a></li>
+
 
           <!-- Mostrar "Cadastrar Pet" apenas para admin -->
           {% if usuario and usuario.tipo == 'admin' %}
@@ -110,7 +113,7 @@
   <footer>
     <div class="footer-content">
       <div class="footer-column">
-        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">me🐾</span></div>
+        <div class="logo">Adote-<span style="filter: brightness(0) invert(1);">aqui🐾</span></div>
         <p>Conectando pets a lares amorosos desde 2025. Nossa missão é reduzir o número de animais abandonados através
           da adoção responsável.</p>
       </div>
