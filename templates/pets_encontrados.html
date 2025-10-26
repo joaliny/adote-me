@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Pets Encontrados - Adote-me{% endblock %}
+
+{% block content %}
+<style>
+    .pets-encontrados-section {
+        padding: 40px 0;
+        background: #fafbfc;
+        min-height: 100vh;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+        color: #16a34a;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .page-header .subtitle {
+        color: #64748b;
+        font-size: 1.1rem;
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.5;
+    }
+
+    .pets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .pet-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .pet-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .pet-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 200px;
+        flex-shrink: 0;
+    }
+
+    .pet-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pet-status {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #16a34a;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .pet-info {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .pet-name {
+        color: #1e293b;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .pet-details {
+        display: grid;
+        gap: 8px;
+    }
+
+    .pet-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .pet-detail-item strong {
+        color: #475569;
+        font-size: 0.85rem;
+    }
+
+    .pet-detail-item span {
+        color: #1e293b;
+        font-size: 0.9rem;
+        text-align: right;
+    }
+
+    .local-info {
+        background: #f0fdf4;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 3px solid #16a34a;
+    }
+
+    .local-info strong {
+        color: #166534;
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: #cbd5e1;
+    }
+
+    .empty-state h3 {
+        color: #475569;
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+        max-width: 400px;
+        margin: 0 auto 24px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+        .pets-encontrados-section {
+            padding: 24px 0;
+        }
+
+        .pets-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .pet-info {
+            padding: 16px;
+            gap: 12px;
+        }
+    }
+</style>
+
+<section class="pets-encontrados-section">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="bi bi-check-circle-fill me-2"></i> Pets Encontrados</h1>
+            <p class="subtitle">Celebre essas histórias de reencontro! Esses pets já voltaram para seus lares.</p>
+        </div>
+
+        {% if pets_encontrados %}
+        <div class="pets-grid">
+            {% for pet in pets_encontrados %}
+            <div class="pet-card">
+                <div class="pet-image-container">
+                    {% if pet.foto_path %}
+                    <img src="{{ url_for('static', filename='imagens/' + pet.foto_path) }}" alt="{{ pet.nome }}"
+                        class="pet-image">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='imagens/pet-default.jpg') }}" alt="Imagem padrão"
+                        class="pet-image">
+                    {% endif %}
+                    <span class="pet-status">ENCONTRADO 🎉</span>
+                </div>
+
+                <div class="pet-info">
+                    <h3 class="pet-name">{{ pet.nome }}</h3>
+
+                    <div class="pet-details">
+                        <div class="pet-detail-item">
+                            <strong>Espécie:</strong>
+                            <span>{{ pet.especie }}</span>
+                        </div>
+                        {% if pet.raca %}
+                        <div class="pet-detail-item">
+                            <strong>Raça:</strong>
+                            <span>{{ pet.raca }}</span>
+                        </div>
+                        {% endif %}
+                        {% if pet.idade %}
+                        <div class="pet-detail-item">
+                            <strong>Idade:</strong>
+                            <span>{{ pet.idade }}</span>
+                        </div>
+                        {% endif %}
+                        {% if pet.cor %}
+                        <div class="pet-detail-item">
+                            <strong>Cor:</strong>
+                            <span>{{ pet.cor }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="local-info">
+                        <strong>Encontrado em:</strong>
+                        <div>{{ pet.local_desaparecimento }}</div>
+                        <small>
+                            <i class="bi bi-calendar me-1"></i>
+                            Encontrado em: {{ pet.data_encontrado.strftime('%d/%m/%Y') if pet.data_encontrado else 'Data
+                            não informada' }}
+                        </small>
+                    </div>
+
+                    {% if pet.descricao %}
+                    <div class="pet-description">
+                        {{ pet.descricao }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-search-heart"></i>
+            <h3>Nenhum pet encontrado</h3>
+            <p>Ainda não há pets marcados como encontrados. Quando um pet for localizado, ele aparecerá aqui!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

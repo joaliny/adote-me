@@ -1806,7 +1806,7 @@ def divulgar_perdido():
         flash('Você precisa estar logado para divulgar um pet perdido.', 'warning')
         return redirect('/login')
     
-    usuario = obter_usuario_atual()  # ← ADICIONE ESTA LINHA
+    usuario = obter_usuario_atual()  
     return render_template('divulgar_perdido.html', pagina='divulgar_perdido', usuario=usuario)
 
 @app.route('/divulgar-perdido', methods=['POST'])
@@ -1929,11 +1929,16 @@ def marcar_como_encontrado(pet_id):
     try:
         cur = mysql.connection.cursor()
         
-        # Verificar se o usuário é o dono do anúncio
+        # Buscar tipo do usuário
+        cur.execute('SELECT tipo FROM usuarios WHERE id = %s', (session['usuario_id'],))
+        usuario_tipo = cur.fetchone()
+        
+        # Verificar se é dono ou admin
         cur.execute('SELECT usuario_id FROM pets_perdidos WHERE id = %s', (pet_id,))
         pet = cur.fetchone()
         
-        if pet and pet[0] == session['usuario_id']:
+        # ✅ PERMITE SE FOR DONO DO PET OU SE FOR ADMIN
+        if pet and (pet[0] == session['usuario_id'] or (usuario_tipo and usuario_tipo[0] == 'admin')):
             cur.execute('''
                 UPDATE pets_perdidos 
                 SET status = "encontrado", data_encontrado = %s
@@ -1941,7 +1946,7 @@ def marcar_como_encontrado(pet_id):
             ''', (datetime.now(), pet_id))
             
             mysql.connection.commit()
-            flash('Que bom que encontrou seu pet! 🎉', 'success')
+            flash('Pet marcado como encontrado! 🎉', 'success')
         else:
             flash('Você não tem permissão para esta ação.', 'error')
         
@@ -1954,7 +1959,42 @@ def marcar_como_encontrado(pet_id):
 
 
 
+@app.route('/pets-encontrados')
+def pets_encontrados():
+    try:
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        
+        # Buscar pets com status "encontrado" com mais informações
+        cur.execute('''
+            SELECT 
+                pp.*,
+                u.nome as usuario_nome
+            FROM pets_perdidos pp
+            LEFT JOIN usuarios u ON pp.usuario_id = u.id
+            WHERE pp.status = "encontrado" 
+            ORDER BY pp.data_encontrado DESC
+        ''')
+        
+        pets_encontrados = cur.fetchall()
+        cur.close()
 
+        # ✅ OBTER USUÁRIO LOGADO
+        usuario = obter_usuario_atual()
+        
+        print(f"DEBUG: Encontrados {len(pets_encontrados)} pets")
+        for pet in pets_encontrados:
+            print(f" - {pet['nome']} (ID: {pet['id']})")
+        
+        return render_template('pets_encontrados.html', 
+                             pets_encontrados=pets_encontrados,
+                             pagina='pets_encontrados', usuario=usuario)
+                             
+    except Exception as e:
+        print(f"❌ Erro detalhado: {traceback.format_exc()}")
+        flash(f'Erro ao carregar pets encontrados: {str(e)}', 'error')
+        return render_template('pets_encontrados.html', 
+                             pets_encontrados=[], 
+                             pagina='pets_encontrados', usuario=usuario)
 
         
      
