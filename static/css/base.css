@@ -116,10 +116,10 @@
         }
 
         .btn-rounded {
-  min-width: 100px; /* largura mínima */
-  padding: 10px 25px;
-  text-align: center;
-}
+            min-width: 100px; /* largura mínima */
+            padding: 10px 25px;
+            text-align: center;
+        }
 
 
 
@@ -166,7 +166,7 @@
   text-align: center;
   margin-top: 40px;
   padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(243, 243, 243, 0.1);
   color: #bdc3c7;
 }
 
@@ -196,10 +196,6 @@
  footer .logo span {
      color: white;
  }
-
-
-
-
 
 
 
@@ -264,15 +260,6 @@
 .dropdown-item:hover i {
     opacity: 1;
 }
-
-
-
-
-
-
-
-
-
 
 
 .btn-favorito-ativo {
