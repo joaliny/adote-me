@@ -5,85 +5,91 @@
 {% block content %}
 <style>
     .pets-perdidos-section {
-        padding: 60px 0;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 40px 0;
+        background: #fafbfc;
         min-height: 100vh;
     }
 
     .page-header {
         text-align: center;
-        margin-bottom: 50px;
+        margin-bottom: 40px;
     }
 
     .page-header h1 {
-        color: #2c3e50;
-        font-size: 2.5rem;
+        color: #1a365d;
+        font-size: 2.2rem;
         font-weight: 700;
-        margin-bottom: 15px;
-        background: linear-gradient(135deg, #2877a3, #2c3e50);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
     }
 
     .page-header .subtitle {
-        color: #6c757d;
-        font-size: 1.2rem;
-        max-width: 600px;
+        color: #64748b;
+        font-size: 1.1rem;
+        max-width: 500px;
         margin: 0 auto;
-        line-height: 1.6;
+        line-height: 1.5;
     }
 
-    .btn-primary-custom {
-        background: linear-gradient(135deg, #2877a3, #3498db);
+    /* .btn-primary-custom {
+        background: #2877a3;
         border: none;
-        padding: 12px 30px;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(40, 119, 163, 0.3);
-    }
+        padding: 10px 24px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 2rem;
+        transition: all 0.2s ease;
+    } */
+
+    .btn-divulgar {
+    background: #0E598A !important; /* Laranja */
+    border: none;
+    padding: 12px 25px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    color: white !important;
+}
+
+.btn-divulgar:hover {
+    background: #2290d9 !important; /* Laranja mais escuro no hover */
+    transform: translateY(-1px);
+}
 
     .btn-primary-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(40, 119, 163, 0.4);
-        background: linear-gradient(135deg, #1e5f82, #2877a3);
+        background: #1e5f82;
+        transform: translateY(-1px);
     }
 
-    /* CONTAINER DOS CARDS COM ALTURA FIXA */
+    /* Grid de cards */
     .pets-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
         margin-bottom: 40px;
     }
 
     .pet-card {
         background: white;
-        border-radius: 20px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
         overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
         display: flex;
         flex-direction: column;
         height: 100%;
-        /* ALTURA FLEXÍVEL MAS CONTROLADA */
-        min-height: 650px;
-        /* ALTURA MÍNIMA PADRÃO */
     }
 
     .pet-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     }
 
     .pet-image-container {
         position: relative;
         overflow: hidden;
-        height: 250px;
-        /* ALTURA FIXA PARA IMAGENS */
+        height: 200px;
         flex-shrink: 0;
     }
 
@@ -91,117 +97,107 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .pet-card:hover .pet-image {
-        transform: scale(1.05);
     }
 
     .pet-status {
         position: absolute;
-        top: 15px;
-        right: 15px;
-        background: linear-gradient(135deg, #dc3545, #e74c3c);
+        top: 12px;
+        right: 12px;
+        background: #dc2626;
         color: white;
-        padding: 8px 20px;
-        border-radius: 25px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-        z-index: 2;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
     }
 
     .pet-info {
-        padding: 25px;
+        padding: 20px;
         flex: 1;
         display: flex;
         flex-direction: column;
+        gap: 16px;
     }
 
     .pet-name {
-        color: #2c3e50;
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .pet-name::before {
-        content: "🐾";
-        font-size: 1.2rem;
+        color: #1e293b;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0;
     }
 
     .pet-details {
-        color: #5a6c7d;
-        margin-bottom: 20px;
-        line-height: 1.6;
-        flex: 0 0 auto;
+        display: grid;
+        gap: 8px;
     }
 
     .pet-detail-item {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 5px;
+        padding: 4px 0;
+        border-bottom: 1px solid #f1f5f9;
     }
 
     .pet-detail-item strong {
-        color: #2c3e50;
-        min-width: 80px;
+        color: #475569;
+        font-size: 0.85rem;
+    }
+
+    .pet-detail-item span {
+        color: #1e293b;
+        font-size: 0.9rem;
+        text-align: right;
     }
 
     .local-info {
-        background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
-        padding: 15px;
-        border-radius: 12px;
-        margin: 15px 0;
-        border-left: 4px solid #2877a3;
-        flex: 0 0 auto;
+        background: #f0f9ff;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 3px solid #0ea5e9;
     }
 
     .local-info strong {
-        color: #2877a3;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
+        color: #0369a1;
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .local-info div {
+        color: #1e293b;
         font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .local-info small {
+        color: #64748b;
+        font-size: 0.8rem;
     }
 
     .pet-description {
-        color: #5a6c7d;
-        line-height: 1.6;
-        margin-bottom: 15px;
+        color: #475569;
+        line-height: 1.5;
+        font-size: 0.9rem;
         padding: 12px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-left: 4px solid #e67e22;
-        flex: 0 0 auto;
-        max-height: 100px;
-        overflow-y: auto;
+        background: #f8fafc;
+        border-radius: 6px;
+        border-left: 3px solid #f59e0b;
     }
 
     .contact-info {
-        background: linear-gradient(135deg, #fff3cd, #fff8e1);
-        padding: 15px;
-        border-radius: 12px;
+        background: #fffbeb;
+        padding: 16px;
+        border-radius: 8px;
         margin-top: auto;
-        /* EMPURRA PARA BAIXO */
-        border: 1px solid #ffeaa7;
-        flex: 0 0 auto;
+        border: 1px solid #fef3c7;
     }
 
     .contact-info strong {
-        color: #e67e22;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
+        color: #d97706;
         font-size: 0.9rem;
+        display: block;
+        margin-bottom: 8px;
     }
 
     .contact-detail {
@@ -209,91 +205,208 @@
         align-items: center;
         gap: 8px;
         margin-bottom: 6px;
-        padding: 4px 0;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    .contact-detail a {
+        color: #1e293b;
+        text-decoration: none;
+    }
+
+    .contact-detail a:hover {
+        color: #2877a3;
     }
 
     .btn-whatsapp {
-        background: linear-gradient(135deg, #25D366, #128C7E);
+        background: #25D366;
         border: none;
         padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
         margin-top: 8px;
         font-size: 0.85rem;
         width: 100%;
+        color: white;
     }
 
     .btn-whatsapp:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        background: #128C7E;
+        transform: translateY(-1px);
     }
 
     .btn-encontrado {
-        background: linear-gradient(135deg, #28a745, #20c997);
+        background: #16a34a;
         border: none;
         padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
         font-size: 0.85rem;
         width: 100%;
-        margin-top: 10px;
+        color: white;
+        margin-top: 8px;
     }
 
     .btn-encontrado:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        background: #15803d;
+        transform: translateY(-1px);
     }
 
     .empty-state {
         text-align: center;
-        padding: 80px 20px;
-        color: #6c757d;
+        padding: 60px 20px;
+        color: #64748b;
     }
 
     .empty-state i {
-        font-size: 5rem;
-        margin-bottom: 25px;
-        color: #bdc3c7;
-        opacity: 0.7;
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: #cbd5e1;
     }
 
     .empty-state h3 {
-        color: #2c3e50;
-        font-size: 1.8rem;
-        margin-bottom: 15px;
+        color: #475569;
+        font-size: 1.5rem;
+        margin-bottom: 12px;
         font-weight: 600;
     }
 
     .empty-state p {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        max-width: 400px;
+        margin: 0 auto 24px;
+        line-height: 1.5;
+    }
+
+    /* Alertas clean */
+    .flash-messages-container {
         max-width: 500px;
-        margin: 0 auto 30px;
-        line-height: 1.6;
+        margin: 0 auto 20px auto;
     }
 
-    .alert-custom {
-        border-radius: 15px;
+    .alert-sm {
+        padding: 12px 16px !important;
+        margin-bottom: 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.9rem !important;
+        border: 1px solid !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px;
+    }
+
+    .alert-success {
+        background: #f0fdf4 !important;
+        border-color: #bbf7d0 !important;
+        color: #166534 !important;
+    }
+
+    .alert-danger {
+        background: #fef2f2 !important;
+        border-color: #fecaca !important;
+        color: #dc2626 !important;
+    }
+
+    .alert-sm .fw-medium {
+        font-size: 0.9rem;
+        flex: 1;
+    }
+
+    .alert-sm .btn-close {
+        padding: 14px !important;
+        transform: scale(0.8);
+        opacity: 0.7;
+    }
+
+    .alert-sm .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Container para botões lado a lado */
+    .botoes-acao {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .botoes-acao .btn {
+        flex: 1;
+        min-width: 140px;
+        margin-top: 0 !important;
+    }
+
+    /* Ajustes para os botões específicos */
+    .botoes-acao .btn-whatsapp {
+        background: #25D366;
         border: none;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        margin-bottom: 30px;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        color: white;
+        text-align: center;
     }
 
-    /* RESPONSIVIDADE */
+    .botoes-acao .btn-whatsapp:hover {
+        background: #168d7f;
+        transform: translateY(-1px);
+    }
+
+    .botoes-acao .btn-encontrado {
+        background: #3498DB;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        color: white;
+        text-align: center;
+    }
+
+    .botoes-acao .btn-encontrado:hover {
+        background: #0e598a;
+        transform: translateY(-1px);
+    }
+
+    /* Responsividade */
     @media (max-width: 768px) {
-        .pets-grid {
-            grid-template-columns: 1fr;
-            gap: 20px;
+        .pets-perdidos-section {
+            padding: 24px 0;
         }
 
-        .pet-card {
-            min-height: 600px;
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .pets-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .pet-info {
+            padding: 16px;
+            gap: 12px;
         }
 
         .pet-image-container {
-            height: 200px;
+            height: 180px;
+        }
+
+        .botoes-acao {
+            flex-direction: column;
+        }
+
+        .botoes-acao .btn {
+            min-width: 100%;
         }
     }
 
@@ -303,11 +416,15 @@
         }
     }
 
-    /* Animações */
+    /* Animações suaves */
+    .pet-card {
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px);
         }
 
         to {
@@ -315,22 +432,18 @@
             transform: translateY(0);
         }
     }
-
-    .pet-card {
-        animation: fadeInUp 0.6s ease forwards;
-    }
 </style>
 
 <section class="pets-perdidos-section">
     <div class="container">
         <div class="page-header">
-            <h1>🚨 Pets Perdidos</h1>
-            <p class="subtitle">Ajude a reunir essas famílias. Cada informação pode ser a peça que falta para um
-                reencontro emocionante!</p>
+            <h1>Pets Perdidos</h1>
+            <p class="subtitle">Ajude a reunir essas famílias. Cada informação pode fazer a diferença para um
+                reencontro.</p>
 
             <div class="mt-4">
-                <a href="/divulgar-perdido" class="btn btn-primary-custom">
-                    <i class="bi bi-megaphone-fill me-2"></i> Divulgar Pet Perdido
+                <a href="/divulgar-perdido" class="btn btn-divulgar">
+                    <i class="bi bi-megaphone me-2"></i> Divulgar Pet Perdido
                 </a>
             </div>
         </div>
@@ -338,17 +451,23 @@
         <!-- Mensagens Flash -->
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-        {% for category, message in messages %}
-        <div
-            class="alert alert-{{ 'danger' if category == 'error' else category }} alert-custom alert-dismissible fade show">
-            <div class="d-flex align-items-center">
-                <i
-                    class="bi bi-{{ 'exclamation-triangle-fill' if category == 'error' else 'info-circle-fill' }} me-2"></i>
-                {{ message }}
+        <div class="flash-messages-container">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-sm alert-dismissible fade show"
+                role="alert">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center">
+                        <i class="bi 
+                            {% if category == 'error' %}bi-exclamation-triangle
+                            {% else %}bi-check-circle{% endif %} 
+                            me-2"></i>
+                        <span class="fw-medium">{{ message }}</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            {% endfor %}
         </div>
-        {% endfor %}
         {% endif %}
         {% endwith %}
 
@@ -393,96 +512,84 @@
                             <span>{{ pet.cor }}</span>
                         </div>
                         {% endif %}
-                        {% if pet.porte %}
-                        <div class="pet-detail-item">
-                            <strong>Porte:</strong>
-                            <span>{{ pet.porte }}</span>
-                        </div>
-                        {% endif %}
-                        {% if pet.sexo %}
-                        <div class="pet-detail-item">
-                            <strong>Sexo:</strong>
-                            <span>{{ pet.sexo }}</span>
-                        </div>
-                        {% endif %}
                     </div>
 
                     <div class="local-info">
-                        <strong><i class="bi bi-geo-alt-fill"></i> Desapareceu em:</strong>
+                        <strong>Desapareceu em:</strong>
                         <div>{{ pet.local_desaparecimento }}</div>
-                        <small class="text-muted">
-                            <i class="bi bi-calendar-event"></i>
-                            Data: {{ pet.data_desaparecimento.strftime('%d/%m/%Y') if pet.data_desaparecimento else 'Não
+                        <small>
+                            <i class="bi bi-calendar me-1"></i>
+                            {{ pet.data_desaparecimento.strftime('%d/%m/%Y') if pet.data_desaparecimento else 'Data não
                             informada' }}
                         </small>
                     </div>
 
                     {% if pet.descricao %}
                     <div class="pet-description">
-                        <strong><i class="bi bi-card-text"></i> Descrição:</strong>
-                        <div class="mt-2">{{ pet.descricao }}</div>
+                        {{ pet.descricao }}
                     </div>
                     {% endif %}
 
                     <div class="contact-info">
-                        <strong><i class="bi bi-telephone-fill"></i> Contato:</strong>
+                        <strong>Contato</strong>
 
                         {% if pet.contato_nome %}
                         <div class="contact-detail">
-                            <i class="bi bi-person-circle text-primary"></i>
-                            <span><strong>Responsável:</strong> {{ pet.contato_nome }}</span>
+                            <i class="bi bi-person"></i>
+                            <span>{{ pet.contato_nome }}</span>
                         </div>
                         {% endif %}
 
                         {% if pet.contato_telefone %}
                         <div class="contact-detail">
-                            <i class="bi bi-phone text-success"></i>
-                            <a href="tel:{{ pet.contato_telefone }}" class="text-decoration-none text-dark">
-                                <strong>Telefone:</strong> {{ pet.contato_telefone }}
+                            <i class="bi bi-telephone"></i>
+                            <a href="tel:{{ pet.contato_telefone }}">
+                                {{ pet.contato_telefone }}
                             </a>
-                        </div>
-                        {% else %}
-                        <div class="contact-detail text-danger">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            <span>⚠️ Telefone não informado</span>
                         </div>
                         {% endif %}
 
                         {% if pet.contato_email %}
                         <div class="contact-detail">
-                            <i class="bi bi-envelope text-primary"></i>
-                            <a href="mailto:{{ pet.contato_email }}" class="text-decoration-none text-dark">
-                                <strong>Email:</strong> {{ pet.contato_email }}
+                            <i class="bi bi-envelope"></i>
+                            <a href="mailto:{{ pet.contato_email }}">
+                                {{ pet.contato_email }}
                             </a>
                         </div>
                         {% endif %}
 
-                        {% if pet.contato_telefone %}
-                        <a href="https://wa.me/55{{ pet.contato_telefone|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') }}?text=Olá! Vi que você está procurando o {{ pet.nome }}"
-                            target="_blank" class="btn btn-whatsapp text-white">
-                            <i class="bi bi-whatsapp me-2"></i> WhatsApp
-                        </a>
-                        {% endif %}
-                    </div>
+                        <!-- BOTÕES LADO A LADO -->
+                        <div class="botoes-acao">
+                            {% if pet.contato_telefone %}
+                            <a href="https://wa.me/55{{ pet.contato_telefone|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') }}?text=Olá! Vi que você está procurando o {{ pet.nome }}"
+                                target="_blank" class="btn btn-whatsapp">
+                                <i class="bi bi-whatsapp me-2"></i> Entrar em contato
+                            </a>
+                            {% endif %}
 
-                    <!-- Botão para marcar como encontrado (apenas para o dono) -->
-                    {% if usuario and usuario.id == pet.usuario_id %}
-                    <a href="/pet-encontrado/{{ pet.id }}" class="btn btn-encontrado text-white"
-                        onclick="return confirm('Tem certeza que encontrou {{ pet.nome }}?')">
-                        <i class="bi bi-check-circle-fill me-2"></i> Encontrado
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+                            {% if usuario and (usuario.id == pet.usuario_id or usuario.tipo == 'admin') %}
+                            <a href="/pet-encontrado/{{ pet.id }}" class="btn btn-encontrado"
+                                onclick="return confirm('Tem certeza que encontrou {{ pet.nome }}?')">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {% if usuario.tipo == 'admin' %}
+                                Encontrado 
+                                {% else %}
+                                Encontrado
+                                {% endif %}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div> <!-- FECHAMENTO CORRETO do pet-info -->
+            </div> <!-- FECHAMENTO CORRETO do pet-card -->
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state">
             <i class="bi bi-search-heart"></i>
             <h3>Nenhum pet perdido encontrado</h3>
-            <p>No momento, não há pets perdidos cadastrados em nossa plataforma. Seja o primeiro a divulgar e ajude a
-                encontrar um amiguinho!</p>
-            <a href="/divulgar-perdido" class="btn btn-primary-custom mt-3">
+            <p>No momento, não há pets perdidos cadastrados em nossa plataforma.</p>
+            <a href="/divulgar-perdido" class="btn btn-primary-custom">
                 <i class="bi bi-plus-circle me-2"></i> Seja o primeiro a divulgar
             </a>
         </div>
