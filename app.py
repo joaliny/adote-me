@@ -457,102 +457,102 @@ def redefinir_senha(token):
 
 
 
-@app.route('/atualizar-banco')
-def atualizar_banco():
-    """Rota temporária para atualizar a estrutura do banco"""
-    try:
-        from flask import current_app
+# @app.route('/atualizar-banco')
+# def atualizar_banco():
+#     """Rota temporária para atualizar a estrutura do banco"""
+#     try:
+#         from flask import current_app
         
-        with current_app.app_context():
-            resultado = atualizar_tabela_pets_forcado()
-            return f"<h1>Banco Atualizado!</h1><pre>{resultado}</pre>"
+#         with current_app.app_context():
+#             resultado = atualizar_tabela_pets_forcado()
+#             return f"<h1>Banco Atualizado!</h1><pre>{resultado}</pre>"
             
-    except Exception as e:
-        return f"<h1>Erro:</h1><pre>{str(e)}</pre>"
+#     except Exception as e:
+#         return f"<h1>Erro:</h1><pre>{str(e)}</pre>"
 
-def atualizar_tabela_pets_forcado():
-    """Adiciona as colunas faltantes na tabela pets"""
-    try:
-        print("🔄 ADICIONANDO COLUNAS FALTANTES NA TABELA PETS...")
+# def atualizar_tabela_pets_forcado():
+#     """Adiciona as colunas faltantes na tabela pets"""
+#     try:
+#         print("🔄 ADICIONANDO COLUNAS FALTANTES NA TABELA PETS...")
         
-        cur = mysql.connection.cursor()
+#         cur = mysql.connection.cursor()
         
-        # Lista de colunas para adicionar
-        colunas_para_adicionar = [
-            ("porte", "ALTER TABLE pets ADD COLUMN porte ENUM('pequeno', 'medio', 'grande')"),
-            ("sexo", "ALTER TABLE pets ADD COLUMN sexo ENUM('macho', 'femea')"),
-            ("localizacao", "ALTER TABLE pets ADD COLUMN localizacao VARCHAR(255)"),
-            ("historia", "ALTER TABLE pets ADD COLUMN historia TEXT"),
-            ("informacoes_saude", "ALTER TABLE pets ADD COLUMN informacoes_saude TEXT")
-        ]
+#         # Lista de colunas para adicionar
+#         colunas_para_adicionar = [
+#             ("porte", "ALTER TABLE pets ADD COLUMN porte ENUM('pequeno', 'medio', 'grande')"),
+#             ("sexo", "ALTER TABLE pets ADD COLUMN sexo ENUM('macho', 'femea')"),
+#             ("localizacao", "ALTER TABLE pets ADD COLUMN localizacao VARCHAR(255)"),
+#             ("historia", "ALTER TABLE pets ADD COLUMN historia TEXT"),
+#             ("informacoes_saude", "ALTER TABLE pets ADD COLUMN informacoes_saude TEXT")
+#         ]
         
-        resultados = []
+#         resultados = []
         
-        for nome_coluna, sql in colunas_para_adicionar:
-            try:
-                # Verificar se a coluna já existe
-                cur.execute(f"SHOW COLUMNS FROM pets LIKE '{nome_coluna}'")
-                if not cur.fetchone():
-                    # Coluna não existe, vamos adicionar
-                    cur.execute(sql)
-                    resultado = f"✅ COLUNA ADICIONADA: {nome_coluna}"
-                    print(resultado)
-                    resultados.append(resultado)
-                else:
-                    resultado = f"✅ COLUNA JÁ EXISTIA: {nome_coluna}"
-                    print(resultado)
-                    resultados.append(resultado)
+#         for nome_coluna, sql in colunas_para_adicionar:
+#             try:
+#                 # Verificar se a coluna já existe
+#                 cur.execute(f"SHOW COLUMNS FROM pets LIKE '{nome_coluna}'")
+#                 if not cur.fetchone():
+#                     # Coluna não existe, vamos adicionar
+#                     cur.execute(sql)
+#                     resultado = f"✅ COLUNA ADICIONADA: {nome_coluna}"
+#                     print(resultado)
+#                     resultados.append(resultado)
+#                 else:
+#                     resultado = f"✅ COLUNA JÁ EXISTIA: {nome_coluna}"
+#                     print(resultado)
+#                     resultados.append(resultado)
                     
-            except Exception as e:
-                erro = f"⚠️ Erro com coluna {nome_coluna}: {e}"
-                print(erro)
-                resultados.append(erro)
+#             except Exception as e:
+#                 erro = f"⚠️ Erro com coluna {nome_coluna}: {e}"
+#                 print(erro)
+#                 resultados.append(erro)
         
-        mysql.connection.commit()
-        cur.close()
+#         mysql.connection.commit()
+#         cur.close()
         
-        resultado_final = "🎉 TABELA PETS ATUALIZADA COM SUCESSO!"
-        print(resultado_final)
-        resultados.append(resultado_final)
+#         resultado_final = "🎉 TABELA PETS ATUALIZADA COM SUCESSO!"
+#         print(resultado_final)
+#         resultados.append(resultado_final)
         
-        # Verificar novamente a estrutura
-        diagnosticar_tabela_pets()
+#         # Verificar novamente a estrutura
+#         diagnosticar_tabela_pets()
         
-        return "<br>".join(resultados)
+#         return "<br>".join(resultados)
         
-    except Exception as e:
-        erro = f"❌ ERRO GRAVE ao atualizar tabela: {e}"
-        print(erro)
-        return erro
+#     except Exception as e:
+#         erro = f"❌ ERRO GRAVE ao atualizar tabela: {e}"
+#         print(erro)
+#         return erro
 
-def diagnosticar_tabela_pets():
-    """Verifica a estrutura real da tabela pets"""
-    try:
-        cur = mysql.connection.cursor()
+# def diagnosticar_tabela_pets():
+#     """Verifica a estrutura real da tabela pets"""
+#     try:
+#         cur = mysql.connection.cursor()
         
-        # 1. Verificar estrutura atual
-        cur.execute("DESCRIBE pets")
-        colunas = cur.fetchall()
+#         # 1. Verificar estrutura atual
+#         cur.execute("DESCRIBE pets")
+#         colunas = cur.fetchall()
         
-        print("📋 ESTRUTURA ATUAL DA TABELA PETS:")
-        for coluna in colunas:
-            print(f"  - {coluna[0]} ({coluna[1]})")
+#         print("📋 ESTRUTURA ATUAL DA TABELA PETS:")
+#         for coluna in colunas:
+#             print(f"  - {coluna[0]} ({coluna[1]})")
         
-        # 2. Verificar se as colunas novas existem
-        colunas_novas = ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']
-        colunas_existentes = [coluna[0] for coluna in colunas]
+#         # 2. Verificar se as colunas novas existem
+#         colunas_novas = ['porte', 'sexo', 'localizacao', 'historia', 'informacoes_saude']
+#         colunas_existentes = [coluna[0] for coluna in colunas]
         
-        print(f"\n🔍 COLUNAS NOVAS:")
-        for coluna in colunas_novas:
-            if coluna in colunas_existentes:
-                print(f"  ✅ {coluna} - EXISTE")
-            else:
-                print(f"  ❌ {coluna} - NÃO EXISTE")
+#         print(f"\n🔍 COLUNAS NOVAS:")
+#         for coluna in colunas_novas:
+#             if coluna in colunas_existentes:
+#                 print(f"  ✅ {coluna} - EXISTE")
+#             else:
+#                 print(f"  ❌ {coluna} - NÃO EXISTE")
         
-        cur.close()
+#         cur.close()
         
-    except Exception as e:
-        print(f"❌ Erro ao diagnosticar tabela: {e}")
+#     except Exception as e:
+#         print(f"❌ Erro ao diagnosticar tabela: {e}")
 
 # ========== Rotas de Pets ==========
 
@@ -1161,6 +1161,13 @@ def admin_dashboard():
         cur.execute("SELECT COUNT(*) FROM adocoes")
         total_adocoes = cur.fetchone()[0]
         
+        # ✅ ADICIONAR ESTATÍSTICAS DE PETS PERDIDOS E ENCONTRADOS
+        cur.execute("SELECT COUNT(*) FROM pets_perdidos WHERE status = 'perdido'")
+        total_perdidos = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM pets_perdidos WHERE status = 'encontrado'")
+        total_encontrados = cur.fetchone()[0]
+        
         cur.close()
         
         return render_template('admin_dashboard.html', 
@@ -1169,7 +1176,10 @@ def admin_dashboard():
             total_usuarios=total_usuarios,
             total_protetores=total_protetores,
             total_pets=total_pets,
-            total_adocoes=total_adocoes)
+            total_adocoes=total_adocoes,
+            total_perdidos=total_perdidos,        
+            total_encontrados=total_encontrados)  
+            
     except Exception as e:
         print(f"❌ Erro no dashboard admin: {e}")
         return render_template('admin_dashboard.html', 
@@ -1178,7 +1188,9 @@ def admin_dashboard():
             total_usuarios=0,
             total_protetores=0,
             total_pets=0,
-            total_adocoes=0)
+            total_adocoes=0,
+            total_perdidos=0,        
+            total_encontrados=0)     
 
 @app.route('/admin/usuarios')
 def admin_usuarios():
@@ -1348,121 +1360,51 @@ def admin_protetores():
             protetores=[])
 
 
-@app.route('/admin/pets')
-def admin_pets():
-    """Página de gerenciamento de pets"""
-    usuario = obter_usuario_atual()
-    if not usuario or usuario['tipo'] != 'admin':
-        flash('Acesso restrito a administradores.', 'error')
-        return redirect(url_for('login'))
+# @app.route('/admin/pets')
+# def admin_pets():
+#     """Página de gerenciamento de pets"""
+#     usuario = obter_usuario_atual()
+#     if not usuario or usuario['tipo'] != 'admin':
+#         flash('Acesso restrito a administradores.', 'error')
+#         return redirect(url_for('login'))
     
-    try:
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            SELECT p.id, p.nome, p.especie, p.idade, p.descricao, p.imagem_url, 
-                   u.nome as protetor_nome, p.data_cadastro 
-            FROM pets p 
-            LEFT JOIN usuarios u ON p.usuario_id = u.id 
-            ORDER BY p.data_cadastro DESC
-        """)
-        pets_data = cur.fetchall()
-        cur.close()
+#     try:
+#         cur = mysql.connection.cursor()
+#         cur.execute("""
+#             SELECT p.id, p.nome, p.especie, p.idade, p.descricao, p.imagem_url, 
+#                    u.nome as protetor_nome, p.data_cadastro 
+#             FROM pets p 
+#             LEFT JOIN usuarios u ON p.usuario_id = u.id 
+#             ORDER BY p.data_cadastro DESC
+#         """)
+#         pets_data = cur.fetchall()
+#         cur.close()
         
-        pets = []
-        for pet in pets_data:
-            pets.append({
-                'id': pet[0],
-                'nome': pet[1],
-                'especie': pet[2],
-                'idade': pet[3],
-                'descricao': pet[4] or 'Sem descrição',
-                'imagem_url': pet[5] or '/static/imagens/pet-default.jpg',
-                'protetor_nome': pet[6] or 'Sistema',
-                'data_cadastro': pet[7].strftime('%d/%m/%Y') if pet[7] else 'N/A'
-            })
+#         pets = []
+#         for pet in pets_data:
+#             pets.append({
+#                 'id': pet[0],
+#                 'nome': pet[1],
+#                 'especie': pet[2],
+#                 'idade': pet[3],
+#                 'descricao': pet[4] or 'Sem descrição',
+#                 'imagem_url': pet[5] or '/static/imagens/pet-default.jpg',
+#                 'protetor_nome': pet[6] or 'Sistema',
+#                 'data_cadastro': pet[7].strftime('%d/%m/%Y') if pet[7] else 'N/A'
+#             })
         
-        return render_template('admin_pets.html', 
-            usuario=usuario, 
-            pagina='admin',
-            pets=pets)
-    except Exception as e:
-        print(f"❌ Erro ao carregar pets: {e}")
-        flash('Erro ao carregar lista de pets.', 'error')
-        return render_template('admin_pets.html', 
-        usuario=usuario, 
-        pagina='admin',
-        pets=[])
+#         return render_template('admin_pets.html', 
+#             usuario=usuario, 
+#             pagina='admin',
+#             pets=pets)
+#     except Exception as e:
+#         print(f"❌ Erro ao carregar pets: {e}")
+#         flash('Erro ao carregar lista de pets.', 'error')
+#         return render_template('admin_pets.html', 
+#         usuario=usuario, 
+#         pagina='admin',
+#         pets=[])
 
-
-@app.route('/admin/relatorios')
-def admin_relatorios():
-    """Página de relatórios e estatísticas"""
-    usuario = obter_usuario_atual()
-    if not usuario or usuario['tipo'] != 'admin':
-        flash('Acesso restrito a administradores.', 'error')
-        return redirect(url_for('login'))
-    
-    try:
-        cur = mysql.connection.cursor()
-        
-        # Estatísticas para relatórios
-        cur.execute("SELECT COUNT(*) FROM usuarios WHERE tipo = 'adotante'")
-        total_adotantes = cur.fetchone()[0]
-        
-        cur.execute("SELECT COUNT(*) FROM adocoes WHERE status = 'pendente' OR status IS NULL")
-        adocoes_pendentes = cur.fetchone()[0]
-        
-        cur.execute("SELECT COUNT(*) FROM adocoes WHERE status = 'aprovada'")
-        adocoes_aprovadas = cur.fetchone()[0]
-        
-        cur.execute("""
-            SELECT especie, COUNT(*) as total 
-            FROM pets 
-            GROUP BY especie 
-            ORDER BY total DESC
-        """)
-        especies_stats = cur.fetchall()
-        
-        cur.close()
-        
-        # Formatar estatísticas de espécies
-        especies_formatadas = []
-        for especie in especies_stats:
-            especies_formatadas.append({
-                'especie': especie[0],
-                'total': especie[1]
-            })
-        
-        return render_template('admin_relatorios.html', 
-            usuario=usuario, 
-            pagina='admin',
-            total_adotantes=total_adotantes,
-            adocoes_pendentes=adocoes_pendentes,
-            adocoes_aprovadas=adocoes_aprovadas,
-            especies_stats=especies_formatadas)                          
-    except Exception as e:
-        print(f"❌ Erro ao carregar relatórios: {e}")
-        flash('Erro ao carregar relatórios.', 'error')
-        return render_template('admin_relatorios.html', 
-            usuario=usuario, 
-            pagina='admin',
-            total_adotantes=0,
-            adocoes_pendentes=0,
-            adocoes_aprovadas=0,
-            especies_stats=[])
-
-
-@app.route('/admin/configuracoes')
-def admin_configuracoes():
-    """Página de configurações do admin"""
-    usuario = obter_usuario_atual()
-    if not usuario or usuario['tipo'] != 'admin':
-        flash('Acesso restrito a administradores.', 'error')
-        return redirect(url_for('login'))
-    
-    return render_template('admin_configuracoes.html', 
-        usuario=usuario, 
-        pagina='admin')
 
 
 @app.route('/protetor')
