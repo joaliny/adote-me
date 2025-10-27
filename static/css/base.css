@@ -40,7 +40,7 @@
         }
         
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             font-weight: bold;
             color: var(--secondary-color);
             text-decoration: none;
@@ -68,6 +68,7 @@
             font-weight: 500;
             transition: color 0.3s;
             position: relative;
+            font-size: 1rem;
         }
         
         nav a:hover {
@@ -274,6 +275,11 @@
             color: white;
         }
 
+
+
+
+
+        
 
 
 

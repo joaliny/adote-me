@@ -76,6 +76,16 @@ def create_database():
                     descricao TEXT,
                     imagem_url VARCHAR(255),
                     usuario_id INT,
+
+
+                    -- NOVOS CAMPOS ADICIONADOS --
+                    porte ENUM('pequeno', 'medio', 'grande'),
+                    sexo ENUM('macho', 'femea'),
+                    localizacao VARCHAR(255),
+                    historia TEXT,
+                    informacoes_saude TEXT,
+                    -- FIM DOS NOVOS CAMPOS --
+
                     data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
                 )

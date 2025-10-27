@@ -6,176 +6,265 @@
 <div class="dashboard-container">
     <div class="page-header">
         <h1>Painel de Controle</h1>
-        <p class="lead">Bem-vindo(a), {{ usuario.nome }}!</p>
+        <p class="lead">Bem-vindo(a), {{ usuario.nome }}</p>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">👥</div>
+        <div class="stat-card card-usuarios">
+            <div class="stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
             <div class="stat-info">
-                <h3>Total de Usuários</h3>
+                <h3>Usuários</h3>
                 <span class="stat-number">{{ total_usuarios }}</span>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon">🐾</div>
+        <div class="stat-card card-pets">
+            <div class="stat-icon">
+                <i class="bi bi-heart"></i>
+            </div>
             <div class="stat-info">
                 <h3>Pets Cadastrados</h3>
                 <span class="stat-number">{{ total_pets }}</span>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon">❤️</div>
+        <div class="stat-card card-adocoes">
+            <div class="stat-icon">
+                <i class="bi bi-house-check"></i>
+            </div>
             <div class="stat-info">
                 <h3>Adoções</h3>
                 <span class="stat-number">{{ total_adocoes }}</span>
             </div>
         </div>
-    </div>
 
-    <div class="dashboard-actions">
-        <h2>Ações Rápidas</h2>
-        <div class="actions-grid">
+        <div class="stat-card card-perdidos">
+            <div class="stat-icon">
+                <i class="bi bi-search"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Pets Perdidos</h3>
+                <span class="stat-number">{{ total_perdidos }}</span>
+            </div>
+        </div>
 
-            <a href="/admin/adocoes" class="action-card">
-                <div class="action-icon">❤️</div>
-                <h3>Gerenciar Adoções</h3>
-                <p>Aprove ou rejeite solicitações de adoção</p>
-            </a>
-
-            <a href="/admin/usuarios" class="action-card">
-                <div class="action-icon">👥</div>
-                <h3>Gerenciar Usuários</h3>
-                <p>Administre adotantes, protetores e admins</p>
-            </a>
-
-            <a href="/admin/pets" class="action-card">
-                <div class="action-icon">🐶</div>
-                <h3>Gerenciar Pets</h3>
-                <p>Administre todos os pets do sistema</p>
-            </a>
-
-            <a href="/admin/relatorios" class="action-card">
-                <div class="action-icon">📊</div>
-                <h3>Relatórios</h3>
-                <p>Visualize relatórios do sistema</p>
-            </a>
-
-            <a href="/admin/configuracoes" class="action-card">
-                <div class="action-icon">⚙️</div>
-                <h3>Configurações</h3>
-                <p>Configure o sistema</p>
-            </a>
+        <div class="stat-card card-encontrados">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Pets Encontrados</h3>
+                <span class="stat-number">{{ total_encontrados }}</span>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
     .dashboard-container {
-     max-width: 1200px;
-     margin: 0 auto;
-     padding: 20px;
- }
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
 
- .page-header {
-     text-align: center;
-     margin-bottom: 40px;
- }
+    .page-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
 
- .page-header h1 {
-     color: #333;
-     margin-bottom: 10px;
- }
+    .page-header h1 {
+        color: #1e293b;
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
 
- .stats-grid {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-     gap: 20px;
-     margin-bottom: 40px;
- }
+    .page-header .lead {
+        color: #64748b;
+        font-size: 1.1rem;
+        font-weight: 400;
+    }
 
- .stat-card {
-     background: white;
-     padding: 25px;
-     border-radius: 15px;
-     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-     display: flex;
-     align-items: center;
-     gap: 20px;
-     transition: transform 0.3s ease;
- }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
 
- .stat-card:hover {
-     transform: translateY(-5px);
- }
+    .stat-card {
+        background: white;
+        padding: 32px 28px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
- .stat-icon {
-     font-size: 2.5rem;
- }
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+    }
 
- .stat-info h3 {
-     color: #666;
-     font-size: 0.9rem;
-     margin: 0 0 5px 0;
-     text-transform: uppercase;
-     letter-spacing: 0.5px;
- }
+    .stat-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+    }
 
- .stat-number {
-     font-size: 2rem;
-     font-weight: bold;
-     color: #007bff;
- }
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        color: white;
+    }
 
- .dashboard-actions h2 {
-     color: #333;
-     margin-bottom: 20px;
-     font-size: 1.5rem;
- }
+    .stat-info {
+        flex: 1;
+    }
 
- .actions-grid {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-     gap: 20px;
- }
+    .stat-info h3 {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin: 0 0 6px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
 
- .action-card {
-     background: white;
-     padding: 30px;
-     border-radius: 15px;
-     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-     text-decoration: none;
-     color: inherit;
-     transition: all 0.3s ease;
-     border: 2px solid transparent;
-     text-align: center;
- }
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: block;
+        line-height: 1;
+        letter-spacing: -0.5px;
+    }
 
- .action-card:hover {
-     transform: translateY(-5px);
-     border-color: #007bff;
-     box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
-     text-decoration: none;
-     color: inherit;
- }
+    /* Cores fixas para cada card */
+    .card-usuarios::before {
+        background: #2877a3;
+    }
 
- .action-icon {
-     font-size: 3rem;
-     margin-bottom: 15px;
- }
+    .card-usuarios .stat-icon {
+        background: #2877a3;
+    }
 
- .action-card h3 {
-     color: #333;
-     margin-bottom: 10px;
-     font-size: 1.2rem;
- }
+    .card-pets::before {
+        background: #7e22ce;
+    }
 
- .action-card p {
-     color: #666;
-     margin: 0;
-     font-size: 0.9rem;
- }
+    .card-pets .stat-icon {
+        background: #7e22ce;
+    }
+
+    .card-adocoes::before {
+        background: #dc2626;
+    }
+
+    .card-adocoes .stat-icon {
+        background: #dc2626;
+    }
+
+    .card-perdidos::before {
+        background: #ea580c;
+    }
+
+    .card-perdidos .stat-icon {
+        background: #ea580c;
+    }
+
+    .card-encontrados::before {
+        background: #16a34a;
+    }
+
+    .card-encontrados .stat-icon {
+        background: #16a34a;
+    }
+
+    /* Efeitos de hover com cores mais escuras */
+    .card-usuarios:hover .stat-icon {
+        background: #1e5f82;
+    }
+
+    .card-pets:hover .stat-icon {
+        background: #6b21a8;
+    }
+
+    .card-adocoes:hover .stat-icon {
+        background: #b91c1c;
+    }
+
+    .card-perdidos:hover .stat-icon {
+        background: #c2410c;
+    }
+
+    .card-encontrados:hover .stat-icon {
+        background: #15803d;
+    }
+
+    /* Responsividade */
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 30px 16px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .stat-card {
+            padding: 24px 20px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.2rem;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+            padding: 20px;
+        }
+    }
 </style>
 {% endblock %}
