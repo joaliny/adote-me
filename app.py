@@ -1548,7 +1548,7 @@ def gerar_resposta_gemini(pergunta):
                 continue
         
         # Fallback se todos os modelos falharem
-        return resposta_fallback(pergunta)
+        return resposta_fallback(pergunta) # type: ignore
         
     except Exception as e:
         print(f"🔥 Erro geral: {e}")
