@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Divulgar Pet Perdido - Adote-me{% endblock %}
+
+{% block content %}
+<style>
+    .divulgar-section {
+        padding: 40px 0;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .form-section {
+        background: white;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-area {
+        border: 2px dashed #ddd;
+        padding: 20px;
+        text-align: center;
+        border-radius: 5px;
+        background-color: #fafafa;
+    }
+
+    .upload-area:hover {
+        border-color: #3498db;
+    }
+
+    .checkbox-group {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .form-actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .btn-primary {
+        background-color: #2877a3;
+        border-color: #2877a3;
+        padding: 12px 30px;
+        font-weight: bold;
+    }
+
+    .btn-primary:hover {
+        background-color: #1e5f82;
+        border-color: #1e5f82;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+
+    .subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+
+    label {
+        font-weight: 500;
+        margin-bottom: 5px;
+        color: #2c3e50;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    input[type="email"],
+    select,
+    textarea {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 10px;
+        width: 100%;
+        transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="tel"]:focus,
+    input[type="email"]:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #2877a3;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(40, 119, 163, 0.1);
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+    }
+</style>
+
+<section class="divulgar-section">
+    <div class="container">
+        <div class="page-header">
+            <h1>🐾 Divulgar Pet Perdido</h1>
+            <p class="subtitle">Ajude a encontrar um pet perdido. Sua divulgação pode reunir uma família!</p>
+        </div>
+
+        <!-- Mensagens Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="alert alert-info">
+            <strong>Dica importante:</strong> Compartilhe também em grupos locais do Facebook e WhatsApp da sua
+            região.
+        </div>
+
+        <form class="form-divulgar" action="/divulgar-perdido" method="POST" enctype="multipart/form-data">
+            <!-- Informações Básicas -->
+            <div class="form-section">
+                <h3>📋 Informações do Pet</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Nome do Pet *</label>
+                        <input type="text" name="nome" required placeholder="Ex: Rex, Luna...">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Espécie *</label>
+                        <select name="especie" required>
+                            <option value="">Selecione...</option>
+                            <option value="cachorro">🐕 Cachorro</option>
+                            <option value="gato">🐈 Gato</option>
+                            <option value="outro">🐦 Outro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Raça</label>
+                        <input type="text" name="raca" placeholder="Ex: Vira-lata, Siames...">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cor Principal</label>
+                        <input type="text" name="cor" placeholder="Ex: Preto, Branco, Caramelo...">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Porte</label>
+                        <select name="porte">
+                            <option value="">Não sei</option>
+                            <option value="pequeno">Pequeno</option>
+                            <option value="medio">Médio</option>
+                            <option value="grande">Grande</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Sexo</label>
+                        <select name="sexo">
+                            <option value="">Não sei</option>
+                            <option value="macho">Macho</option>
+                            <option value="femea">Fêmea</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Idade Aproximada</label>
+                        <input type="text" name="idade" placeholder="Ex: 2 anos, filhote...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalhes do Desaparecimento -->
+            <div class="form-section">
+                <h3>📍 Detalhes do Desaparecimento</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Data do Desaparecimento *</label>
+                        <input type="date" name="data_desaparecimento" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Bairro/Cidade *</label>
+                        <input type="text" name="local" required placeholder="Ex: Centro, Manaus">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Ponto de Referência</label>
+                        <input type="text" name="referencia" placeholder="Ex: Próximo ao shopping, na rua X...">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Descrição do Caso *</label>
+                        <textarea name="descricao" required rows="4"
+                            placeholder="Conte como o pet desapareceu, características especiais, comportamento..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Características Especiais -->
+            <div class="form-section">
+                <h3>🎯 Características Especiais</h3>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Marcas ou Características Únicas</label>
+                        <textarea name="caracteristicas" rows="3"
+                            placeholder="Ex: Mancha no olho, orelha caída, coleira vermelha..."></textarea>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="microchip"> Tem microchip?
+                    </label>
+                    <label>
+                        <input type="checkbox" name="coleira"> Usa coleira?
+                    </label>
+                    <label>
+                        <input type="checkbox" name="vacinado"> É vacinado?
+                    </label>
+                </div>
+            </div>
+
+            <!-- Foto do Pet -->
+            <div class="form-section">
+                <h3>📸 Foto do Pet</h3>
+                <div class="upload-area">
+                    <input type="file" name="foto" accept="image/*">
+                    <p class="mt-2 text-muted">Uma boa foto aumenta as chances de encontrar seu pet!</p>
+                </div>
+            </div>
+
+            <!-- Contato -->
+            <div class="form-section">
+                <h3>📞 Contato para Informações</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Seu Nome *</label>
+                        <input type="text" name="contato_nome" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Telefone/WhatsApp *</label>
+                        <input type="tel" name="contato_telefone" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Email</label>
+                        <input type="email" name="contato_email">
+                    </div>
+                </div>
+            </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-register" style="padding: 12px 30px;">
+                🚨 Divulgar Pet Perdido
+            </button>
+            <a href="/home" class="btn-login" style="padding: 12px 30px; margin-left: 10px;">
+                Cancelar
+            </a>
+        </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
